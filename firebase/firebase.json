@@ -1,0 +1,28 @@
+{
+  "hosting": {
+    "public": "public",
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099,
+      "host": "0.0.0.0"
+    },
+    "firestore": {
+      "port": 8080,
+      "host": "0.0.0.0"
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000,
+      "host": "0.0.0.0"
+    }
+  },
+  "exportOnExit": "./firebase-data",
+  "import": "./firebase-data"
+}
