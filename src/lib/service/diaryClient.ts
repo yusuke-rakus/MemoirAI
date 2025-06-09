@@ -16,7 +16,7 @@ export class DiaryClient {
     return uuidv4();
   }
 
-  static async get<T extends Record<string, any>>(
+  static async getByUid<T extends Record<string, any>>(
     uid: string
   ): Promise<T[] | null> {
     const q = query(

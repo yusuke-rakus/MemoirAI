@@ -1,10 +1,10 @@
-import { MainLayout } from "@/layout/MainLayout";
-import { HomeView } from "./components/HomeView";
-import { useAuthCheck } from "@/hooks/useAuthCheck";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { HomeView2 } from "./components/HomeView2";
+import { useAuthCheck } from "@/hooks/useAuthCheck";
+import { MainLayout } from "@/layout/MainLayout";
 import { CalendarDays, Notebook } from "lucide-react";
+import { CalendarView } from "./components/CalendarView";
 import { MonthSelector } from "./components/MonthSelector";
+import { DiaryVirew } from "./diaryList/DiaryVirew";
 
 export const HomePage = () => {
   const { loading } = useAuthCheck();
@@ -13,13 +13,13 @@ export const HomePage = () => {
       value: "calendar",
       name: "カレンダー",
       icon: <CalendarDays />,
-      component: <HomeView />,
+      component: <CalendarView />,
     },
     {
       value: "diaries",
       name: "日記一覧",
       icon: <Notebook />,
-      component: <HomeView2 />,
+      component: <DiaryVirew />,
     },
   ];
 
@@ -30,8 +30,8 @@ export const HomePage = () => {
       <div className="flex justify-center w-full">
         <MonthSelector />
       </div>
-      <Tabs defaultValue={tabs[0].value} className="max-w-xs w-full">
-        <TabsList className="w-full p-0 bg-inherit justify-start border-b rounded-none">
+      <Tabs defaultValue={tabs[0].value} className="w-full">
+        <TabsList className="max-w-xs w-full p-0 bg-inherit justify-start border-b rounded-none">
           {tabs.map((tab) => {
             return (
               <TabsTrigger
@@ -63,7 +63,7 @@ export const HomePage = () => {
         </TabsList>
 
         {tabs.map((tab) => (
-          <TabsContent key={tab.value} value={tab.value} className="">
+          <TabsContent key={tab.value} value={tab.value} className="w-full">
             {tab.component}
           </TabsContent>
         ))}

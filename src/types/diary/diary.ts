@@ -4,6 +4,9 @@ export type Tag = {
 };
 
 export type Diary = {
+  id: string;
+  uid: string;
+  date: Date;
   title: string;
   content: string;
   tags: Tag[];

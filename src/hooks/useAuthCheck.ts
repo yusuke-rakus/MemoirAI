@@ -25,6 +25,7 @@ export const useAuthCheck = () => {
 
       if (firebaseUser) {
         setLocalUser({
+          uid: firebaseUser.uid,
           displayName: firebaseUser.displayName ?? null,
           photoURL: firebaseUser.photoURL ?? null,
         });

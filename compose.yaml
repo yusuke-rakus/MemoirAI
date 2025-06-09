@@ -6,8 +6,7 @@ services:
     working_dir: /firebase
     volumes:
       - ./firebase:/firebase
-      - ./firebase-data:/firebase-data
-      - ./firebase/firebase-data:/firebase/firebase-data
+      - ./firebase-data:/firebase/firebase-data
     ports:
       - "4000:4000" # Emulator UI
       - "8080:8080" # Firestore
