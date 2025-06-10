@@ -14,8 +14,13 @@ type DiaryItemProps = {
 
 export const DiaryItem = (props: DiaryItemProps) => {
   const { diary } = props;
+
+  const handleSearch = () => {
+    console.log(diary);
+  };
+
   return (
-    <CardContent className="w-full px-0">
+    <CardContent onClick={handleSearch} className="w-full px-0 cursor-pointer">
       <div className="flex rounded-sm transition-all hover:bg-gray-100 p-2">
         <DayIcon date={new Date()} />
         <div className="mx-2">
@@ -30,8 +35,8 @@ export const DiaryItem = (props: DiaryItemProps) => {
             </p>
           </CardContent>
           <CardFooter className="p-0 flex flex-wrap gap-2">
-            {diary.tags.map((tag) => (
-              <DiaryTag tag={tag} />
+            {diary.tags.map((tag, i) => (
+              <DiaryTag key={i} tag={tag} />
             ))}
           </CardFooter>
         </div>

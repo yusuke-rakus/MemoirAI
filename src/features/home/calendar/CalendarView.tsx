@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useLocalUser } from "@/contexts/LocalUserContext";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { DiaryClient } from "@/lib/service/diaryClient";
 import { v4 as uuidv4 } from "uuid";
 
@@ -18,6 +19,7 @@ export const CalendarView = () => {
   // }, []);
   const { localUser } = useLocalUser();
   // const { getDiaries } = useDiaryList();
+  useDocumentTitle("カレンダー");
 
   const handleClick = async () => {
     await DiaryClient.add({

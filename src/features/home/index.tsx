@@ -1,34 +1,23 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthCheck } from "@/hooks/useAuthCheck";
 import { MainLayout } from "@/layout/MainLayout";
-import { CalendarDays, Notebook } from "lucide-react";
-import { CalendarView } from "./components/CalendarView";
 import { MonthSelector } from "./components/MonthSelector";
-import { DiaryVirew } from "./diaryList/DiaryVirew";
+import { Views } from "./constants/views";
+import { useParams, useSearchParams } from "react-router-dom";
+import { useUrlDate } from "./hooks/useUrlDate";
 
 export const HomePage = () => {
   const { loading } = useAuthCheck();
-  const tabs = [
-    {
-      value: "calendar",
-      name: "カレンダー",
-      icon: <CalendarDays />,
-      component: <CalendarView />,
-    },
-    {
-      value: "diaries",
-      name: "日記一覧",
-      icon: <Notebook />,
-      component: <DiaryVirew />,
-    },
-  ];
+  const tabs = Views;
+
+  const targetDate: Date = useUrlDate();
 
   return loading ? (
     <h1>Loading...</h1>
   ) : (
-    <MainLayout title="Home">
+    <MainLayout>
       <div className="flex justify-center w-full">
-        <MonthSelector />
+        <MonthSelector targetDate={targetDate} />
       </div>
       <Tabs defaultValue={tabs[0].value} className="w-full">
         <TabsList className="max-w-xs w-full p-0 bg-inherit justify-start border-b rounded-none">

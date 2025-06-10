@@ -5,7 +5,7 @@ import { AppSidebar } from "./AppSidebar";
 import { Header } from "./Header";
 
 type MainLayoutProps = {
-  title: string;
+  title?: string | null;
   headerComponent?: ReactElement | null;
   sidebarComponent?: ReactElement | null;
   children: ReactNode;
@@ -13,7 +13,8 @@ type MainLayoutProps = {
 
 export const MainLayout = (props: MainLayoutProps) => {
   const { title, headerComponent, sidebarComponent, children } = props;
-  useDocumentTitle(title);
+
+  title && useDocumentTitle(title);
 
   const header = headerComponent === undefined ? <Header /> : headerComponent;
   const sidebar =

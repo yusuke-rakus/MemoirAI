@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { HomePage } from "./features/home";
 import { AboutPage } from "./features/about";
 import { LoginPage } from "./features/login";
@@ -9,7 +9,9 @@ export const App = () => {
     <>
       <NotificationToaster />
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<Navigate to="/calendar" replace />} />
+        <Route path="/calendar" element={<HomePage />} />
+        <Route path="/dialies" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/login" element={<LoginPage />} />
       </Routes>
