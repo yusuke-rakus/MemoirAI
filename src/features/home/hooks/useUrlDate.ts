@@ -9,10 +9,10 @@ export const useUrlDate = () => {
 
   const today = new Date();
   const defaultYear = today.getFullYear();
-  const defaultMonth = today.getMonth() + 1;
+  const defaultMonth = today.getMonth();
 
   const year = yearParam ? Number(yearParam) : defaultYear;
-  const month = monthParam ? Number(monthParam) : defaultMonth;
+  const month = monthParam ? Number(monthParam) - 1 : defaultMonth;
 
   return new Date(year, month, 1);
 };

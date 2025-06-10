@@ -40,7 +40,7 @@ export const MonthSelector = (props: MonthSelectorProps) => {
         <div ref={scrollRef} className="flex w-full space-x-4 p-4">
           {months.map((month) => {
             const isTargetMonth =
-              month.date.getMonth() + 1 === targetDate.getMonth() &&
+              month.date.getMonth() === targetDate.getMonth() &&
               month.date.getFullYear() === targetDate.getFullYear();
 
             return (
