@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { useLocalUser } from "@/contexts/LocalUserContext";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { DiaryClient } from "@/lib/service/diaryClient";
+import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 export const CalendarView = () => {
@@ -83,11 +85,18 @@ export const CalendarView = () => {
     // const data = await getDiaries();
     // console.table(data);
   };
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const monthCaptionStyle = {
+    borderBottom: "1px solid currentColor",
+    paddingBottom: "0.5em",
+  };
 
   return (
     <>
+      <div>
+        <Calendar />
+      </div>
       <div className="w-full flex flex-col items-center">
-        <h1>Home Page</h1>
         <Button onClick={handleClick}>Add Diary</Button>
         <Button onClick={handleClickUpdate}>Update Diary</Button>
         <Button onClick={handleSearch}>Search</Button>

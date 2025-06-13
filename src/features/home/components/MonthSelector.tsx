@@ -1,13 +1,11 @@
 import { MonthSelectorScrollButton } from "@/components/shared/calendar/MonthSelectorScrollButton";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import {
-  // handleChangeMonth,
   useMonths,
   useScrollToCurrentMonth,
   useSetMonthQueryParams,
-  type Month,
 } from "./hooks/useMonthSelector";
 
 type MonthSelectorProps = {
