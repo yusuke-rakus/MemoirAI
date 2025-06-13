@@ -1,3 +1,5 @@
+import type { Timestamp } from "firebase/firestore";
+
 export type Tag = {
   name: string;
   color: string;
@@ -6,9 +8,9 @@ export type Tag = {
 export type Diary = {
   id: string;
   uid: string;
-  date: Date;
+  date: Timestamp;
   title: string;
   content: string;
   tags: Tag[];
-  createdAt: Date;
+  createdAt: Timestamp;
 };

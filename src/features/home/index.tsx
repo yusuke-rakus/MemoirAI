@@ -3,7 +3,7 @@ import { useAuthCheck } from "@/hooks/useAuthCheck";
 import { MainLayout } from "@/layout/MainLayout";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { MonthSelector } from "./components/MonthSelector";
+import { MonthSelector } from "./monthSelector/MonthSelector";
 import { Views } from "./constants/views";
 import { useUrlDate } from "./hooks/useUrlDate";
 

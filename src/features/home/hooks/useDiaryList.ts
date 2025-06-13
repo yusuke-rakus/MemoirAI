@@ -13,10 +13,12 @@ export const useDiaryList = () => {
       try {
         const data = await DiaryClient.getByUid(localUser.uid);
         if (data) {
-          const newDialies = data.map((diary) => ({
-            id: diary.id,
-            ...(diary as Omit<Diary, "id">),
-          }));
+          const newDialies = data
+            .sort((a, b) => b.date.toMillis() - a.date.toMillis())
+            .map((diary) => ({
+              id: diary.id,
+              ...(diary as Omit<Diary, "id">),
+            }));
           setDialies(newDialies);
         }
       } finally {

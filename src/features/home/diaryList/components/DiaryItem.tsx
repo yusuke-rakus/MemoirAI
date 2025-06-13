@@ -7,6 +7,7 @@ import {
 import type { Diary } from "@/types/diary/diary";
 import { DayIcon } from "./DayIcon";
 import { DiaryTag } from "./DiaryTag";
+import { useEffect } from "react";
 
 type DiaryItemProps = {
   diary: Diary;
@@ -19,10 +20,15 @@ export const DiaryItem = (props: DiaryItemProps) => {
     console.log(diary);
   };
 
+  useEffect(() => {
+    // console.log(diary.date.seconds);
+    console.log(diary.date.toDate());
+  }, []);
+
   return (
     <CardContent onClick={handleSearch} className="w-full px-0 cursor-pointer">
       <div className="flex rounded-sm transition-all hover:bg-gray-100 p-2">
-        <DayIcon date={new Date()} />
+        <DayIcon date={diary.date.toDate()} />
         <div className="mx-2">
           <CardHeader className="p-0 mb-2">
             <CardTitle className="flex items-center gap-2 text-lg">
