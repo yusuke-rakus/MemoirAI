@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { useLocalUser } from "@/contexts/LocalUserContext";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { DiaryClient } from "@/lib/service/diaryClient";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { Calendar } from "./calendar";
 
 export const CalendarView = () => {
   const { localUser } = useLocalUser();
