@@ -18,7 +18,7 @@ type CalendarProps = {
 export const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState<Event[]>([
-    { id: "1", date: "2025-06-15", text: "会議", color: "bg-blue-500" },
+    { id: "1", date: "2025-06-15", text: "🤝会議", color: "bg-blue-500" },
     { id: "2", date: "2025-06-20", text: "プレゼン", color: "bg-green-500" },
     { id: "3", date: "2025-06-25", text: "歯医者", color: "bg-red-500" },
   ]);
@@ -62,8 +62,8 @@ export const Calendar = () => {
       days.push(new Date(year, month, day));
     }
 
-    // 次月の日付を追加（42日になるまで）
-    const remainingDays = 42 - days.length;
+    // 次月の日付を追加（35日になるまで）
+    const remainingDays = 35 - days.length;
     for (let day = 1; day <= remainingDays; day++) {
       days.push(new Date(year, month + 1, day));
     }
@@ -109,24 +109,6 @@ export const Calendar = () => {
 
   return (
     <div className="max-w-6xl mx-auto bg-white">
-      {/* ヘッダー */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={goToPreviousMonth}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <ChevronLeft className="w-6 h-6 text-gray-600" />
-          </button>
-          <button
-            onClick={goToNextMonth}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <ChevronRight className="w-6 h-6 text-gray-600" />
-          </button>
-        </div>
-      </div>
-
       {/* 曜日ヘッダー */}
       <div className="grid grid-cols-7 divide-x">
         {weekdays.map((day, index) => (
