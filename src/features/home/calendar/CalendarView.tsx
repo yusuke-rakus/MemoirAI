@@ -5,6 +5,8 @@ import { DiaryClient } from "@/lib/service/diaryClient";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Calendar } from "./calendar";
+import { toast } from "sonner";
+import { model } from "@/firebase/firebase";
 
 export const CalendarView = () => {
   const { localUser } = useLocalUser();
@@ -55,6 +57,7 @@ export const CalendarView = () => {
       tags: [{ name: "タグ", color: "blue" }],
       createdAt: new Date(now.getFullYear(), now.getMonth(), 4),
     });
+    toast("日記を作成しました!");
   };
 
   const handleClickUpdate = async () => {
@@ -65,6 +68,21 @@ export const CalendarView = () => {
       content: "更新しました",
       createdAt: new Date(),
     });
+  };
+
+  const handleGenerateText = async () => {
+    // const prompt = "魔法のバックパックについての物語を書いてください";
+    const prompt =
+      "子供向けカードゲームで使用するために、動物ベースのキャラクターを10体生成します。";
+    const result = await model.generateContent(prompt);
+    console.table(result);
+
+    const response = result.response;
+    console.table(response);
+    const text = response.text();
+    console.log(`text: ${text}`);
+    const json = JSON.parse(text);
+    console.table(json);
   };
 
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -79,6 +97,7 @@ export const CalendarView = () => {
         <Calendar />
       </div>
       <div className="w-full flex flex-col items-center">
+        <Button onClick={handleGenerateText}>AI試験</Button>
         <Button onClick={handleCreate}>Create Diary</Button>
         <Button onClick={handleClickUpdate}>Update Diary</Button>
       </div>
