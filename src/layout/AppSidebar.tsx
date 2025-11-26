@@ -13,16 +13,13 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { EqualApproximately, Home } from "lucide-react";
+import { PATHS } from "@/constants/path";
 import { useLocation } from "react-router-dom";
 
 export const AppSidebar = () => {
   const { open, setOpen } = useSidebar();
 
-  const menuItems = [
-    { name: "Home", icon: Home, link: "/" },
-    { name: "About", icon: EqualApproximately, link: "/about" },
-  ];
+  const menuItems = [PATHS.calendar, PATHS.diaries, PATHS.newDiary];
 
   const location = useLocation();
 
@@ -30,7 +27,7 @@ export const AppSidebar = () => {
     <Sidebar>
       <SidebarHeader className="flex flex-row items-center justify-between">
         <div>
-          <AppTooltip discription={"サイドバーを閉じる"}>
+          <AppTooltip description={"サイドバーを閉じる"}>
             <SidebarToggleButton
               isOpen={open}
               onToggle={() => setOpen(!open)}
@@ -38,11 +35,15 @@ export const AppSidebar = () => {
           </AppTooltip>
         </div>
         <div>
-          <AppTooltip discription={"日記を検索"}>
+          <AppTooltip description={"日記を検索"}>
             <SidebarSearchButton onToggle={() => {}} />
           </AppTooltip>
-          <AppTooltip discription={"新しい日記"}>
-            <SidebarPenButton onToggle={() => {}} />
+          <AppTooltip description={"新しい日記"}>
+            <SidebarPenButton
+              onToggle={() => {
+                console.log("hello");
+              }}
+            />
           </AppTooltip>
         </div>
       </SidebarHeader>
@@ -50,31 +51,21 @@ export const AppSidebar = () => {
         <SidebarGroupLabel>Application</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
-            {menuItems.map((item) => (
-              <SidebarMenuItem key={item.name}>
-                <SidebarMenuButton asChild>
-                  <a href={item.link}>
-                    <item.icon />
-                    <span>{item.name}</span>
-                  </a>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroupContent>
-        <SidebarGroupLabel>Application</SidebarGroupLabel>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            {menuItems.map((item) => (
-              <SidebarMenuItem key={item.name}>
-                <SidebarMenuButton asChild>
-                  <a href={item.link}>
-                    <item.icon />
-                    <span>{item.name}</span>
-                  </a>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname.startsWith(item.path);
+
+              return (
+                <SidebarMenuItem key={item.path}>
+                  <SidebarMenuButton asChild isActive={isActive}>
+                    <a href={item.path}>
+                      <Icon />
+                      <span>{item.name}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarContent>

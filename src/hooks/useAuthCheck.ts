@@ -1,9 +1,10 @@
+import { PATHS } from "@/constants/path";
 import { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged, type User } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { useLocalUser } from "@/contexts/LocalUserContext";
 
-const PROTECTED_PATHS = ["/calendar", "/diaries"];
+const PROTECTED_PATHS = [PATHS.calendar.path, PATHS.diaries.path];
 
 export const useAuthCheck = () => {
   const { setLocalUser } = useLocalUser();
@@ -20,7 +21,7 @@ export const useAuthCheck = () => {
         PROTECTED_PATHS.some((path) => currentPath.startsWith(path));
 
       if (shouldRedirect) {
-        navigate("/login", { replace: true });
+        navigate(PATHS.login.path, { replace: true });
       }
 
       if (firebaseUser) {

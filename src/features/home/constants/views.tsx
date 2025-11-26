@@ -1,18 +1,21 @@
-import { CalendarDays, Notebook } from "lucide-react";
+import { PATHS } from "@/constants/path";
 import { CalendarView } from "../calendar/CalendarView";
 import { DiaryView } from "../diaryList/DiaryView";
 
+const CalendarIcon = PATHS.calendar.icon;
+const DiaryIcon = PATHS.diaries.icon;
+
 export const Views = [
   {
-    value: "/calendar",
-    name: "カレンダー",
-    icon: <CalendarDays />,
+    value: PATHS.calendar.path,
+    name: PATHS.calendar.name,
+    icon: <CalendarIcon />,
     component: <CalendarView />,
   },
   {
-    value: "/diaries",
-    name: "日記一覧",
-    icon: <Notebook />,
+    value: PATHS.diaries.path,
+    name: PATHS.diaries.name,
+    icon: <DiaryIcon />,
     component: <DiaryView />,
   },
 ];

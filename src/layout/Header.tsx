@@ -8,6 +8,7 @@ import { SidebarToggleButton } from "@/components/shared/sidebar/SidebarToggleBu
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { useSidebar } from "@/components/ui/sidebar";
 import { defaultLocalUser, useLocalUser } from "@/contexts/LocalUserContext";
+import { PATHS } from "@/constants/path";
 import { cn } from "@/lib/utils";
 import { getAuth, signOut } from "firebase/auth";
 import { Moon, Settings, Sun, SunMoon } from "lucide-react";
@@ -23,7 +24,7 @@ export const Header = () => {
     signOut(auth)
       .then(() => {
         setLocalUser(defaultLocalUser);
-        navigate("/login");
+        navigate(PATHS.login.path);
       })
       .catch((error) => {
         console.error("Logout error:", error);
@@ -63,13 +64,13 @@ export const Header = () => {
         ${open ? "hidden" : ""}
       `}
       >
-        <AppTooltip discription={"サイドバーを開ける"}>
+        <AppTooltip description={"サイドバーを開ける"}>
           <SidebarToggleButton isOpen={open} onToggle={() => setOpen(!open)} />
         </AppTooltip>
-        <AppTooltip discription={"日記を検索"}>
+        <AppTooltip description={"日記を検索"}>
           <SidebarSearchButton onToggle={() => {}} />
         </AppTooltip>
-        <AppTooltip discription={"新しい日記"}>
+        <AppTooltip description={"新しい日記"}>
           <SidebarPenButton onToggle={() => {}} />
         </AppTooltip>
       </div>
