@@ -1,15 +1,15 @@
 import { MainLayout } from "@/layout/MainLayout";
-import { AboutView } from "./components/AboutView";
 import { useAuthCheck } from "@/hooks/useAuthCheck";
+import { NewDiaryView } from "./components/NewDiaryView";
 
-export const AboutPage = () => {
+export const NewDiaryPage = () => {
   const { loading } = useAuthCheck();
 
   return loading ? (
     <h1>Loading...</h1>
   ) : (
     <MainLayout title="About">
-      <AboutView />
+      <NewDiaryView />
     </MainLayout>
   );
 };
