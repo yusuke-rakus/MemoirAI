@@ -1,103 +1,40 @@
-import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Plus, X, Save, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, X, Save, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface DiaryCard {
-  id: string;
-  body: string;
-  tags: string[];
-  isCollapsed: boolean;
-  isRemoving: boolean;
-}
+import { useCreateDiary } from "../hooks/useCreateDiary";
+import { useDiaryCard } from "../hooks/useDiaryCard";
 
 export const NewDiaryView = () => {
-  const [cards, setCards] = useState<DiaryCard[]>([
-    { id: "1", body: "", tags: [], isCollapsed: false, isRemoving: false },
-  ]);
-  const [tagInputs, setTagInputs] = useState<{ [key: string]: string }>({
-    "1": "",
-  });
-  const [savedAnimation, setSavedAnimation] = useState(false);
+  const { createDiary } = useCreateDiary();
 
-  const addCard = () => {
-    const newId = Date.now().toString();
-    setCards([
-      ...cards,
-      { id: newId, body: "", tags: [], isCollapsed: false, isRemoving: false },
-    ]);
-    setTagInputs({ ...tagInputs, [newId]: "" });
-  };
+  const {
+    cards,
+    tagInputs,
+    savedAnimation,
+    addCard,
+    removeCard,
+    toggleCollapse,
+    updateCardBody,
+    addTag,
+    removeTag,
+    handleTagInputChange,
+    handleTagInputKeyDown,
+    handleSaveAction,
+  } = useDiaryCard();
 
-  const removeCard = (id: string) => {
-    if (cards.length > 1) {
-      setCards(
-        cards.map((card) =>
-          card.id === id ? { ...card, isRemoving: true } : card
-        )
-      );
-
-      setTimeout(() => {
-        setCards(cards.filter((card) => card.id !== id));
-        const newTagInputs = { ...tagInputs };
-        delete newTagInputs[id];
-        setTagInputs(newTagInputs);
-      }, 300);
+  const onSave = async () => {
+    for (const card of cards) {
+      await createDiary({
+        content: card.body,
+        date: card.date,
+        tags: card.tags,
+      });
     }
-  };
 
-  const toggleCollapse = (id: string) => {
-    setCards(
-      cards.map((card) =>
-        card.id === id ? { ...card, isCollapsed: !card.isCollapsed } : card
-      )
-    );
-  };
-
-  const updateCardBody = (id: string, body: string) => {
-    setCards(cards.map((card) => (card.id === id ? { ...card, body } : card)));
-  };
-
-  const addTag = (id: string) => {
-    const tagInput = tagInputs[id]?.trim();
-    if (tagInput) {
-      setCards(
-        cards.map((card) =>
-          card.id === id ? { ...card, tags: [...card.tags, tagInput] } : card
-        )
-      );
-      setTagInputs({ ...tagInputs, [id]: "" });
-    }
-  };
-
-  const removeTag = (cardId: string, tagIndex: number) => {
-    setCards(
-      cards.map((card) =>
-        card.id === cardId
-          ? { ...card, tags: card.tags.filter((_, i) => i !== tagIndex) }
-          : card
-      )
-    );
-  };
-
-  const handleTagInputChange = (id: string, value: string) => {
-    setTagInputs({ ...tagInputs, [id]: value });
-  };
-
-  const handleTagInputKeyDown = (e: React.KeyboardEvent, id: string) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      addTag(id);
-    }
-  };
-
-  const handleSave = () => {
-    console.log("保存するデータ:", cards);
-    setSavedAnimation(true);
-    setTimeout(() => setSavedAnimation(false), 2000);
+    handleSaveAction();
   };
 
   return (
@@ -107,6 +44,7 @@ export const NewDiaryView = () => {
           <h1 className="text-xl font-semibold text-foreground mb-1">
             今日の日記
           </h1>
+          <span>{cards[0].date.toLocaleDateString()}</span>
           <p className="text-sm text-muted-foreground">
             今日あったことを記録しましょう
           </p>
@@ -237,7 +175,7 @@ export const NewDiaryView = () => {
             カードを追加
           </Button>
           <Button
-            onClick={handleSave}
+            onClick={onSave}
             className={cn(
               "flex-1 h-11 text-sm font-medium bg-primary hover:bg-primary/90 transition-all duration-200 active:scale-95",
               savedAnimation && "animate-save-success"
@@ -248,17 +186,6 @@ export const NewDiaryView = () => {
           </Button>
         </div>
       </div>
-
-      {savedAnimation && (
-        <div className="fixed inset-0 pointer-events-none flex items-center justify-center">
-          <div className="bg-primary text-primary-foreground px-6 py-3 rounded-lg shadow-lg animate-scale-in">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5" />
-              <span className="font-medium">保存完了!</span>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -14,7 +14,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { PATHS } from "@/constants/path";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export const AppSidebar = () => {
   const { open, setOpen } = useSidebar();
@@ -22,6 +22,7 @@ export const AppSidebar = () => {
   const menuItems = [PATHS.calendar, PATHS.diaries, PATHS.newDiary];
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   return (
     <Sidebar>
@@ -39,11 +40,7 @@ export const AppSidebar = () => {
             <SidebarSearchButton onToggle={() => {}} />
           </AppTooltip>
           <AppTooltip description={"新しい日記"}>
-            <SidebarPenButton
-              onToggle={() => {
-                console.log("hello");
-              }}
-            />
+            <SidebarPenButton onToggle={() => navigate(PATHS.newDiary.path)} />
           </AppTooltip>
         </div>
       </SidebarHeader>

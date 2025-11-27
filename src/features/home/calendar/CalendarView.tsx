@@ -6,7 +6,7 @@ import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Calendar } from "./calendar";
 import { toast } from "sonner";
-import { model } from "@/firebase/firebase";
+import { testModel } from "@/firebase/models";
 
 export const CalendarView = () => {
   const { localUser } = useLocalUser();
@@ -74,7 +74,7 @@ export const CalendarView = () => {
     // const prompt = "魔法のバックパックについての物語を書いてください";
     const prompt =
       "子供向けカードゲームで使用するために、動物ベースのキャラクターを10体生成します。";
-    const result = await model.generateContent(prompt);
+    const result = await testModel.generateContent(prompt);
     console.table(result);
 
     const response = result.response;
