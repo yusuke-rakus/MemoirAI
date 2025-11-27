@@ -7,12 +7,14 @@ import { SidebarSearchButton } from "@/components/shared/sidebar/SidebarSearchBu
 import { SidebarToggleButton } from "@/components/shared/sidebar/SidebarToggleButton";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { useSidebar } from "@/components/ui/sidebar";
-import { defaultLocalUser, useLocalUser } from "@/contexts/LocalUserContext";
 import { PATHS } from "@/constants/path";
+import { defaultLocalUser, useLocalUser } from "@/contexts/LocalUserContext";
+import useTheme, { type Theme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
 import { getAuth, signOut } from "firebase/auth";
 import { Moon, Settings, Sun, SunMoon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export const Header = () => {
   const { open, setOpen } = useSidebar();
@@ -31,39 +33,33 @@ export const Header = () => {
       });
   };
 
-  const handleThemeLight = () => {
-    console.log("ライト");
-    document.documentElement.classList.remove("dark");
-  };
+  const { theme, setTheme } = useTheme();
 
-  const handleThemeDark = () => {
-    console.log("ダーク");
-    document.documentElement.classList.add("dark");
-  };
-
-  const handleThemeSystem = () => {
-    console.log("システム");
-    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
+  const handleThemeChange = (theme: Theme) => {
+    switch (theme) {
+      case "light":
+        setTheme("light");
+        toast("ライトテーマにしました", { icon: <Sun /> });
+        break;
+      case "dark":
+        setTheme("dark");
+        toast("ダークテーマにしました", { icon: <Moon /> });
+        break;
+      case "system":
+        setTheme("system");
+        toast("システム設定のテーマを使用します");
+        break;
     }
   };
 
   return (
     <header
       className={cn(
-        "fixed top-0 right-0 h-14 px-4 border-b bg-white shadow-sm z-40 items-center transition-all duration-250",
+        "fixed top-0 right-0 h-14 px-4 border-b bg-background shadow-sm z-40 items-center transition-all duration-250",
         open ? "left-64" : "left-0"
       )}
     >
-      <div
-        className={`flex
-        items-center
-        h-full
-        ${open ? "hidden" : ""}
-      `}
-      >
+      <div className={cn("flex items-center h-full", open && "hidden")}>
         <AppTooltip description={"サイドバーを開ける"}>
           <SidebarToggleButton isOpen={open} onToggle={() => setOpen(!open)} />
         </AppTooltip>
@@ -78,19 +74,22 @@ export const Header = () => {
         <AvatarMenu user={localUser} handleLogout={handleLogout}>
           <SettingsDropdownSubItem icon={SunMoon} label={"テーマ"}>
             <SettingsDropdownItem
-              onClick={handleThemeLight}
+              onClick={() => handleThemeChange("light")}
               icon={Sun}
               label="ライト"
+              active={theme === "light"}
             />
             <SettingsDropdownItem
-              onClick={handleThemeDark}
+              onClick={() => handleThemeChange("dark")}
               icon={Moon}
               label="ダーク"
+              active={theme === "dark"}
             />
             <DropdownMenuSeparator />
             <SettingsDropdownItem
-              onClick={handleThemeSystem}
+              onClick={() => handleThemeChange("system")}
               label="システム"
+              active={theme === "system"}
             />
           </SettingsDropdownSubItem>
           <SettingsDropdownItem icon={Settings} label="設定" />

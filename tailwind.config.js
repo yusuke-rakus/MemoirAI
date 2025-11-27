@@ -4,6 +4,66 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      keyframes: {
+        slideInUp: {
+          from: { opacity: "0", transform: "translateY(20px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        slideOutUp: {
+          from: {
+            opacity: "1",
+            transform: "translateY(0)",
+            maxHeight: "500px",
+          },
+          to: {
+            opacity: "0",
+            transform: "translateY(-20px)",
+            maxHeight: "0",
+            marginBottom: "0",
+            paddingTop: "0",
+            paddingBottom: "0",
+          },
+        },
+        slideInDown: {
+          from: { opacity: "0", transform: "translateY(-10px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        scaleIn: {
+          from: { opacity: "0", transform: "scale(0.8)" },
+          to: { opacity: "1", transform: "scale(1)" },
+        },
+        successPulse: {
+          "0%": {
+            transform: "scale(1)",
+            boxShadow: "0 0 0 0 rgba(34, 197, 94, 0.7)",
+          },
+          "50%": {
+            transform: "scale(1.02)",
+            boxShadow: "0 0 0 10px rgba(34, 197, 94, 0)",
+          },
+          "100%": {
+            transform: "scale(1)",
+            boxShadow: "0 0 0 0 rgba(34, 197, 94, 0)",
+          },
+        },
+        collapseHeight: {
+          from: { opacity: "1", maxHeight: "500px" },
+          to: { opacity: "0", maxHeight: "0" },
+        },
+        expandHeight: {
+          from: { opacity: "0", maxHeight: "0" },
+          to: { opacity: "1", maxHeight: "500px" },
+        },
+      },
+      animation: {
+        "slide-in-up": "slideInUp 0.4s ease-out",
+        "slide-out-up": "slideOutUp 0.3s ease-in forwards",
+        "slide-in-down": "slideInDown 0.5s ease-out",
+        "scale-in": "scaleIn 0.3s ease-out",
+        "save-success": "successPulse 0.6s ease-out",
+        "collapse-height": "collapseHeight 0.3s ease-in-out forwards",
+        "expand-height": "expandHeight 0.3s ease-in-out forwards",
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",

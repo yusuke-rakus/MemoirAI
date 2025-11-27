@@ -27,7 +27,7 @@ export const MonthSelectorScrollButton = (
       variant="ghost"
       size="icon"
       onClick={onToggle}
-      className="rounded-full bg-white shadow-xs"
+      className="rounded-full bg-primary-foreground shadow-xs"
     >
       <Icon className="h-10 w-10" />
     </Button>

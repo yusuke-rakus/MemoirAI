@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Event {
   id: string;
@@ -108,11 +109,11 @@ export const Calendar = () => {
   const days = getDaysInMonth(currentDate);
 
   return (
-    <div className="max-w-6xl mx-auto bg-white">
+    <div className="max-w-6xl mx-auto bg-muted">
       {/* 曜日ヘッダー */}
       <div className="grid grid-cols-7 divide-x">
-        {weekdays.map((day, index) => (
-          <div key={day} className="text-center text-gray-700">
+        {weekdays.map((day) => (
+          <div key={day} className="text-center text-muted-foreground">
             {day}
           </div>
         ))}
@@ -129,18 +130,16 @@ export const Calendar = () => {
             <div
               key={index}
               onClick={() => handleDateClick(date)}
-              className={`
-                h-32 p-2 cursor-pointer transition-all duration-200
-                ${
-                  isCurrentMonth(date)
-                    ? "bg-white hover:bg-gray-50"
-                    : "bg-gray-50 text-gray-400"
-                }
-                ${isToday(date) ? "bg-blue-500" : ""}
-                ${isSelected ? "ring-2 ring-purple-500 bg-purple-50" : ""}
-              `}
+              className={cn(
+                "h-32 p-2 cursor-pointer transition-all duration-200",
+                isCurrentMonth(date)
+                  ? "bg-muted hover:bg-primary/5"
+                  : "bg-card text-muted-foreground",
+                isToday(date) && "bg-primary text-primary-foreground",
+                isSelected && "ring-2 ring-ring bg-primary/10"
+              )}
             >
-              <div className="text-sm mb-1 text-gray-700 text-center">
+              <div className="text-sm mb-1 text-muted-foreground text-center">
                 {date.getDate()}
               </div>
 
@@ -152,18 +151,17 @@ export const Calendar = () => {
                       //   e.stopPropagation();
                       //   deleteEvent(event.id);
                     }}
-                    className={`
-                      text-xs text-white px-2 py-1 rounded truncate cursor-pointer
-                      hover:opacity-80 transition-opacity
-                      ${event.color || "bg-blue-500"}
-                    `}
+                    className={cn(
+                      "text-xs text-primary-foreground px-2 py-1 rounded truncate cursor-pointer hover:opacity-80 transition-opacity",
+                      event.color || "bg-primary"
+                    )}
                     title={`${event.text} (クリックで削除)`}
                   >
                     {event.text}
                   </div>
                 ))}
                 {dateEvents.length > 2 && (
-                  <div className="text-xs text-gray-500 px-1">
+                  <div className="text-xs text-muted-foreground px-1">
                     +{dateEvents.length - 2}件
                   </div>
                 )}
