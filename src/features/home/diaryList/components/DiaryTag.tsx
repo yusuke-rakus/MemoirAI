@@ -6,5 +6,5 @@ type DiaryTagProps = {
 };
 export const DiaryTag = (props: DiaryTagProps) => {
   const { tag } = props;
-  return <Badge># {tag.name}</Badge>;
+  return <Badge className={tag.color}># {tag.name}</Badge>;
 };

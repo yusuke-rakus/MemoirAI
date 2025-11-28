@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { create } from "zustand";
 import type { KeyboardEvent } from "react";
 
 interface DiaryCard {
@@ -10,125 +10,115 @@ interface DiaryCard {
   isRemoving: boolean;
 }
 
-export const useDiaryCard = () => {
-  const [cards, setCards] = useState<DiaryCard[]>([
-    {
-      id: "1",
-      body: "",
-      tags: [],
-      date: new Date(),
-      isCollapsed: false,
-      isRemoving: false,
-    },
-  ]);
-  const [tagInputs, setTagInputs] = useState<{ [key: string]: string }>({
-    "1": "",
-  });
-  const [savedAnimation, setSavedAnimation] = useState(false);
+interface DiaryCardState {
+  cards: DiaryCard[];
+  tagInputs: Record<string, string>;
+}
 
-  const addCard = () => {
+interface DiaryCardActions {
+  addCard: () => void;
+  removeCard: (id: string) => void;
+  toggleCollapse: (id: string) => void;
+  updateCardBody: (id: string, body: string) => void;
+  addTag: (id: string) => void;
+  removeTag: (cardId: string, tagIndex: number) => void;
+  handleTagInputChange: (id: string, value: string) => void;
+  handleTagInputKeyDown: (
+    e: KeyboardEvent<HTMLInputElement>,
+    id: string
+  ) => void;
+}
+
+type DiaryCardStore = DiaryCardState & DiaryCardActions;
+
+const INITIAL_CARD_ID = "1";
+
+const createCard = (id: string): DiaryCard => ({
+  id,
+  body: "",
+  tags: [],
+  date: new Date(),
+  isCollapsed: false,
+  isRemoving: false,
+});
+
+const useDiaryCardStore = create<DiaryCardStore>((set, get) => ({
+  cards: [createCard(INITIAL_CARD_ID)],
+  tagInputs: { [INITIAL_CARD_ID]: "" },
+  addCard: () => {
     const newId = Date.now().toString();
-    setCards([
-      ...cards,
-      {
-        id: newId,
-        body: "",
-        tags: [],
-        date: new Date(),
-        isCollapsed: false,
-        isRemoving: false,
-      },
-    ]);
-    setTagInputs({ ...tagInputs, [newId]: "" });
-  };
-
-  const removeCard = (id: string) => {
-    if (cards.length > 1) {
-      setCards(
-        cards.map((card) =>
+    const newCard = createCard(newId);
+    set((state) => ({
+      cards: [...state.cards, newCard],
+      tagInputs: { ...state.tagInputs, [newId]: "" },
+    }));
+  },
+  removeCard: (id) => {
+    set((state) => {
+      if (state.cards.length <= 1) return state;
+      return {
+        cards: state.cards.map((card) =>
           card.id === id ? { ...card, isRemoving: true } : card
-        )
-      );
+        ),
+        tagInputs: state.tagInputs,
+      };
+    });
 
-      setTimeout(() => {
-        setCards(cards.filter((card) => card.id !== id));
-        const newTagInputs = { ...tagInputs };
-        delete newTagInputs[id];
-        setTagInputs(newTagInputs);
-      }, 300);
-    }
-  };
-
-  const toggleCollapse = (id: string) => {
-    setCards(
-      cards.map((card) =>
+    setTimeout(() => {
+      set((state) => {
+        if (state.cards.length <= 1) return state;
+        const cards = state.cards.filter((card) => card.id !== id);
+        const nextTagInputs = { ...state.tagInputs };
+        delete nextTagInputs[id];
+        return { cards, tagInputs: nextTagInputs };
+      });
+    }, 300);
+  },
+  toggleCollapse: (id) =>
+    set((state) => ({
+      cards: state.cards.map((card) =>
         card.id === id ? { ...card, isCollapsed: !card.isCollapsed } : card
-      )
-    );
-  };
-
-  const updateCardBody = (id: string, body: string) => {
-    setCards(cards.map((card) => (card.id === id ? { ...card, body } : card)));
-  };
-
-  const addTag = (id: string) => {
-    const tagInput = tagInputs[id]?.trim();
-    if (tagInput) {
-      setCards(
-        cards.map((card) =>
+      ),
+      tagInputs: state.tagInputs,
+    })),
+  updateCardBody: (id, body) =>
+    set((state) => ({
+      cards: state.cards.map((card) =>
+        card.id === id ? { ...card, body } : card
+      ),
+      tagInputs: state.tagInputs,
+    })),
+  addTag: (id) =>
+    set((state) => {
+      const tagInput = state.tagInputs[id]?.trim();
+      if (!tagInput) return state;
+      return {
+        cards: state.cards.map((card) =>
           card.id === id ? { ...card, tags: [...card.tags, tagInput] } : card
-        )
-      );
-      setTagInputs({ ...tagInputs, [id]: "" });
-    }
-  };
-
-  const removeTag = (cardId: string, tagIndex: number) => {
-    setCards(
-      cards.map((card) =>
+        ),
+        tagInputs: { ...state.tagInputs, [id]: "" },
+      };
+    }),
+  removeTag: (cardId, tagIndex) =>
+    set((state) => ({
+      cards: state.cards.map((card) =>
         card.id === cardId
           ? { ...card, tags: card.tags.filter((_, i) => i !== tagIndex) }
           : card
-      )
-    );
-  };
-
-  const handleTagInputChange = (id: string, value: string) => {
-    setTagInputs({ ...tagInputs, [id]: value });
-  };
-
-  const handleTagInputKeyDown = (
-    e: KeyboardEvent<HTMLInputElement>,
-    id: string
-  ) => {
-    if ((e as KeyboardEvent).key === "Enter") {
+      ),
+      tagInputs: state.tagInputs,
+    })),
+  handleTagInputChange: (id, value) =>
+    set((state) => ({
+      cards: state.cards,
+      tagInputs: { ...state.tagInputs, [id]: value },
+    })),
+  handleTagInputKeyDown: (e, id) => {
+    if (e.key === "Enter") {
       e.preventDefault();
-      addTag(id);
+      get().addTag(id);
     }
-  };
+  },
+}));
 
-  const handleSaveAction = () => {
-    setSavedAnimation(true);
-    setTimeout(() => setSavedAnimation(false), 2000);
-  };
-
-  return {
-    // State
-    cards,
-    tagInputs,
-    savedAnimation,
-
-    // Actions
-    addCard,
-    removeCard,
-    toggleCollapse,
-    updateCardBody,
-    addTag,
-    removeTag,
-
-    // Handlers
-    handleTagInputChange,
-    handleTagInputKeyDown,
-    handleSaveAction,
-  };
-};
+export const useDiaryCard = () => useDiaryCardStore();

@@ -271,3 +271,18 @@ button {
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes loaderShimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@layer utilities {
+  .animate-loader-shimmer {
+    animation: loaderShimmer 2.5s linear infinite;
+  }
+}

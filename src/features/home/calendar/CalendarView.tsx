@@ -6,7 +6,7 @@ import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Calendar } from "./calendar";
 import { toast } from "sonner";
-import { testModel } from "@/firebase/models";
+import { testModel } from "@/firebase/models/testModel";
 
 export const CalendarView = () => {
   const { localUser } = useLocalUser();

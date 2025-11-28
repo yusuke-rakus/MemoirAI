@@ -1,19 +1,20 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { RotatingText } from "@/components/shared/common/RotatingText";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Plus, X, Save, ChevronDown, ChevronUp } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { ChevronDown, ChevronUp, Plus, Save, X } from "lucide-react";
 import { useCreateDiary } from "../hooks/useCreateDiary";
 import { useDiaryCard } from "../hooks/useDiaryCard";
+import { usePickMessages } from "../hooks/usePickMessages";
 
 export const NewDiaryView = () => {
-  const { createDiary } = useCreateDiary();
+  const { isCreating, onSave } = useCreateDiary();
 
   const {
     cards,
     tagInputs,
-    savedAnimation,
     addCard,
     removeCard,
     toggleCollapse,
@@ -22,32 +23,19 @@ export const NewDiaryView = () => {
     removeTag,
     handleTagInputChange,
     handleTagInputKeyDown,
-    handleSaveAction,
   } = useDiaryCard();
 
-  const onSave = async () => {
-    for (const card of cards) {
-      await createDiary({
-        content: card.body,
-        date: card.date,
-        tags: card.tags,
-      });
-    }
-
-    handleSaveAction();
-  };
+  const { pickRandomMessages } = usePickMessages();
 
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto">
         <div className="mb-4 animate-slide-in-down">
-          <h1 className="text-xl font-semibold text-foreground mb-1">
-            今日の日記
-          </h1>
+          <RotatingText
+            className="text-2xl font-semibold"
+            text={pickRandomMessages}
+          />
           <span>{cards[0].date.toLocaleDateString()}</span>
-          <p className="text-sm text-muted-foreground">
-            今日あったことを記録しましょう
-          </p>
         </div>
 
         <div className="space-y-4 mb-6">
@@ -55,13 +43,13 @@ export const NewDiaryView = () => {
             <Card
               key={card.id}
               className={cn(
-                "shadow-sm border-border",
+                "shadow-sm border-border gap-3",
                 card.isRemoving
                   ? "animate-slide-out-up"
                   : "animate-slide-in-up transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-lg"
               )}
             >
-              <CardHeader className="pb-3">
+              <CardHeader>
                 <div className="flex justify-between items-center">
                   <button
                     onClick={() => toggleCollapse(card.id)}
@@ -70,10 +58,7 @@ export const NewDiaryView = () => {
                     <div className="flex items-center gap-2 flex-1">
                       <div className="h-1.5 w-1.5 rounded-full bg-primary group-hover:scale-125 transition-transform"></div>
                       <CardTitle className="text-sm font-normal text-muted-foreground group-hover:text-foreground transition-colors">
-                        {card.body
-                          ? card.body.slice(0, 40) +
-                            (card.body.length > 40 ? "..." : "")
-                          : "今日の出来事を書き留めよう ✨"}
+                        今日の出来事を書き留めよう ✨
                       </CardTitle>
                     </div>
                     {card.isCollapsed ? (
@@ -97,17 +82,14 @@ export const NewDiaryView = () => {
 
               <div
                 className={cn(
-                  "overflow-hidden",
+                  "overflow-hidden py-1",
                   card.isCollapsed
                     ? "animate-collapse-height"
                     : "animate-expand-height"
                 )}
               >
-                <CardContent className="space-y-4 pt-0">
+                <CardContent className="space-y-4">
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-                      本文
-                    </label>
                     <Textarea
                       placeholder="今日あったことを書いてください..."
                       value={card.body}
@@ -165,6 +147,10 @@ export const NewDiaryView = () => {
           ))}
         </div>
 
+        <p className="text-transparent bg-clip-text bg-gradient-to-r from-foreground/30 via-foreground/90 to-foreground/30 bg-[length:200%_100%] animate-loader-shimmer">
+          Hello World.
+        </p>
+
         <div className="flex gap-3 sticky bottom-6">
           <Button
             onClick={addCard}
@@ -176,13 +162,11 @@ export const NewDiaryView = () => {
           </Button>
           <Button
             onClick={onSave}
-            className={cn(
-              "flex-1 h-11 text-sm font-medium bg-primary hover:bg-primary/90 transition-all duration-200 active:scale-95",
-              savedAnimation && "animate-save-success"
-            )}
+            disabled={isCreating}
+            className="flex-1 h-11 text-sm font-medium bg-primary hover:bg-primary/90 transition-all duration-200 active:scale-95"
           >
             <Save className="h-4 w-4 mr-2" />
-            {savedAnimation ? "保存しました!" : "保存"}
+            保存
           </Button>
         </div>
       </div>

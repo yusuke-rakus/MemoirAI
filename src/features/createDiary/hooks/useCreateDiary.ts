@@ -1,7 +1,10 @@
 import { useLocalUser } from "@/contexts/LocalUserContext";
-import { diaryTitleModel } from "@/firebase/models";
+import { diaryTitleModel } from "@/firebase/models/createDiarySchema";
 import { generateDiaryId } from "@/lib/generateId";
 import { DiaryClient } from "@/lib/service/diaryClient";
+import { useCallback, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { useDiaryCard } from "./useDiaryCard";
 
 export interface Diary {
   date: Date;
@@ -10,30 +13,68 @@ export interface Diary {
 }
 
 export const useCreateDiary = () => {
+  const [isCreating, setIsCreating] = useState(false);
   const { localUser } = useLocalUser();
+  const { cards } = useDiaryCard();
 
   const generateTitle = async (content: string) => {
     const aiResponse = await diaryTitleModel.generateContent(content);
     const text = aiResponse.response.text();
     const json = JSON.parse(text);
-    return json.title;
+    return {
+      title: json.title,
+      tags: json.tags,
+    };
   };
 
-  const createDiary = async (diary: Diary) => {
-    const title = await generateTitle(diary.content);
+  const createDiaries = async (diaries: Diary[]): Promise<string[]> => {
+    if (!localUser?.uid) throw new Error("No authenticated user");
 
-    await DiaryClient.add({
-      id: generateDiaryId(),
-      uid: localUser.uid,
-      date: diary.date,
-      title: title,
-      content: diary.content,
-      tags: diary.tags.map((tag) => {
-        return { name: tag, color: "blue" };
-      }),
-      createdAt: new Date(),
+    setIsCreating(true);
+    try {
+      // 並列でタイトルを作成
+      const titlePromises = diaries.map((d) => generateTitle(d.content));
+      const diaryMeta = await Promise.all(titlePromises);
+
+      // 並列でカードの追加処理を実行
+      const addPromises = diaries.map((d, i) => {
+        const payload = {
+          id: generateDiaryId(),
+          uid: localUser.uid,
+          date: d.date,
+          title: diaryMeta[i].title,
+          content: d.content,
+          tags: diaryMeta[i].tags,
+          createdAt: new Date(),
+        };
+
+        return DiaryClient.add(payload).then(() => payload.id);
+      });
+
+      const createdIds = await Promise.all(addPromises);
+      return createdIds;
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const diariesToCreate = useMemo(
+    () =>
+      cards.map((card) => ({
+        content: card.body,
+        date: card.date,
+        tags: card.tags,
+      })),
+    [cards]
+  );
+
+  const onSave = useCallback(async () => {
+    toast.promise(createDiaries(diariesToCreate), {
+      loading: "日記を作成中...",
+      success: () => "日記を作成しました🎊",
+      error: "日記の作成に失敗しました",
     });
-  };
+  }, [diariesToCreate]);
 
-  return { createDiary };
+  return { isCreating, onSave };
 };

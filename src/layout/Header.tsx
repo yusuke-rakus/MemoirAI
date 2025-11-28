@@ -39,11 +39,11 @@ export const Header = () => {
     switch (theme) {
       case "light":
         setTheme("light");
-        toast("ライトテーマにしました", { icon: <Sun /> });
+        toast("ライトテーマに設定しました", { icon: <Sun /> });
         break;
       case "dark":
         setTheme("dark");
-        toast("ダークテーマにしました", { icon: <Moon /> });
+        toast("ダークテーマに設定しました", { icon: <Moon /> });
         break;
       case "system":
         setTheme("system");
