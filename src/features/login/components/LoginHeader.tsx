@@ -12,7 +12,7 @@ export const LoginHeader = () => {
         left-0
         h-14
         border-b
-        bg-white
+        bg-background
         shadow-sm
         z-40
         px-4

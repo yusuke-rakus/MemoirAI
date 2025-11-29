@@ -28,7 +28,7 @@ export const NewDiaryView = () => {
   const { pickRandomMessages } = usePickMessages();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen pt-5">
       <div className="max-w-3xl mx-auto">
         <div className="mb-4 animate-slide-in-down">
           <RotatingText

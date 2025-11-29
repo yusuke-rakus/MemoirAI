@@ -32,11 +32,15 @@ export const HomePage = () => {
     <h1>Loading...</h1>
   ) : (
     <MainLayout>
-      <div className="flex justify-center w-full">
+      <div className="flex justify-center w-full max-w-3xl mx-auto">
         <MonthSelector targetDate={targetDate} />
       </div>
-      <Tabs value={tabValue} onValueChange={setTabValue} className="w-full">
-        <TabsList className="max-w-xs w-full p-0 bg-inherit justify-start border-b rounded-none">
+      <Tabs
+        value={tabValue}
+        onValueChange={setTabValue}
+        className="w-full max-w-3xl mx-auto"
+      >
+        <TabsList className="mr-auto max-w-xs w-full p-0 bg-inherit justify-start border-b rounded-none">
           {tabs.map((tab) => {
             return (
               <TabsTrigger
@@ -46,7 +50,7 @@ export const HomePage = () => {
                 className="
                   rounded-none
                   h-full
-                  text-gray-400
+                  text-muted-foreground
                   border-t-0
                   border-r-0
                   border-b-2
