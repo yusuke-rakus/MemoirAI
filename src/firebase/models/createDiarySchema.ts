@@ -1,5 +1,6 @@
 import { getGenerativeModel, Schema } from "firebase/ai";
 import { ai, DEFAULT_MODEL } from "./models";
+import { tagColors } from "@/constants/tagColors";
 
 const diaryTitleSchema = Schema.object({
   properties: {
@@ -8,7 +9,9 @@ const diaryTitleSchema = Schema.object({
       items: Schema.object({
         properties: {
           name: Schema.string(),
-          color: Schema.string(),
+          color: Schema.enumString({
+            enum: tagColors,
+          }),
         },
       }),
     }),
@@ -26,18 +29,8 @@ const instruction = `
 3. タグは日記のテーマ・感情・行動・場所などを要約した「日本語の単語」にすること。
 4. タグは1〜5個生成すること。
 5. タグの name はシンプルな単語にする（文章にしない／絵文字を含めない）。
-6. タグの color は Tailwind CSS の背景色クラス（例：bg-blue-500）をランダムに1つ割り当てること。
+6. タグの color は用意された enum から適切なものを1つ割り当てること。
 7. 不要な記号は付けず、余計なフィールドは追加しないこと。
-
-【色の候補】
-以下のいずれかの色クラスをランダムに割り当ててください：
-- bg-blue-500
-- bg-red-500
-- bg-green-500
-- bg-yellow-500
-- bg-purple-500
-- bg-pink-500
-- bg-indigo-500
 
 【出力形式】
 必ず次のJSON形式のみで返してください：
@@ -45,8 +38,8 @@ const instruction = `
 {
   "title": "🎉タイトル例",
   "tags": [
-    {"name": "タグ1", "color": "bg-blue-500"},
-    {"name": "タグ2", "color": "bg-red-500"}
+    {"name": "タグ1", "color": "tag-amber"},
+    {"name": "タグ2", "color": "tag-violet"}
   ]
 }
 `;
