@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
-import { useSearchParams } from "react-router-dom";
+import {
+  useSearchParams,
+  useNavigate,
+  useLocation,
+  useParams,
+} from "react-router-dom";
 import { QueryDateParam } from "../../constants/queryDateParam";
+import { useCurrentDateStore } from "../../provider/CurrentDateProvider";
 
 export type Month = {
   label: string;
@@ -39,23 +45,38 @@ export const useMonths = () => {
 };
 
 /**
- * 選択された年月をURLのクエリパラメータに設定するカスタムフック
- * @param month クエリパラメータとして設定したい月データを含むオブジェクト
+ * ルートのパスパラメータ `:year` と `:month` を更新するフック。
+ * - 現在のパスに `:year` と `:month` が存在する場合は置換する。
+ * - 存在しない場合は現在のパスの末尾に `/{year}/{month}` を追加する。
  */
-export const useSetMonthQueryParams = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+export const useSetMonthRouteParams = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { setDate } = useCurrentDateStore();
+  const params = useParams<{ year?: string; month?: string }>();
 
-  const setMonthQueryParams = (month: Month) => {
+  const setMonthRouteParams = (month: Month, replace = false) => {
     const targetYear = month.date.getFullYear().toString();
     const targetMonth = (month.date.getMonth() + 1).toString();
 
-    const newSearchParams = new URLSearchParams(searchParams.toString());
-    newSearchParams.set(QueryDateParam.Year, targetYear);
-    newSearchParams.set(QueryDateParam.Month, targetMonth);
-    setSearchParams(newSearchParams);
+    const currentPath = location.pathname;
+
+    setDate(month.date);
+
+    if (params.year && params.month) {
+      let newPath = currentPath.replace(params.year, targetYear);
+      newPath = newPath.replace(params.month, targetMonth);
+      navigate(newPath, { replace });
+      return;
+    }
+
+    const base = currentPath.endsWith("/")
+      ? currentPath.slice(0, -1)
+      : currentPath;
+    navigate(`${base}/${targetYear}/${targetMonth}`, { replace });
   };
 
-  return setMonthQueryParams;
+  return setMonthRouteParams;
 };
 
 /**

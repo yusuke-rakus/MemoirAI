@@ -12,11 +12,22 @@ export const App = () => {
       <Routes>
         <Route
           path="/"
-          element={<Navigate to={PATHS.calendar.path} replace />}
+          element={
+            <Navigate to={`${PATHS.calendar.path}/:year/:month`} replace />
+          }
         />
-        <Route path={PATHS.calendar.path} element={<HomePage />} />
-        <Route path={PATHS.diaries.path} element={<HomePage />} />
-        <Route path={PATHS.newDiary.path} element={<NewDiaryPage />} />
+        <Route
+          path={`${PATHS.calendar.path}/:year/:month`}
+          element={<HomePage />}
+        />
+        <Route
+          path={`${PATHS.diaries.path}/:year/:month`}
+          element={<HomePage />}
+        />
+        <Route
+          path={`${PATHS.newDiary.path}/:date`}
+          element={<NewDiaryPage />}
+        />
         <Route path={PATHS.login.path} element={<LoginPage />} />
       </Routes>
     </>

@@ -1,15 +1,20 @@
-import { MainLayout } from "@/layout/MainLayout";
 import { useAuthCheck } from "@/hooks/useAuthCheck";
+import { MainLayout } from "@/layout/MainLayout";
 import { NewDiaryView } from "./components/NewDiaryView";
+import { DiaryDetailProvider } from "./provider/DiaryDetailProvider";
+import { useInitialDiaryDate } from "./hooks/useInitialDiaryDate";
 
 export const NewDiaryPage = () => {
   const { loading } = useAuthCheck();
+  const initialDate = useInitialDiaryDate();
 
   return loading ? (
     <h1>Loading...</h1>
   ) : (
-    <MainLayout title="About">
-      <NewDiaryView />
-    </MainLayout>
+    <DiaryDetailProvider initialDate={initialDate}>
+      <MainLayout title="日記の詳細">
+        <NewDiaryView />
+      </MainLayout>
+    </DiaryDetailProvider>
   );
 };

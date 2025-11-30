@@ -5,7 +5,7 @@ import { useRef } from "react";
 import {
   useMonths,
   useScrollToCurrentMonth,
-  useSetMonthQueryParams,
+  useSetMonthRouteParams,
 } from "./hooks/useMonthSelector";
 
 type MonthSelectorProps = {
@@ -15,7 +15,7 @@ type MonthSelectorProps = {
 export const MonthSelector = (props: MonthSelectorProps) => {
   const { targetDate } = props;
   const months = useMonths();
-  const setMonthQueryParams = useSetMonthQueryParams();
+  const setMonthRouteParams = useSetMonthRouteParams();
   const { currentMonthRef, setScrollToCurrentMonth } =
     useScrollToCurrentMonth();
 
@@ -48,7 +48,7 @@ export const MonthSelector = (props: MonthSelectorProps) => {
               >
                 {month.isButton ? (
                   <Button
-                    onClick={() => setMonthQueryParams(month)}
+                    onClick={() => setMonthRouteParams(month)}
                     ref={isTargetMonth ? currentMonthRef : null}
                     variant={isTargetMonth ? "default" : "secondary"}
                   >

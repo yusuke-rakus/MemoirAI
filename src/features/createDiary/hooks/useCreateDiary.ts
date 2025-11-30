@@ -6,7 +6,7 @@ import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useDiaryCard } from "./useDiaryCard";
 
-export interface Diary {
+interface Diary {
   date: Date;
   content: string;
   tags: string[];

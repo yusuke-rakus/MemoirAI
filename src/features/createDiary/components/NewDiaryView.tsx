@@ -8,10 +8,16 @@ import { ChevronDown, ChevronUp, Plus, Save, X } from "lucide-react";
 import { useCreateDiary } from "../hooks/useCreateDiary";
 import { useDiaryCard } from "../hooks/useDiaryCard";
 import { usePickMessages } from "../hooks/usePickMessages";
+import { toast } from "sonner";
+import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
+import { useFetchDiary } from "../hooks/useFetchDiary";
+import { DiaryPreviewCard } from "./DiaryPreviewCard";
 
 export const NewDiaryView = () => {
+  const { date, uploadedDiaries, isLoading } = useDiaryDetailStore();
+  useFetchDiary();
   const { isCreating, onSave } = useCreateDiary();
-
+  const { pickRandomMessages } = usePickMessages();
   const {
     cards,
     tagInputs,
@@ -25,8 +31,6 @@ export const NewDiaryView = () => {
     handleTagInputKeyDown,
   } = useDiaryCard();
 
-  const { pickRandomMessages } = usePickMessages();
-
   return (
     <div className="min-h-screen pt-5">
       <div className="max-w-3xl mx-auto">
@@ -35,7 +39,7 @@ export const NewDiaryView = () => {
             className="text-2xl font-semibold"
             text={pickRandomMessages}
           />
-          <span>{cards[0].date.toLocaleDateString()}</span>
+          <span>{date.toLocaleDateString()}</span>
         </div>
 
         <div className="space-y-4 mb-6">
@@ -151,6 +155,18 @@ export const NewDiaryView = () => {
           Hello World.
         </p>
 
+        <h3 className="text-xl text-muted-foreground">今日の日記</h3>
+
+        {uploadedDiaries.length > 0 && (
+          <div className="flex flex-col gap-2">
+            {uploadedDiaries.map((diary, i) => {
+              return <DiaryPreviewCard key={i} diary={diary} />;
+            })}
+          </div>
+        )}
+
+        <div className="w-full min-h-24" />
+
         <div className="flex gap-3 sticky bottom-6">
           <Button
             onClick={addCard}
@@ -168,6 +184,7 @@ export const NewDiaryView = () => {
             <Save className="h-4 w-4 mr-2" />
             保存
           </Button>
+          <Button onClick={() => toast("hello")}>no</Button>
         </div>
       </div>
     </div>
