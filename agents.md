@@ -11,6 +11,13 @@ Always generate code that:
 
 ---
 
+## Language Requirement for Chat Responses
+
+**Always respond in Japanese when answering in chat.**
+However, keep code (function names, variables, file names, TS types) in English as usual.
+
+---
+
 ## 0. Project Structure and Where to Put Things
 
 ### 0-1. High-level structure
