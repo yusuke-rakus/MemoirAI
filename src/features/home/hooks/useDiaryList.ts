@@ -22,13 +22,22 @@ export const useDiaryList = () => {
         return;
       }
 
-      const newDialies = data
-        .sort((a, b) => b.date.toMillis() - a.date.toMillis())
-        .map((diary) => ({
-          id: diary.id,
-          ...(diary as Omit<Diary, "id">),
-        }));
-      setDialies(newDialies);
+      const sorted = data.sort((a, b) => b.date.toMillis() - a.date.toMillis());
+
+      const seen = new Set<string>();
+      const uniqueByDay: Diary[] = [];
+
+      for (const diary of sorted) {
+        const d = (diary as any).date?.toDate
+          ? (diary as any).date.toDate()
+          : (diary as any).date;
+        const key = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        uniqueByDay.push({ id: diary.id, ...(diary as Omit<Diary, "id">) });
+      }
+
+      setDialies(uniqueByDay);
     } finally {
       setLoading(false);
     }

@@ -5,6 +5,8 @@ import { DiaryClient } from "@/lib/service/diaryClient";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useDiaryCard } from "./useDiaryCard";
+import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
+import { useFetchDiary } from "./useFetchDiary";
 
 interface Diary {
   date: Date;
@@ -27,7 +29,7 @@ export const useCreateDiary = () => {
     };
   };
 
-  const createDiaries = async (diaries: Diary[]): Promise<string[]> => {
+  const createDiaries = async (diaries: Diary[]): Promise<void> => {
     if (!localUser?.uid) throw new Error("No authenticated user");
 
     setIsCreating(true);
@@ -51,8 +53,7 @@ export const useCreateDiary = () => {
         return DiaryClient.add(payload).then(() => payload.id);
       });
 
-      const createdIds = await Promise.all(addPromises);
-      return createdIds;
+      await Promise.all(addPromises);
     } finally {
       setIsCreating(false);
     }

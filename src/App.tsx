@@ -4,8 +4,11 @@ import { HomePage } from "./features/home";
 import { NewDiaryPage } from "./features/createDiary";
 import { LoginPage } from "./features/login";
 import { NotificationToaster } from "./components/shared/common/NotificationToaster";
+import { useInitialDateStore } from "./stores/initialDateStore";
 
 export const App = () => {
+  const { dateParamString, yearMonth } = useInitialDateStore();
+
   return (
     <>
       <NotificationToaster />
@@ -21,8 +24,35 @@ export const App = () => {
           element={<HomePage />}
         />
         <Route
+          path={PATHS.calendar.path}
+          element={
+            <Navigate
+              to={`${PATHS.calendar.path}/${yearMonth.year}/${yearMonth.month}`}
+              replace
+            />
+          }
+        />
+        <Route
           path={`${PATHS.diaries.path}/:year/:month`}
           element={<HomePage />}
+        />
+        <Route
+          path={PATHS.diaries.path}
+          element={
+            <Navigate
+              to={`${PATHS.diaries.path}/${yearMonth.year}/${yearMonth.month}`}
+              replace
+            />
+          }
+        />
+        <Route
+          path={PATHS.newDiary.path}
+          element={
+            <Navigate
+              to={`${PATHS.newDiary.path}/${dateParamString}`}
+              replace
+            />
+          }
         />
         <Route
           path={`${PATHS.newDiary.path}/:date`}

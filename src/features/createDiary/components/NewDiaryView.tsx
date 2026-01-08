@@ -33,7 +33,7 @@ export const NewDiaryView = () => {
 
   return (
     <div className="min-h-screen pt-5">
-      <div className="max-w-3xl mx-auto">
+      <div className="relative max-w-3xl mx-auto">
         <div className="mb-4 animate-slide-in-down">
           <RotatingText
             className="text-2xl font-semibold"
@@ -155,19 +155,20 @@ export const NewDiaryView = () => {
           Hello World.
         </p>
 
-        <h3 className="text-xl text-muted-foreground">今日の日記</h3>
-
         {uploadedDiaries.length > 0 && (
-          <div className="flex flex-col gap-2">
-            {uploadedDiaries.map((diary, i) => {
-              return <DiaryPreviewCard key={i} diary={diary} />;
-            })}
-          </div>
+          <>
+            <h3 className="text-xl text-muted-foreground">今日の日記</h3>
+            <div className="flex flex-col gap-2">
+              {uploadedDiaries.map((diary, i) => {
+                return <DiaryPreviewCard key={i} diary={diary} />;
+              })}
+            </div>
+          </>
         )}
 
         <div className="w-full min-h-24" />
 
-        <div className="flex gap-3 sticky bottom-6">
+        <div className="fixed bottom-6 w-full max-w-3xl flex gap-3">
           <Button
             onClick={addCard}
             variant="outline"

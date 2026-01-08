@@ -1,11 +1,5 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
-import {
-  useSearchParams,
-  useNavigate,
-  useLocation,
-  useParams,
-} from "react-router-dom";
-import { QueryDateParam } from "../../constants/queryDateParam";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useCurrentDateStore } from "../../provider/CurrentDateProvider";
 
 export type Month = {
