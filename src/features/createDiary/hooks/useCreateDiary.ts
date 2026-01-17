@@ -5,8 +5,6 @@ import { DiaryClient } from "@/lib/service/diaryClient";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useDiaryCard } from "./useDiaryCard";
-import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
-import { useFetchDiary } from "./useFetchDiary";
 
 interface Diary {
   date: Date;
@@ -70,11 +68,13 @@ export const useCreateDiary = () => {
   );
 
   const onSave = useCallback(async () => {
-    toast.promise(createDiaries(diariesToCreate), {
+    const promise = createDiaries(diariesToCreate);
+    toast.promise(promise, {
       loading: "日記を作成中...",
       success: () => "日記を作成しました🎊",
       error: "日記の作成に失敗しました",
     });
+    await promise;
   }, [diariesToCreate]);
 
   return { isCreating, onSave };

@@ -5,17 +5,18 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp, Plus, Save, X } from "lucide-react";
+import { useEffect } from "react";
+import { toast } from "sonner";
 import { useCreateDiary } from "../hooks/useCreateDiary";
 import { useDiaryCard } from "../hooks/useDiaryCard";
-import { usePickMessages } from "../hooks/usePickMessages";
-import { toast } from "sonner";
-import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
 import { useFetchDiary } from "../hooks/useFetchDiary";
+import { usePickMessages } from "../hooks/usePickMessages";
+import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
 import { DiaryPreviewCard } from "./DiaryPreviewCard";
 
 export const NewDiaryView = () => {
   const { date, uploadedDiaries, isLoading } = useDiaryDetailStore();
-  useFetchDiary();
+  const { refetch } = useFetchDiary();
   const { isCreating, onSave } = useCreateDiary();
   const { pickRandomMessages } = usePickMessages();
   const {
@@ -29,7 +30,17 @@ export const NewDiaryView = () => {
     removeTag,
     handleTagInputChange,
     handleTagInputKeyDown,
+    reset,
   } = useDiaryCard();
+
+  useEffect(() => {
+    reset(date);
+  }, [date, reset]);
+
+  const handleSave = async () => {
+    await onSave();
+    await refetch();
+  };
 
   return (
     <div className="min-h-screen pt-5">
@@ -178,7 +189,7 @@ export const NewDiaryView = () => {
             カードを追加
           </Button>
           <Button
-            onClick={onSave}
+            onClick={handleSave}
             disabled={isCreating}
             className="flex-1 h-11 text-sm font-medium bg-primary hover:bg-primary/90 transition-all duration-200 active:scale-95"
           >

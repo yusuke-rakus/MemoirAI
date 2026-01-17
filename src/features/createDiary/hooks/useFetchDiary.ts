@@ -32,4 +32,25 @@ export const useFetchDiary = () => {
 
     fetchDiary();
   }, [date, localUser?.uid, setUploadedDiaries, setIsLoading]);
+
+  const refetch = async () => {
+    if (!localUser?.uid) return;
+    setIsLoading(true);
+    try {
+      const result =
+        (await DiaryClient.getByUidAndDate<Diary>(localUser.uid, date)) ?? [];
+      const sorted = result.sort(
+        (a, b) => b.createdAt.toMillis() - a.createdAt.toMillis()
+      );
+
+      setUploadedDiaries(sorted);
+    } catch (error) {
+      console.error("Failed to fetch diary", error);
+      toast.error("日記の取得に失敗しました");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { refetch };
 };

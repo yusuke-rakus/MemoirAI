@@ -1,8 +1,8 @@
 import { PATHS } from "@/constants/path";
-import { useEffect, useState } from "react";
-import { getAuth, onAuthStateChanged, type User } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
 import { useLocalUser } from "@/contexts/LocalUserContext";
+import { getAuth, onAuthStateChanged, type User } from "firebase/auth";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const PROTECTED_PATHS = [PATHS.calendar.path, PATHS.diaries.path];
 
@@ -32,15 +32,15 @@ export const useAuthCheck = () => {
         });
       }
       setUser(firebaseUser);
-      // setLoading(false);
+      setLoading(false);
 
       // TODO : テスト用であるだけ
-      const delayThenSetLoading = async () => {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        setLoading(false);
-      };
+      // const delayThenSetLoading = async () => {
+      //   await new Promise((resolve) => setTimeout(resolve, 500));
+      //   setLoading(false);
+      // };
 
-      delayThenSetLoading();
+      // delayThenSetLoading();
     });
 
     return () => unsubscribe();

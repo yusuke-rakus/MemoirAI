@@ -14,7 +14,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { PATHS } from "@/constants/path";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export const AppSidebar = () => {
   const { open, setOpen } = useSidebar();
@@ -45,7 +45,7 @@ export const AppSidebar = () => {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroupLabel>Application</SidebarGroupLabel>
+        <SidebarGroupLabel>MemoriAI</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
             {menuItems.map((item) => {
@@ -55,10 +55,10 @@ export const AppSidebar = () => {
               return (
                 <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton asChild isActive={isActive}>
-                    <a href={item.path}>
+                    <Link to={item.path}>
                       <Icon />
                       <span>{item.name}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               );

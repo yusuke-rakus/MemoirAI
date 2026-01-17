@@ -25,7 +25,7 @@ export const LoginView = () => {
           </h1>
 
           <h2 className="text-xl font-medium leading-relaxed tracking-wide text-gray-200 sm:text-2xl md:text-3xl">
-            1日を、いくつものメモで。
+            1日を、いくつものメモで
           </h2>
 
           <p className="mx-auto max-w-lg text-base text-gray-400 sm:text-lg">

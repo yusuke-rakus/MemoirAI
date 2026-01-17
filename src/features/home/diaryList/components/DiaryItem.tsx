@@ -4,9 +4,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { PATHS } from "@/constants/path";
 import type { Diary } from "@/types/diary/diary";
+import { format } from "date-fns";
 import { Tag } from "lucide-react";
-import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { DayIcon } from "./DayIcon";
 import { DiaryTag } from "./DiaryTag";
 
@@ -16,15 +18,12 @@ type DiaryItemProps = {
 
 export const DiaryItem = (props: DiaryItemProps) => {
   const { diary } = props;
+  const navigate = useNavigate();
 
   const handleSearch = () => {
-    console.log(diary);
+    const dateStr = format(diary.date.toDate(), "yyyy-MM-dd");
+    navigate(`${PATHS.newDiary.path}/${dateStr}`);
   };
-
-  useEffect(() => {
-    // console.log(diary.date.seconds);
-    // console.log(diary.date.toDate());
-  }, []);
 
   return (
     <CardContent onClick={handleSearch} className="px-0 cursor-pointer">

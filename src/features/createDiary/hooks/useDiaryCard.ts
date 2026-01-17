@@ -27,17 +27,33 @@ interface DiaryCardActions {
     e: KeyboardEvent<HTMLInputElement>,
     id: string
   ) => void;
+  reset: (date?: Date) => void;
 }
 
 type DiaryCardStore = DiaryCardState & DiaryCardActions;
 
 const INITIAL_CARD_ID = "1";
 
-const createCard = (id: string): DiaryCard => ({
+const getDateFromPath = (): Date => {
+  if (typeof window === "undefined") return new Date();
+
+  const path = window.location.pathname;
+  const match = path.match(/\/(\d{4}-\d{2}-\d{2})$/);
+
+  if (match) {
+    const [_, dateStr] = match;
+    const [year, month, day] = dateStr.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  return new Date();
+};
+
+const createCard = (id: string, date?: Date): DiaryCard => ({
   id,
   body: "",
   tags: [],
-  date: new Date(),
+  date: date ?? getDateFromPath(),
   isCollapsed: false,
   isRemoving: false,
 });
@@ -119,6 +135,11 @@ const useDiaryCardStore = create<DiaryCardStore>((set, get) => ({
       get().addTag(id);
     }
   },
+  reset: (date) =>
+    set(() => ({
+      cards: [createCard(INITIAL_CARD_ID, date)],
+      tagInputs: { [INITIAL_CARD_ID]: "" },
+    })),
 }));
 
 export const useDiaryCard = () => useDiaryCardStore();
