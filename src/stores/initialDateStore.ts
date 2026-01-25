@@ -7,7 +7,7 @@ export type InitialDateState = {
   setDate: (date: Date) => void;
 };
 
-export const useInitialDateStore = create<InitialDateState>((set, get) => {
+export const useInitialDateStore = create<InitialDateState>((set) => {
   const computeDateParamString = (date: Date) =>
     [
       date.getFullYear(),

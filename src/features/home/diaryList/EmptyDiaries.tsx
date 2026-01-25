@@ -7,9 +7,12 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { PATHS } from "@/constants/path";
 import { Notebook } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export function EmptyDiaries() {
+  const navigate = useNavigate();
   return (
     <Empty>
       <EmptyHeader>
@@ -23,7 +26,9 @@ export function EmptyDiaries() {
       </EmptyHeader>
       <EmptyContent>
         <div className="flex gap-2">
-          <Button>日記を作成する</Button>
+          <Button onClick={() => navigate(PATHS.newDiary.path)}>
+            日記を作成する
+          </Button>
         </div>
       </EmptyContent>
     </Empty>

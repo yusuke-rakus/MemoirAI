@@ -1,14 +1,13 @@
-import * as React from "react";
+import { cn } from "@/lib/utils";
 import {
   AnimatePresence,
   motion,
   type HTMLMotionProps,
   type Transition,
 } from "motion/react";
+import { useRotatingText } from "./useRotatingText";
 
-import { cn } from "@/lib/utils";
-
-type RotatingTextProps = {
+export type RotatingTextProps = {
   text: string | string[];
   duration?: number;
   transition?: Transition;
@@ -16,7 +15,7 @@ type RotatingTextProps = {
   containerClassName?: string;
 } & HTMLMotionProps<"div">;
 
-function RotatingText({
+export function RotatingText({
   text,
   y = -50,
   duration = 5000,
@@ -24,17 +23,7 @@ function RotatingText({
   containerClassName,
   ...props
 }: RotatingTextProps) {
-  const [index, setIndex] = React.useState(0);
-
-  React.useEffect(() => {
-    if (!Array.isArray(text)) return;
-    const interval = setInterval(() => {
-      setIndex((prevIndex) => (prevIndex + 1) % text.length);
-    }, duration);
-    return () => clearInterval(interval);
-  }, [text, duration]);
-
-  const currentText = Array.isArray(text) ? text[index] : text;
+  const currentText = useRotatingText(text, duration);
 
   return (
     <div className={cn("overflow-hidden py-1", containerClassName)}>
@@ -53,5 +42,3 @@ function RotatingText({
     </div>
   );
 }
-
-export { RotatingText, type RotatingTextProps };

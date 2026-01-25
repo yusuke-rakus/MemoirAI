@@ -18,8 +18,8 @@ interface Event {
 }
 
 export const Calendar = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const { dialies, loading } = useDiaryList();
+  const [currentDate] = useState(new Date());
+  const { dialies } = useDiaryList();
   const [events, setEvents] = useState<Event[]>([]);
 
   useEffect(() => {

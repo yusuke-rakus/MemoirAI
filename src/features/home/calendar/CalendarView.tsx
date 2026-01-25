@@ -1,12 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { useLocalUser } from "@/contexts/LocalUserContext";
+import { testModel } from "@/firebase/models/testModel";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { DiaryClient } from "@/lib/service/diaryClient";
-import { useState } from "react";
+import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { Calendar } from "./calendar";
-import { toast } from "sonner";
-import { testModel } from "@/firebase/models/testModel";
 
 export const CalendarView = () => {
   const { localUser } = useLocalUser();
@@ -83,12 +82,6 @@ export const CalendarView = () => {
     console.log(`text: ${text}`);
     const json = JSON.parse(text);
     console.table(json);
-  };
-
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  const monthCaptionStyle = {
-    borderBottom: "1px solid currentColor",
-    paddingBottom: "0.5em",
   };
 
   return (

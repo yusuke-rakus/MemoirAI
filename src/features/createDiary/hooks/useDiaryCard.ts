@@ -1,8 +1,9 @@
-import { create } from "zustand";
 import type { KeyboardEvent } from "react";
+import { create } from "zustand";
 
 interface DiaryCard {
   id: string;
+  title: string;
   body: string;
   tags: string[];
   date: Date;
@@ -19,13 +20,14 @@ interface DiaryCardActions {
   addCard: () => void;
   removeCard: (id: string) => void;
   toggleCollapse: (id: string) => void;
+  updateCardTitle: (id: string, title: string) => void;
   updateCardBody: (id: string, body: string) => void;
   addTag: (id: string) => void;
   removeTag: (cardId: string, tagIndex: number) => void;
   handleTagInputChange: (id: string, value: string) => void;
   handleTagInputKeyDown: (
     e: KeyboardEvent<HTMLInputElement>,
-    id: string
+    id: string,
   ) => void;
   reset: (date?: Date) => void;
 }
@@ -51,6 +53,7 @@ const getDateFromPath = (): Date => {
 
 const createCard = (id: string, date?: Date): DiaryCard => ({
   id,
+  title: "",
   body: "",
   tags: [],
   date: date ?? getDateFromPath(),
@@ -74,7 +77,7 @@ const useDiaryCardStore = create<DiaryCardStore>((set, get) => ({
       if (state.cards.length <= 1) return state;
       return {
         cards: state.cards.map((card) =>
-          card.id === id ? { ...card, isRemoving: true } : card
+          card.id === id ? { ...card, isRemoving: true } : card,
         ),
         tagInputs: state.tagInputs,
       };
@@ -93,14 +96,21 @@ const useDiaryCardStore = create<DiaryCardStore>((set, get) => ({
   toggleCollapse: (id) =>
     set((state) => ({
       cards: state.cards.map((card) =>
-        card.id === id ? { ...card, isCollapsed: !card.isCollapsed } : card
+        card.id === id ? { ...card, isCollapsed: !card.isCollapsed } : card,
+      ),
+      tagInputs: state.tagInputs,
+    })),
+  updateCardTitle: (id, title) =>
+    set((state) => ({
+      cards: state.cards.map((card) =>
+        card.id === id ? { ...card, title } : card,
       ),
       tagInputs: state.tagInputs,
     })),
   updateCardBody: (id, body) =>
     set((state) => ({
       cards: state.cards.map((card) =>
-        card.id === id ? { ...card, body } : card
+        card.id === id ? { ...card, body } : card,
       ),
       tagInputs: state.tagInputs,
     })),
@@ -110,7 +120,7 @@ const useDiaryCardStore = create<DiaryCardStore>((set, get) => ({
       if (!tagInput) return state;
       return {
         cards: state.cards.map((card) =>
-          card.id === id ? { ...card, tags: [...card.tags, tagInput] } : card
+          card.id === id ? { ...card, tags: [...card.tags, tagInput] } : card,
         ),
         tagInputs: { ...state.tagInputs, [id]: "" },
       };
@@ -120,7 +130,7 @@ const useDiaryCardStore = create<DiaryCardStore>((set, get) => ({
       cards: state.cards.map((card) =>
         card.id === cardId
           ? { ...card, tags: card.tags.filter((_, i) => i !== tagIndex) }
-          : card
+          : card,
       ),
       tagInputs: state.tagInputs,
     })),
