@@ -1,6 +1,6 @@
 import { MainLayout } from "@/layout/MainLayout";
-import { LoginView } from "./components/LoginView";
 import { LoginHeader } from "./components/LoginHeader";
+import { LoginView } from "./components/LoginView";
 
 export const LoginPage = () => {
   return (

@@ -32,7 +32,7 @@ export const useDiaryDetailStore = (): DiaryDetailState => {
   const store = useContext(DiaryDetailStoreContext);
   if (!store) {
     throw new Error(
-      "useDiaryDetailStore must be used within DiaryDetailProvider"
+      "useDiaryDetailStore must be used within DiaryDetailProvider",
     );
   }
 

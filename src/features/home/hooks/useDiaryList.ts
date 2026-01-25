@@ -15,7 +15,7 @@ export const useDiaryList = () => {
       const data = await DiaryClient.getByUidAndMonth(
         localUser.uid,
         date.getFullYear(),
-        date.getMonth() + 1
+        date.getMonth() + 1,
       );
       if (!data) {
         setDialies([]);

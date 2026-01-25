@@ -33,7 +33,7 @@ export const HomePage = () => {
   const navigate = useNavigate();
   const handleClickTab = (tab: string) => {
     navigate(
-      `${tab}/${initialDate.getFullYear()}/${initialDate.getMonth() + 1}`
+      `${tab}/${initialDate.getFullYear()}/${initialDate.getMonth() + 1}`,
     );
   };
 

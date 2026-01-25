@@ -32,7 +32,7 @@ export const useCurrentDateStore = (): CurrentDateState => {
   const store = useContext(CurrentDateStoreContext);
   if (!store) {
     throw new Error(
-      "useCurrentDateStore must be used within CurrentDateProvider"
+      "useCurrentDateStore must be used within CurrentDateProvider",
     );
   }
 

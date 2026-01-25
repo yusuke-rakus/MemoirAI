@@ -15,5 +15,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </UserProvider>
       </TooltipProvider>
     </BrowserRouter>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

@@ -1,8 +1,8 @@
 import { useAuthCheck } from "@/hooks/useAuthCheck";
 import { MainLayout } from "@/layout/MainLayout";
 import { NewDiaryView } from "./components/NewDiaryView";
-import { DiaryDetailProvider } from "./provider/DiaryDetailProvider";
 import { useInitialDiaryDate } from "./hooks/useInitialDiaryDate";
+import { DiaryDetailProvider } from "./provider/DiaryDetailProvider";
 
 export const NewDiaryPage = () => {
   const { loading } = useAuthCheck();

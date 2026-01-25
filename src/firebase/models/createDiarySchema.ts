@@ -1,6 +1,6 @@
+import { tagColors } from "@/constants/tagColors";
 import { getGenerativeModel, Schema } from "firebase/ai";
 import { ai, DEFAULT_MODEL } from "./models";
-import { tagColors } from "@/constants/tagColors";
 
 const diaryTitleSchema = Schema.object({
   properties: {

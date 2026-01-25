@@ -7,7 +7,7 @@ type MonthSelectorScrollButtonProps = {
 };
 
 export const MonthSelectorScrollButton = (
-  props: MonthSelectorScrollButtonProps
+  props: MonthSelectorScrollButtonProps,
 ) => {
   const { onToggle, scroll } = props;
 

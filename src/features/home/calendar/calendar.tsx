@@ -30,7 +30,7 @@ export const Calendar = () => {
         date: diary.date.toDate(),
         className: "bg-secondary",
         extendedProps: { text: diary.content },
-      }))
+      })),
     );
   }, [dialies]);
 
@@ -115,7 +115,7 @@ export const Calendar = () => {
             <div
               className={cn(
                 "text-xs px-2 py-1 rounded truncate cursor-pointer hover:opacity-80 transition-opacity w-full text-left",
-                arg.event.classNames.join(" ")
+                arg.event.classNames.join(" "),
               )}
               title={arg.event.title}
             >

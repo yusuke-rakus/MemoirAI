@@ -18,7 +18,7 @@ export const useFetchDiary = () => {
         const result =
           (await DiaryClient.getByUidAndDate<Diary>(localUser.uid, date)) ?? [];
         const sorted = result.sort(
-          (a, b) => b.createdAt.toMillis() - a.createdAt.toMillis()
+          (a, b) => b.createdAt.toMillis() - a.createdAt.toMillis(),
         );
 
         setUploadedDiaries(sorted);
@@ -40,7 +40,7 @@ export const useFetchDiary = () => {
       const result =
         (await DiaryClient.getByUidAndDate<Diary>(localUser.uid, date)) ?? [];
       const sorted = result.sort(
-        (a, b) => b.createdAt.toMillis() - a.createdAt.toMillis()
+        (a, b) => b.createdAt.toMillis() - a.createdAt.toMillis(),
       );
 
       setUploadedDiaries(sorted);

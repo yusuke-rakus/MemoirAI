@@ -11,11 +11,11 @@ import {
 
 export class DiaryClient {
   static async getByUid<T extends Record<string, any>>(
-    uid: string
+    uid: string,
   ): Promise<T[] | null> {
     const q = query(
       collection(db, "users", uid, "diaries"),
-      where("uid", "==", uid)
+      where("uid", "==", uid),
     );
     const querySnapshot = await getDocs(q);
     if (querySnapshot.empty) {
@@ -27,7 +27,7 @@ export class DiaryClient {
 
   static async getByUidAndDate<T extends Record<string, any>>(
     uid: string,
-    date: Date
+    date: Date,
   ): Promise<T[] | null> {
     const start = new Date(date);
     start.setHours(0, 0, 0, 0);
@@ -37,7 +37,7 @@ export class DiaryClient {
     const q = query(
       collection(db, "users", uid, "diaries"),
       where("date", ">=", Timestamp.fromDate(start)),
-      where("date", "<", Timestamp.fromDate(end))
+      where("date", "<", Timestamp.fromDate(end)),
     );
 
     const querySnapshot = await getDocs(q);
@@ -49,7 +49,7 @@ export class DiaryClient {
   static async getByUidAndMonth<T extends Record<string, any>>(
     uid: string,
     year: number,
-    month: number
+    month: number,
   ): Promise<T[] | null> {
     const m = Math.max(1, Math.min(12, Math.floor(month)));
     const start = new Date(year, m - 1, 1, 0, 0, 0, 0);
@@ -58,7 +58,7 @@ export class DiaryClient {
     const q = query(
       collection(db, "users", uid, "diaries"),
       where("date", ">=", Timestamp.fromDate(start)),
-      where("date", "<", Timestamp.fromDate(end))
+      where("date", "<", Timestamp.fromDate(end)),
     );
 
     const querySnapshot = await getDocs(q);

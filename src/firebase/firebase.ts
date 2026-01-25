@@ -31,4 +31,4 @@ if (env.isDev) {
 
 const provider = new GoogleAuthProvider();
 
-export { app, auth, provider, signInWithPopup, db };
+export { app, auth, db, provider, signInWithPopup };

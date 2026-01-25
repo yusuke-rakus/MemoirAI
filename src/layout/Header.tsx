@@ -56,7 +56,7 @@ export const Header = () => {
     <header
       className={cn(
         "fixed top-0 right-0 h-14 px-4 border-b bg-background shadow-sm z-40 items-center transition-all duration-250",
-        open ? "left-64" : "left-0"
+        open ? "left-64" : "left-0",
       )}
     >
       <div className={cn("flex items-center h-full", open && "hidden")}>

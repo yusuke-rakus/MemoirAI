@@ -83,7 +83,7 @@ export const useScrollToCurrentMonth = () => {
 
   const setScrollToCurrentMonth = (
     ref: RefObject<HTMLButtonElement | null>,
-    dependencies: Month[] = []
+    dependencies: Month[] = [],
   ) => {
     useEffect(() => {
       ref.current?.scrollIntoView({

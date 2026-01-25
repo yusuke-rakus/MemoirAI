@@ -1,9 +1,9 @@
 import { PATHS } from "@/constants/path";
-import { Routes, Route, Navigate } from "react-router-dom";
-import { HomePage } from "./features/home";
-import { NewDiaryPage } from "./features/createDiary";
-import { LoginPage } from "./features/login";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { NotificationToaster } from "./components/shared/common/NotificationToaster";
+import { NewDiaryPage } from "./features/createDiary";
+import { HomePage } from "./features/home";
+import { LoginPage } from "./features/login";
 import { useInitialDateStore } from "./stores/initialDateStore";
 
 export const App = () => {

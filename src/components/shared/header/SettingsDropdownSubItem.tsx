@@ -13,7 +13,7 @@ type SettingsDropdownSubItemProps = {
 };
 
 export const SettingsDropdownSubItem = (
-  props: SettingsDropdownSubItemProps
+  props: SettingsDropdownSubItemProps,
 ) => {
   const { icon, label, children } = props;
   const Icon = icon;
