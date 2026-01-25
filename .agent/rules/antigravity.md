@@ -15,9 +15,9 @@ Always generate code that:
 
 ---
 
-## Language Requirement for Chat Responses
+## Language Requirement for Output
 
-**Always respond in Japanese when answering in chat.**
+**Always respond in Japanese when answering in chat or creating user-facing artifacts.**
 However, keep code (function names, variables, file names, TS types) in English as usual.
 
 ---
