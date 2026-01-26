@@ -1,0 +1,31 @@
+.fc-theme-standard td,
+.fc-theme-standard th {
+  /* border: none; */
+}
+.fc-theme-standard .fc-scrollgrid {
+  /* border: none; */
+}
+.fc-col-header-cell-cushion {
+  color: hsl(var(--muted-foreground));
+  font-weight: 500;
+  font-size: 0.65rem;
+}
+.fc-daygrid-day-top {
+  display: flex;
+  justify-content: center;
+}
+.fc-daygrid-day-number {
+  color: hsl(var(--foreground));
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+/* Current Month Days */
+.fc-day:not(.fc-day-other) .fc-daygrid-day-number {
+  opacity: 1;
+}
+.fc-toolbar-title {
+  color: hsl(var(--foreground));
+}
+.fc .fc-daygrid-day.fc-day-today {
+  background-color: var(--secondary);
+}

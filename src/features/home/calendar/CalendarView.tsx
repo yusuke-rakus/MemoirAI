@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { useLocalUser } from "@/contexts/LocalUserContext";
 import { testModel } from "@/firebase/models/testModel";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
@@ -89,11 +88,11 @@ export const CalendarView = () => {
       <div>
         <Calendar />
       </div>
-      <div className="w-full flex flex-col items-center">
+      {/* <div className="w-full flex flex-col items-center">
         <Button onClick={handleGenerateText}>AI試験</Button>
         <Button onClick={handleCreate}>Create Diary</Button>
         <Button onClick={handleClickUpdate}>Update Diary</Button>
-      </div>
+      </div> */}
     </>
   );
 };
