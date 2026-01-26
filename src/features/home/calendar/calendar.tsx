@@ -2,8 +2,9 @@ import { cn } from "@/lib/utils";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import FullCalendar from "@fullcalendar/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDiaryList } from "../hooks/useDiaryList";
+import { useCurrentDateStore } from "../provider/CurrentDateProvider";
 
 interface Event {
   id: string;
@@ -18,9 +19,10 @@ interface Event {
 }
 
 export const Calendar = () => {
-  const [currentDate] = useState(new Date());
   const { dialies } = useDiaryList();
   const [events, setEvents] = useState<Event[]>([]);
+  const { date } = useCurrentDateStore();
+  const calendarRef = useRef<FullCalendar>(null);
 
   useEffect(() => {
     setEvents(
@@ -34,6 +36,12 @@ export const Calendar = () => {
     );
   }, [dialies]);
 
+  useEffect(() => {
+    if (calendarRef.current && date) {
+      calendarRef.current.getApi().gotoDate(date);
+    }
+  }, [date]);
+
   const handleDateClick = (arg: { dateStr: string }) => {
     console.log(`date: ${arg.dateStr}`);
   };
@@ -42,74 +50,79 @@ export const Calendar = () => {
     <div className="max-w-6xl mx-auto bg-card rounded-md shadow-sm p-4 h-[800px]">
       <style>{`
         .fc {
-          --fc-border-color: hsl(var(--border));
-          --fc-page-bg-color: hsl(var(--background));
-          --fc-neutral-bg-color: hsl(var(--muted));
-          --fc-list-event-hover-bg-color: hsl(var(--accent));
-          --fc-today-bg-color: hsl(var(--accent) / 0.5);
-          --fc-now-indicator-color: hsl(var(--primary));
-          --fc-event-bg-color: hsl(var(--primary));
-          --fc-event-border-color: hsl(var(--primary));
-          --fc-event-text-color: hsl(var(--primary-foreground));
-          --fc-button-bg-color: hsl(var(--primary));
-          --fc-button-border-color: hsl(var(--primary));
-          --fc-button-text-color: hsl(var(--primary-foreground));
-          --fc-button-hover-bg-color: hsl(var(--primary) / 0.9);
-          --fc-button-hover-border-color: hsl(var(--primary) / 0.9);
-          --fc-button-active-bg-color: hsl(var(--primary) / 0.8);
-          --fc-button-active-border-color: hsl(var(--primary) / 0.8);
+          --fc-border-color: transparent;
+          --fc-page-bg-color: transparent;
+          --fc-neutral-bg-color: transparent;
+          --fc-today-bg-color: transparent;
         }
         .fc-theme-standard td, .fc-theme-standard th {
-          border-color: hsl(var(--border));
+          border: none;
+        }
+        .fc-theme-standard .fc-scrollgrid {
+          border: none;
         }
         .fc-col-header-cell-cushion {
           color: hsl(var(--muted-foreground));
-          font-weight: normal;
-          padding-bottom: 8px;
+          font-weight: 500;
+          font-size: 0.875rem;
+          padding-bottom: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
         }
         .fc-daygrid-day-number {
           color: hsl(var(--foreground));
-          font-size: 0.875rem;
+          font-size: 0.9rem;
+          font-weight: 500;
           padding: 8px;
+          opacity: 0.8;
+        }
+        /* Current Month Days */
+        .fc-day:not(.fc-day-other) .fc-daygrid-day-number {
+          opacity: 1;
+        }
+        /* Today Highlight */
+        .fc-day-today .fc-daygrid-day-number {
+          background-color: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
+          border-radius: 50%;
+          width: 28px;
+          height: 28px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 4px;
         }
         .fc-toolbar-title {
-          font-size: 1.25rem !important;
-          font-weight: 600;
+          font-size: 1.5rem !important;
+          font-weight: 700;
           color: hsl(var(--foreground));
-        }
-        .fc-button {
-          border-radius: var(--radius) !important;
-          font-weight: 500;
-          padding: 0 1rem !important;
-          height: 2.25rem !important;
-          font-size: 0.875rem !important;
-          line-height: 2rem !important;
+          text-align: left;
+          padding-left: 0.5rem;
         }
         .fc .fc-toolbar.fc-header-toolbar {
-          margin-bottom: 1.5rem;
+          margin-bottom: 2rem;
+          padding: 0 0.5rem;
+        }
+        /* Hide today background cell event if we style the number */
+        .fc .fc-daygrid-day.fc-day-today {
+          background-color: transparent;
         }
       `}</style>
       <FullCalendar
+        ref={calendarRef}
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
-        initialDate={currentDate}
+        initialDate={date}
         events={events}
         dateClick={handleDateClick}
         headerToolbar={{
-          left: "prev,next today",
+          left: "",
           center: "title",
-          right: "dayGridMonth",
+          right: "",
         }}
         locale="ja"
-        buttonText={{
-          today: "今日",
-          month: "月",
-          week: "週",
-          day: "日",
-          list: "リスト",
-        }}
         height="100%"
-        dayCellClassNames="hover:bg-accent/50 transition-colors cursor-pointer"
+        dayCellClassNames="transition-colors cursor-pointer hover:bg-muted/30 rounded-md"
         eventContent={(arg) => {
           return (
             <div
