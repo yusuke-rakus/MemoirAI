@@ -42,6 +42,7 @@ export const useCreateDiary = () => {
           id: generateDiaryId(),
           uid: localUser.uid,
           date: d.date,
+          title: diaryMeta[i].title,
           content: d.content,
           tags: diaryMeta[i].tags,
           createdAt: new Date(),
