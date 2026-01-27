@@ -140,10 +140,14 @@ const useDiaryCardStore = create<DiaryCardStore>((set, get) => ({
       tagInputs: { ...state.tagInputs, [id]: value },
     })),
   handleTagInputKeyDown: (e, id) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      get().addTag(id);
-    }
+    if (e.key !== "Enter") return;
+    if (e.nativeEvent.isComposing) return;
+    e.preventDefault();
+    get().addTag(id);
+    set((state) => ({
+      cards: state.cards,
+      tagInputs: { ...state.tagInputs, [id]: "" },
+    }));
   },
   reset: (date) =>
     set(() => ({
