@@ -36,7 +36,7 @@ export const Calendar = () => {
         id: diary.id,
         title: diary.title,
         date: diary.date.toDate(),
-        className: "bg-secondary",
+        // className: "bg-transparent",
         extendedProps: { text: diary.content },
       })),
     );
@@ -54,7 +54,7 @@ export const Calendar = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto bg-card rounded-md shadow-sm p-4 h-[800px]">
+    <div className="max-w-6xl mx-auto h-[800px]">
       <FullCalendar
         ref={calendarRef}
         plugins={[dayGridPlugin, interactionPlugin]}
@@ -62,12 +62,10 @@ export const Calendar = () => {
         initialDate={date}
         events={events}
         dateClick={handleDateClick}
-        headerToolbar={{
-          right: "",
-        }}
+        headerToolbar={false}
         locale="ja"
         height="100%"
-        dayCellClassNames="transition-colors cursor-pointer hover:bg-muted/30 rounded-md"
+        dayCellClassNames="cursor-pointer hover:bg-muted/50 duration-300"
         dayCellContent={(arg) => arg.dayNumberText.replace("日", "")}
         eventContent={(arg) => {
           return (

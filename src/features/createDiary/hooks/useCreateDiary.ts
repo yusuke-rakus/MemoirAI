@@ -38,13 +38,16 @@ export const useCreateDiary = () => {
 
       // 並列でカードの追加処理を実行
       const addPromises = diaries.map((d, i) => {
+        const mergedTags = Array.from(
+          new Set([...d.tags, ...diaryMeta[i].tags]),
+        );
         const payload = {
           id: generateDiaryId(),
           uid: localUser.uid,
           date: d.date,
           title: diaryMeta[i].title,
           content: d.content,
-          tags: diaryMeta[i].tags,
+          tags: mergedTags,
           createdAt: new Date(),
         };
 
