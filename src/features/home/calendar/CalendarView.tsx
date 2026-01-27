@@ -85,7 +85,7 @@ export const CalendarView = () => {
 
   return (
     <>
-      <div>
+      <div className="pb-10">
         <Calendar />
       </div>
       {/* <div className="w-full flex flex-col items-center">

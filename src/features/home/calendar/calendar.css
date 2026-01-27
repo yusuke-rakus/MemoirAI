@@ -1,10 +1,5 @@
-.fc-theme-standard td,
-.fc-theme-standard th {
-  /* border: none; */
-}
-.fc-theme-standard .fc-scrollgrid {
-  /* border: none; */
-}
+@import "tailwindcss";
+
 .fc-col-header-cell-cushion {
   color: hsl(var(--muted-foreground));
   font-weight: 500;
@@ -19,7 +14,6 @@
   font-size: 0.75rem;
   font-weight: 500;
 }
-/* Current Month Days */
 .fc-day:not(.fc-day-other) .fc-daygrid-day-number {
   opacity: 1;
 }
