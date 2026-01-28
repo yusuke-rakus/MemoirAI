@@ -5,6 +5,7 @@ import { NewDiaryPage } from "./features/createDiary";
 import { HomePage } from "./features/home";
 import { LoginPage } from "./features/login";
 import { useInitialDateStore } from "./stores/initialDateStore";
+import { DiariesPage } from "./features/diaries";
 
 export const App = () => {
   const { dateParamString, yearMonth } = useInitialDateStore();
@@ -35,6 +36,10 @@ export const App = () => {
         <Route
           path={`${PATHS.diaries.path}/:year/:month`}
           element={<HomePage />}
+        />
+        <Route
+          path={`${PATHS.diaries.path}/:dateParamString`}
+          element={<DiariesPage />}
         />
         <Route
           path={PATHS.diaries.path}

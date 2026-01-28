@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/card";
 import type { Diary } from "@/types/diary/diary";
 import { Tag } from "lucide-react";
-import { DiaryTag } from "./DiaryTag";
+import { DiaryTag } from "../../createDiary/components/DiaryTag";
 
 type DiaryPreviewCardProps = {
   diary: Diary;

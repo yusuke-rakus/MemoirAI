@@ -3,14 +3,14 @@ import { useEffect } from "react";
 
 export const useDocumentTitle = (
   title: string,
-  prefix: string = `${env.appName} | `,
+  suffix: string = ` | ${env.appName}`,
 ) => {
   useEffect(() => {
     const previousTitle = document.title;
-    document.title = prefix + title;
+    document.title = title + suffix;
 
     return () => {
-      document.title = prefix + previousTitle;
+      document.title = previousTitle + suffix;
     };
-  }, [title]);
+  }, [title, suffix]);
 };
