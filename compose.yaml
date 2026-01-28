@@ -1,10 +1,13 @@
 services:
   firebase:
-    image: node:22-bookworm
+    build:
+      context: .
+      dockerfile: docker/firebase-emulator.Dockerfile
     working_dir: /firebase
     volumes:
       - ./firebase:/firebase
       - ./firebase-data:/firebase/firebase-data
+      - ./firebase.json:/firebase.json:ro
     env_file:
       - .env.development
     ports:
@@ -12,11 +15,6 @@ services:
       - "8080:8080" # Firestore
       - "9099:9099" # Auth
     command: >
-      sh -c "apt-get update &&
-      apt-get install -y --no-install-recommends wget gnupg ca-certificates &&
-      wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor > /usr/share/keyrings/adoptium.gpg &&
-      echo 'deb [signed-by=/usr/share/keyrings/adoptium.gpg] https://packages.adoptium.net/artifactory/deb bookworm main' > /etc/apt/sources.list.d/adoptium.list &&
-      apt-get update &&
-      apt-get install -y --no-install-recommends temurin-21-jre &&
-      npm install -g firebase-tools &&
-      firebase emulators:start --only firestore,auth --project $$VITE_PROJECT_ID --import=/firebase/firebase-data --export-on-exit=/firebase/firebase-data --config /firebase/firebase.json"
+      sh -c "firebase emulators:start --only firestore,auth --project $$VITE_PROJECT_ID
+      --import=/firebase/firebase-data --export-on-exit=/firebase/firebase-data
+      --config /firebase.json"
