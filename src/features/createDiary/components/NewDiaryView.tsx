@@ -24,7 +24,7 @@ import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
 export const NewDiaryView = () => {
   const navigate = useNavigate();
   const { date, setDate, uploadedDiaries } = useDiaryDetailStore();
-  const { refetch } = useFetchDiary();
+  useFetchDiary();
   const { isCreating, onSave } = useCreateDiary();
   const {
     cards,
@@ -54,7 +54,8 @@ export const NewDiaryView = () => {
 
   const handleSave = async () => {
     await onSave();
-    await refetch();
+    const dateString = format(date, "yyyy-MM-dd");
+    navigate(`${PATHS.diaries.path}/${dateString}`);
   };
 
   return (
