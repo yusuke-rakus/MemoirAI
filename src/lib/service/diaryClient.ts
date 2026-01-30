@@ -43,6 +43,9 @@ export class DiaryClient {
     const querySnapshot = await getDocs(q);
     if (querySnapshot.empty) return null;
 
+    console.log(start, end);
+    console.log(querySnapshot.docs.map((doc) => doc.data()));
+
     return querySnapshot.docs.map((doc) => doc.data() as T);
   }
 

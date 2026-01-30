@@ -22,7 +22,7 @@ export const DiaryItem = (props: DiaryItemProps) => {
 
   const handleSearch = () => {
     const dateStr = format(diary.date.toDate(), "yyyy-MM-dd");
-    navigate(`${PATHS.newDiary.path}/${dateStr}`);
+    navigate(`${PATHS.diaries.path}/${dateStr}`);
   };
 
   return (

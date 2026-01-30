@@ -20,12 +20,11 @@ import { useDiaryCard } from "../hooks/useDiaryCard";
 import { useFetchDiary } from "../hooks/useFetchDiary";
 import { usePickMessages } from "../hooks/usePickMessages";
 import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
-import { DiaryPreviewCard } from "./DiaryPreviewCard";
 
 export const NewDiaryView = () => {
   const navigate = useNavigate();
   const { date, setDate, uploadedDiaries } = useDiaryDetailStore();
-  const { refetch } = useFetchDiary();
+  useFetchDiary();
   const { isCreating, onSave } = useCreateDiary();
   const {
     cards,
@@ -55,7 +54,8 @@ export const NewDiaryView = () => {
 
   const handleSave = async () => {
     await onSave();
-    await refetch();
+    const dateString = format(date, "yyyy-MM-dd");
+    navigate(`${PATHS.diaries.path}/${dateString}`);
   };
 
   return (
@@ -189,20 +189,6 @@ export const NewDiaryView = () => {
             セクションを追加
           </Button>
         </div>
-
-        {/* Previously Uploaded Diaries (if any) */}
-        {uploadedDiaries.length > 0 && (
-          <div className="mt-16 pt-8 border-t border-dashed">
-            <h3 className="text-xl font-semibold mb-6 text-muted-foreground">
-              Today's Entries
-            </h3>
-            <div className="space-y-4">
-              {uploadedDiaries.map((diary, i) => (
-                <DiaryPreviewCard key={i} diary={diary} />
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
