@@ -11,11 +11,10 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { PATHS } from "@/constants/path";
+import { DiaryItems } from "@/features/sidebar";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export const AppSidebar = () => {
@@ -68,14 +67,7 @@ export const AppSidebar = () => {
           </SidebarMenu>
         </SidebarGroupContent>
 
-        <SidebarGroupLabel>日記の一覧</SidebarGroupLabel>
-        <SidebarMenuSub>
-          <SidebarMenuSubItem>
-            <SidebarMenuButton asChild>
-              <Link to={"sample"}>ああああああああああああああああ</Link>
-            </SidebarMenuButton>
-          </SidebarMenuSubItem>
-        </SidebarMenuSub>
+        <DiaryItems />
       </SidebarContent>
     </Sidebar>
   );

@@ -59,7 +59,7 @@ export const NewDiaryView = () => {
   };
 
   return (
-    <div className="min-h-screen pt-8 pb-32 px-4 sm:px-6 font-sans">
+    <div className="min-h-screen pt-8 pb-32 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">

@@ -7,7 +7,7 @@ import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
 
 export const useFetchDiary = () => {
   const { localUser } = useLocalUser();
-  const { date, setUploadedDiaries, setIsLoading } = useDiaryDetailStore();
+  const { setUploadedDiaries, setIsLoading } = useDiaryDetailStore();
 
   useEffect(() => {
     if (!localUser?.uid) return;
@@ -16,7 +16,7 @@ export const useFetchDiary = () => {
       setIsLoading(true);
       try {
         const result =
-          (await DiaryClient.getByUidAndDate<Diary>(localUser.uid, date)) ?? [];
+          (await DiaryClient.getByUidPaged<Diary>(localUser.uid)) ?? [];
         const sorted = result.sort(
           (a, b) => b.createdAt.toMillis() - a.createdAt.toMillis(),
         );
@@ -31,14 +31,14 @@ export const useFetchDiary = () => {
     };
 
     fetchDiary();
-  }, [date, localUser?.uid, setUploadedDiaries, setIsLoading]);
+  }, [localUser?.uid, setUploadedDiaries, setIsLoading]);
 
   const refetch = async () => {
     if (!localUser?.uid) return;
     setIsLoading(true);
     try {
       const result =
-        (await DiaryClient.getByUidAndDate<Diary>(localUser.uid, date)) ?? [];
+        (await DiaryClient.getByUidPaged<Diary>(localUser.uid)) ?? [];
       const sorted = result.sort(
         (a, b) => b.createdAt.toMillis() - a.createdAt.toMillis(),
       );
