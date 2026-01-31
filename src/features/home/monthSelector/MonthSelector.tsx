@@ -1,6 +1,5 @@
 import { MonthSelectorScrollButton } from "@/components/shared/calendar/MonthSelectorScrollButton";
 import { Button } from "@/components/ui/button";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useRef } from "react";
 import {
   useMonths,
@@ -34,7 +33,7 @@ export const MonthSelector = (props: MonthSelectorProps) => {
   return (
     <div className="flex items-center">
       <MonthSelectorScrollButton onToggle={scrollLeft} scroll={"left"} />
-      <ScrollArea className="max-w-lg overflow-x-auto">
+      <div className="max-w-lg overflow-x-auto snap-x">
         <div ref={scrollRef} className="flex w-full space-x-4 p-4">
           {months.map((month) => {
             const isTargetMonth =
@@ -44,7 +43,7 @@ export const MonthSelector = (props: MonthSelectorProps) => {
             return (
               <div
                 key={month.isButton ? month.date.toISOString() : month.label}
-                className="flex justify-center items-center"
+                className="flex justify-center items-center snap-end snap-always"
               >
                 {month.isButton ? (
                   <Button
@@ -61,8 +60,7 @@ export const MonthSelector = (props: MonthSelectorProps) => {
             );
           })}
         </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      </div>
       <MonthSelectorScrollButton onToggle={scrollRight} scroll={"right"} />
     </div>
   );

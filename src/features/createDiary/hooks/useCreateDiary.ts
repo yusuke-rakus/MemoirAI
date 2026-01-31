@@ -1,3 +1,4 @@
+import type { TagColor } from "@/constants/tagColors";
 import { useLocalUser } from "@/contexts/LocalUserContext";
 import { diaryTitleModel } from "@/firebase/models/createDiarySchema";
 import { generateDiaryId } from "@/lib/generateId";
@@ -6,10 +7,15 @@ import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useDiaryCard } from "./useDiaryCard";
 
+interface Tag {
+  color: TagColor;
+  name: string;
+}
+
 interface Diary {
   date: Date;
   content: string;
-  tags: string[];
+  tags: Tag[];
 }
 
 export const useCreateDiary = () => {

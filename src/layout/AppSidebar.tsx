@@ -14,6 +14,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { PATHS } from "@/constants/path";
+import { DiaryItems } from "@/features/sidebar";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export const AppSidebar = () => {
@@ -65,6 +66,8 @@ export const AppSidebar = () => {
             })}
           </SidebarMenu>
         </SidebarGroupContent>
+
+        <DiaryItems />
       </SidebarContent>
     </Sidebar>
   );

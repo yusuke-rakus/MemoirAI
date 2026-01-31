@@ -3,6 +3,7 @@ import {
   collection,
   doc,
   getDocs,
+  limit,
   query,
   setDoc,
   Timestamp,
@@ -43,8 +44,16 @@ export class DiaryClient {
     const querySnapshot = await getDocs(q);
     if (querySnapshot.empty) return null;
 
-    console.log(start, end);
-    console.log(querySnapshot.docs.map((doc) => doc.data()));
+    return querySnapshot.docs.map((doc) => doc.data() as T);
+  }
+
+  static async getByUidPaged<T extends Record<string, any>>(
+    uid: string,
+  ): Promise<T[] | null> {
+    const q = query(collection(db, "users", uid, "diaries"), limit(10));
+
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) return null;
 
     return querySnapshot.docs.map((doc) => doc.data() as T);
   }
