@@ -1,11 +1,17 @@
+import { DefaultTagColor, type TagColor } from "@/constants/tagColors";
 import type { KeyboardEvent } from "react";
 import { create } from "zustand";
+
+interface Tag {
+  color: TagColor;
+  name: string;
+}
 
 interface DiaryCard {
   id: string;
   title: string;
   body: string;
-  tags: string[];
+  tags: Tag[];
   date: Date;
   isCollapsed: boolean;
   isRemoving: boolean;
@@ -120,7 +126,15 @@ const useDiaryCardStore = create<DiaryCardStore>((set, get) => ({
       if (!tagInput) return state;
       return {
         cards: state.cards.map((card) =>
-          card.id === id ? { ...card, tags: [...card.tags, tagInput] } : card,
+          card.id === id
+            ? {
+                ...card,
+                tags: [
+                  ...card.tags,
+                  { name: tagInput, color: DefaultTagColor },
+                ],
+              }
+            : card,
         ),
         tagInputs: { ...state.tagInputs, [id]: "" },
       };

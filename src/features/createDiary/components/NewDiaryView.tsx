@@ -140,7 +140,7 @@ export const NewDiaryView = () => {
                         key={tagIndex}
                         className="inline-flex items-center gap-1.5 px-3 py-1 bg-secondary/50 text-secondary-foreground rounded-md text-sm font-medium transition-colors hover:bg-secondary"
                       >
-                        {tag}
+                        {tag.name}
                         <button
                           onClick={() => removeTag(card.id, tagIndex)}
                           className="hover:text-destructive transition-colors"
