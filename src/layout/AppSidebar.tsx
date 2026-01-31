@@ -11,6 +11,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { PATHS } from "@/constants/path";
@@ -65,6 +67,15 @@ export const AppSidebar = () => {
             })}
           </SidebarMenu>
         </SidebarGroupContent>
+
+        <SidebarGroupLabel>日記の一覧</SidebarGroupLabel>
+        <SidebarMenuSub>
+          <SidebarMenuSubItem>
+            <SidebarMenuButton asChild>
+              <Link to={"sample"}>ああああああああああああああああ</Link>
+            </SidebarMenuButton>
+          </SidebarMenuSubItem>
+        </SidebarMenuSub>
       </SidebarContent>
     </Sidebar>
   );
