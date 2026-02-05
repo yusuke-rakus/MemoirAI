@@ -6,19 +6,28 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { MessageSquareDashed } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useFetchDiary } from "../hooks/useFetchDiary";
 import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
-import { Link } from "react-router-dom";
 
 export const SidebarDiaries = () => {
   useFetchDiary();
-  const { uploadedDiaries } = useDiaryDetailStore();
+  const { uploadedDiaries, isLoading } = useDiaryDetailStore();
 
   return (
     <>
       <SidebarGroupLabel>日記の一覧</SidebarGroupLabel>
       <SidebarMenuSub>
-        {uploadedDiaries.length > 0 ? (
+        {isLoading ? (
+          <>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <SidebarMenuItem key={index}>
+                <SidebarMenuSkeleton />
+              </SidebarMenuItem>
+            ))}
+          </>
+        ) : uploadedDiaries.length > 0 ? (
           <>
             {uploadedDiaries.map((diary, i) => {
               return (
@@ -33,13 +42,10 @@ export const SidebarDiaries = () => {
             })}
           </>
         ) : (
-          <>
-            {Array.from({ length: 5 }).map((_, index) => (
-              <SidebarMenuItem key={index}>
-                <SidebarMenuSkeleton />
-              </SidebarMenuItem>
-            ))}
-          </>
+          <div className="flex items-center justify-center gap-1 text-center text-xs text-muted-foreground">
+            <MessageSquareDashed size={18} />
+            <p>まだ日記がありません</p>
+          </div>
         )}
       </SidebarMenuSub>
     </>
