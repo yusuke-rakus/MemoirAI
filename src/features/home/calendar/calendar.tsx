@@ -54,7 +54,7 @@ export const Calendar = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto h-[800px]">
+    <div className="mx-auto h-[calc(100dvh-14rem)] min-h-[480px] w-full sm:h-[800px]">
       <FullCalendar
         ref={calendarRef}
         plugins={[dayGridPlugin, interactionPlugin]}
@@ -71,7 +71,7 @@ export const Calendar = () => {
           return (
             <div
               className={cn(
-                "rounded truncate cursor-pointer transition-opacity w-full text-left",
+                "w-full cursor-pointer rounded text-left text-xs truncate transition-opacity sm:text-sm",
                 arg.event.classNames.join(" "),
               )}
               title={arg.event.title}
