@@ -42,13 +42,13 @@ export const HomePage = () => {
   ) : (
     <CurrentDateProvider initialDate={initialDate}>
       <MainLayout>
-        <div className="flex justify-center w-full max-w-3xl mx-auto">
+        <div className="flex justify-center w-full mx-auto">
           <MonthSelector targetDate={initialDate} />
         </div>
         <Tabs
           value={tabValue}
           onValueChange={setTabValue}
-          className="w-full max-w-3xl mx-auto"
+          className="w-full mx-auto"
         >
           <TabsList className="mr-auto max-w-xs w-full p-0 bg-inherit justify-start border-b rounded-none">
             {tabs.map((tab) => {

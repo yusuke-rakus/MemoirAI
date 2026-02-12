@@ -21,7 +21,9 @@ export const DiaryPreviewCard = ({ diary }: DiaryPreviewCardProps) => {
           <CardTitle>{diary.title}</CardTitle>
         </CardHeader>
         <CardContent className="px-2">
-          <p className="text-muted-foreground">{diary.content}</p>
+          <p className="text-muted-foreground whitespace-pre-wrap">
+            {diary.content}
+          </p>
         </CardContent>
         {diary.tags.length >= 1 && (
           <CardFooter className="p-0 flex flex-wrap gap-2">

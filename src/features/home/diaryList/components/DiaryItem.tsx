@@ -34,7 +34,7 @@ export const DiaryItem = (props: DiaryItemProps) => {
             <CardTitle className="text-lg">{diary.title}</CardTitle>
           </CardHeader>
           <CardContent className="p-0 mb-4">
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
               {diary.content}
             </p>
           </CardContent>

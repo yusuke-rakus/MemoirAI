@@ -22,11 +22,13 @@ export const MainLayout = (props: MainLayoutProps) => {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-screen bg-background overflow-x-hidden">
+      <div className="flex h-screen w-screen bg-background w-full">
         {sidebar}
-        <main className="flex-1 mt-14 flex flex-col">
+        <main className="flex-1 min-w-0 mt-14 flex flex-col w-full">
           {header}
-          <div className="flex-1 w-full overflow-auto">{children}</div>
+          <div className="flex-1 w-full overflow-auto">
+            <div className="max-w-4xl mx-auto px-2">{children}</div>
+          </div>
         </main>
       </div>
     </SidebarProvider>

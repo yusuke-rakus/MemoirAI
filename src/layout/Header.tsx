@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 export const Header = () => {
-  const { open, setOpen } = useSidebar();
+  const { open, setOpen, isMobile } = useSidebar();
   const { localUser, setLocalUser } = useLocalUser();
   const auth = getAuth();
   const navigate = useNavigate();
@@ -56,10 +56,15 @@ export const Header = () => {
     <header
       className={cn(
         "fixed top-0 right-0 h-14 px-4 border-b bg-background shadow-sm z-40 items-center transition-all duration-250",
-        open ? "left-64" : "left-0",
+        open && !isMobile ? "left-64" : "left-0",
       )}
     >
-      <div className={cn("flex items-center h-full", open && "hidden")}>
+      <div
+        className={cn(
+          "flex items-center h-full",
+          open && !isMobile && "hidden",
+        )}
+      >
         <AppTooltip description={"サイドバーを開ける"}>
           <SidebarToggleButton isOpen={open} onToggle={() => setOpen(!open)} />
         </AppTooltip>
