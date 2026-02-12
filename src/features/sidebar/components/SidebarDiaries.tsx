@@ -10,6 +10,8 @@ import { MessageSquareDashed } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useFetchDiary } from "../hooks/useFetchDiary";
 import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
+import { PATHS } from "@/constants/path";
+import { format } from "date-fns";
 
 export const SidebarDiaries = () => {
   useFetchDiary();
@@ -33,7 +35,9 @@ export const SidebarDiaries = () => {
               return (
                 <SidebarMenuSubItem key={i}>
                   <SidebarMenuButton asChild>
-                    <Link to={"/"}>
+                    <Link
+                      to={`${PATHS.diaries.path}/${format(diary.date.toDate(), "yyyy-MM-dd")}`}
+                    >
                       <span className="truncate text-xs">{diary.title}</span>
                     </Link>
                   </SidebarMenuButton>
