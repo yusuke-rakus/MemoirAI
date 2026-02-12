@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 export const Header = () => {
-  const { open, setOpen, isMobile } = useSidebar();
+  const { open, openMobile, isMobile, toggleSidebar } = useSidebar();
   const { localUser, setLocalUser } = useLocalUser();
   const auth = getAuth();
   const navigate = useNavigate();
@@ -52,6 +52,8 @@ export const Header = () => {
     }
   };
 
+  const isSidebarOpen = isMobile ? openMobile : open;
+
   return (
     <header
       className={cn(
@@ -66,7 +68,10 @@ export const Header = () => {
         )}
       >
         <AppTooltip description={"サイドバーを開ける"}>
-          <SidebarToggleButton isOpen={open} onToggle={() => setOpen(!open)} />
+          <SidebarToggleButton
+            isOpen={isSidebarOpen}
+            onToggle={toggleSidebar}
+          />
         </AppTooltip>
         <AppTooltip description={"日記を検索"}>
           <SidebarSearchButton onToggle={() => {}} />

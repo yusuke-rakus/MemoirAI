@@ -18,7 +18,8 @@ import { DiaryItems } from "@/features/sidebar";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export const AppSidebar = () => {
-  const { open, setOpen } = useSidebar();
+  const { open, openMobile, isMobile, toggleSidebar } = useSidebar();
+  const isSidebarOpen = isMobile ? openMobile : open;
 
   const menuItems = [PATHS.calendar, PATHS.diaries, PATHS.newDiary];
 
@@ -31,8 +32,8 @@ export const AppSidebar = () => {
         <div>
           <AppTooltip description={"サイドバーを閉じる"}>
             <SidebarToggleButton
-              isOpen={open}
-              onToggle={() => setOpen(!open)}
+              isOpen={isSidebarOpen}
+              onToggle={toggleSidebar}
             />
           </AppTooltip>
         </div>
