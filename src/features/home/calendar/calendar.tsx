@@ -1,13 +1,10 @@
-import { PATHS } from "@/constants/path";
 import { cn } from "@/lib/utils";
+import type { Diary } from "@/types/diary/diary";
 import type { EventClickArg } from "@fullcalendar/core/index.js";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import FullCalendar from "@fullcalendar/react";
-import { format } from "date-fns";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDiaryList } from "../hooks/useDiaryList";
 import { useCurrentDateStore } from "../provider/CurrentDateProvider";
 
 import "./calendar.css";
@@ -24,12 +21,15 @@ interface Event {
   };
 }
 
-export const Calendar = () => {
-  const { dialies } = useDiaryList();
+interface CalendarProps {
+  dialies: Diary[];
+  onDateSelect?: (date: Date) => void;
+}
+
+export const Calendar = ({ dialies, onDateSelect }: CalendarProps) => {
   const [events, setEvents] = useState<Event[]>([]);
   const { date } = useCurrentDateStore();
   const calendarRef = useRef<FullCalendar>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     setEvents(
@@ -50,12 +50,13 @@ export const Calendar = () => {
   }, [date]);
 
   const handleDateClick = (arg: { date: Date }) => {
-    const dateStr = format(arg.date, "yyyy-MM-dd");
-    navigate(`${PATHS.newDiary.path}/${dateStr}`);
+    onDateSelect?.(arg.date);
   };
 
   const handleEventClick = (arg: EventClickArg) => {
-    console.log("clicked event:", arg.event._def.title);
+    if (arg.event.start) {
+      onDateSelect?.(arg.event.start);
+    }
   };
 
   return (
