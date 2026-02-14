@@ -23,3 +23,22 @@
 .fc .fc-daygrid-day.fc-day-today {
   background-color: var(--secondary);
 }
+
+.fc .fc-daygrid-more-link {
+  color: hsl(var(--primary));
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Keep day cells fixed-height even when dayMaxEvents is numeric. */
+.fc .fc-daygrid-body-unbalanced .fc-daygrid-day-frame {
+  overflow: hidden;
+}
+
+.fc .fc-daygrid-body-unbalanced .fc-daygrid-day-events {
+  position: absolute;
+  right: 0;
+  left: 0;
+  min-height: 0;
+}

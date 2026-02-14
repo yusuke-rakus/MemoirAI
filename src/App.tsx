@@ -17,7 +17,10 @@ export const App = () => {
         <Route
           path="/"
           element={
-            <Navigate to={`${PATHS.calendar.path}/:year/:month`} replace />
+            <Navigate
+              to={`${PATHS.calendar.path}/${yearMonth.year}/${yearMonth.month}`}
+              replace
+            />
           }
         />
         <Route

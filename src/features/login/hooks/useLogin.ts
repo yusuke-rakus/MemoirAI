@@ -15,7 +15,6 @@ export const useLogin = () => {
         throw new Error("User not found");
       }
 
-      console.log(user.uid);
       setLocalUser({
         uid: user.uid,
         displayName: user.displayName ?? null,

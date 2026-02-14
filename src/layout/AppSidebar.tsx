@@ -39,7 +39,11 @@ export const AppSidebar = () => {
         </div>
         <div>
           <AppTooltip description={"日記を検索"}>
-            <SidebarSearchButton onToggle={() => {}} />
+            <SidebarSearchButton
+              onToggle={() => {
+                console.log("hello");
+              }}
+            />
           </AppTooltip>
           <AppTooltip description={"新しい日記"}>
             <SidebarPenButton onToggle={() => navigate(PATHS.newDiary.path)} />
