@@ -77,7 +77,7 @@ export const Header = () => {
           <SidebarSearchButton onToggle={() => {}} />
         </AppTooltip>
         <AppTooltip description={"新しい日記"}>
-          <SidebarPenButton onToggle={() => {}} />
+          <SidebarPenButton onToggle={() => navigate(PATHS.newDiary.path)} />
         </AppTooltip>
       </div>
       <div className="ml-auto flex items-center gap-4">

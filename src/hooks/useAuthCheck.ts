@@ -33,14 +33,6 @@ export const useAuthCheck = () => {
       }
       setUser(firebaseUser);
       setLoading(false);
-
-      // TODO : テスト用であるだけ
-      // const delayThenSetLoading = async () => {
-      //   await new Promise((resolve) => setTimeout(resolve, 500));
-      //   setLoading(false);
-      // };
-
-      // delayThenSetLoading();
     });
 
     return () => unsubscribe();

@@ -55,7 +55,7 @@ export const Calendar = () => {
   };
 
   const handleEventClick = (arg: EventClickArg) => {
-    console.log("clicked event:", arg.event);
+    console.log("clicked event:", arg.event._def.title);
   };
 
   return (
