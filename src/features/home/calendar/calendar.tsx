@@ -1,5 +1,6 @@
 import { PATHS } from "@/constants/path";
 import { cn } from "@/lib/utils";
+import type { EventClickArg } from "@fullcalendar/core/index.js";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import FullCalendar from "@fullcalendar/react";
@@ -53,6 +54,10 @@ export const Calendar = () => {
     navigate(`${PATHS.newDiary.path}/${dateStr}`);
   };
 
+  const handleEventClick = (arg: EventClickArg) => {
+    console.log("clicked event:", arg.event);
+  };
+
   return (
     <div className="mx-auto h-[calc(100dvh-14rem)] min-h-[480px] w-full sm:h-[800px]">
       <FullCalendar
@@ -62,6 +67,10 @@ export const Calendar = () => {
         initialDate={date}
         events={events}
         dateClick={handleDateClick}
+        eventClick={handleEventClick}
+        dayMaxEvents={3}
+        moreLinkContent={(arg) => `+${arg.num}件`}
+        moreLinkClick="popover"
         headerToolbar={false}
         locale="ja"
         height="100%"
