@@ -12,7 +12,7 @@ export const DiaryView = () => {
   const skeltonItemCount = 5;
 
   return (
-    <>
+    <div className=" mb-10">
       {loading ? (
         <Card className="w-full items-start p-4 md:p-3 gap-0">
           {Array.from({ length: skeltonItemCount }).map((_, i) => (
@@ -25,6 +25,6 @@ export const DiaryView = () => {
       ) : (
         <Diaries dialies={dialies} />
       )}
-    </>
+    </div>
   );
 };

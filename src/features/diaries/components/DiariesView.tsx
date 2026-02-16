@@ -9,7 +9,7 @@ export const DiariesView = () => {
   useFetchDiary();
 
   return (
-    <div className="max-w-4xl mx-auto pt-8 flex flex-col gap-4">
+    <div className="max-w-4xl mx-auto pt-8 flex flex-col gap-4 mb-10">
       <div className="flex flex-col gap-1">
         <h2 className="text-3xl font-bold">{format(date, "M月d日")}</h2>
         <p className="text-sm text-muted-foreground">
