@@ -20,11 +20,9 @@ export const MonthSelector = (props: MonthSelectorProps) => {
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollLeft = () => {
-    console.log(scrollRef.current);
     scrollRef.current?.scrollBy({ left: -100, behavior: "smooth" });
   };
   const scrollRight = () => {
-    console.log(scrollRef.current);
     scrollRef.current?.scrollBy({ left: 100, behavior: "smooth" });
   };
 

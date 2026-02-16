@@ -58,8 +58,13 @@ export const useSetMonthRouteParams = () => {
     setDate(month.date);
 
     if (params.year && params.month) {
-      let newPath = currentPath.replace(params.year, targetYear);
-      newPath = newPath.replace(params.month, targetMonth);
+      const segments = currentPath.split("/");
+      const newSegments = segments.map((seg) => {
+        if (seg === params.year) return targetYear;
+        if (seg === params.month) return targetMonth;
+        return seg;
+      });
+      const newPath = newSegments.join("/");
       navigate(newPath, { replace });
       return;
     }

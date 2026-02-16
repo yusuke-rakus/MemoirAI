@@ -3,11 +3,20 @@ import { DiaryClient } from "@/lib/service/diaryClient";
 import type { Diary } from "@/types/diary/diary";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { useInitialDiaryDate } from "./useInitialDiaryDate";
 import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
 
 export const useFetchDiary = () => {
   const { localUser } = useLocalUser();
-  const { date, setUploadedDiaries, setIsLoading } = useDiaryDetailStore();
+  const initialDate = useInitialDiaryDate();
+  const { date, setDate, setUploadedDiaries, setIsLoading } =
+    useDiaryDetailStore();
+
+  useEffect(() => {
+    if (date.getTime() !== initialDate.getTime()) {
+      setDate(initialDate);
+    }
+  }, [date, initialDate, setDate]);
 
   useEffect(() => {
     if (!localUser?.uid) return;

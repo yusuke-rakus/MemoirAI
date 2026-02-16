@@ -15,15 +15,21 @@ export const CalendarView = () => {
       return [];
     }
 
-    return dialies.filter((diary) => isSameDay(diary.date.toDate(), selectedDate));
+    return dialies.filter((diary) =>
+      isSameDay(diary.date.toDate(), selectedDate),
+    );
   }, [dialies, selectedDate]);
 
   return (
-    <>
+    <div className=" mb-10">
       <div className="pb-10">
-        <Calendar dialies={dialies} onDateSelect={setSelectedDate} />
+        <Calendar
+          dialies={dialies}
+          selectedDate={selectedDate}
+          onDateSelect={setSelectedDate}
+        />
       </div>
       {selectedDate && <Diaries dialies={selectedDateDiaries} />}
-    </>
+    </div>
   );
 };

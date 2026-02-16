@@ -21,7 +21,7 @@ export const AppSidebar = () => {
   const { open, openMobile, isMobile, toggleSidebar } = useSidebar();
   const isSidebarOpen = isMobile ? openMobile : open;
 
-  const menuItems = [PATHS.calendar, PATHS.diaries, PATHS.newDiary];
+  const menuItems = [PATHS.calendar, PATHS.diaries];
 
   const location = useLocation();
   const navigate = useNavigate();
