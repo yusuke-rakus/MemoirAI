@@ -4,6 +4,7 @@ import type { EventClickArg } from "@fullcalendar/core/index.js";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import FullCalendar from "@fullcalendar/react";
+import { isSameDay } from "date-fns";
 import { useEffect, useRef, useState } from "react";
 import { useCurrentDateStore } from "../provider/CurrentDateProvider";
 
@@ -23,10 +24,15 @@ interface Event {
 
 interface CalendarProps {
   dialies: Diary[];
+  selectedDate?: Date | null;
   onDateSelect?: (date: Date) => void;
 }
 
-export const Calendar = ({ dialies, onDateSelect }: CalendarProps) => {
+export const Calendar = ({
+  dialies,
+  selectedDate,
+  onDateSelect,
+}: CalendarProps) => {
   const [events, setEvents] = useState<Event[]>([]);
   const { date } = useCurrentDateStore();
   const calendarRef = useRef<FullCalendar>(null);
@@ -75,7 +81,14 @@ export const Calendar = ({ dialies, onDateSelect }: CalendarProps) => {
         headerToolbar={false}
         locale="ja"
         height="100%"
-        dayCellClassNames="cursor-pointer hover:bg-muted/50 duration-300"
+        dayCellClassNames={(arg) =>
+          cn(
+            "cursor-pointer hover:bg-muted/50 duration-300",
+            selectedDate &&
+              isSameDay(arg.date, selectedDate) &&
+              "bg-primary/10",
+          )
+        }
         dayCellContent={(arg) => arg.dayNumberText.replace("日", "")}
         eventContent={(arg) => {
           return (

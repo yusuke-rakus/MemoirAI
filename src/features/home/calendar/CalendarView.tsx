@@ -21,7 +21,11 @@ export const CalendarView = () => {
   return (
     <>
       <div className="pb-10">
-        <Calendar dialies={dialies} onDateSelect={setSelectedDate} />
+        <Calendar
+          dialies={dialies}
+          selectedDate={selectedDate}
+          onDateSelect={setSelectedDate}
+        />
       </div>
       {selectedDate && <Diaries dialies={selectedDateDiaries} />}
     </>
