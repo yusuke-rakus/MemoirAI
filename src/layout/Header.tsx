@@ -5,14 +5,22 @@ import { SettingsDropdownSubItem } from "@/components/shared/header/SettingsDrop
 import { SidebarPenButton } from "@/components/shared/sidebar/SidebarPenButton";
 import { SidebarSearchButton } from "@/components/shared/sidebar/SidebarSearchButton";
 import { SidebarToggleButton } from "@/components/shared/sidebar/SidebarToggleButton";
-import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { useSidebar } from "@/components/ui/sidebar";
 import { PATHS } from "@/constants/path";
 import { defaultLocalUser, useLocalUser } from "@/contexts/LocalUserContext";
+import { type PrimaryColorKey } from "@/constants/primaryColors";
+import {
+  clearPrimaryColorOverrides,
+  usePrimaryColor,
+} from "@/hooks/usePrimaryColor";
 import useTheme, { type Theme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
 import { getAuth, signOut } from "firebase/auth";
-import { Moon, Settings, Sun, SunMoon } from "lucide-react";
+import { Dot, Moon, Palette, Settings, Sun, SunMoon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -23,14 +31,15 @@ export const Header = () => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    signOut(auth)
-      .then(() => {
-        setLocalUser(defaultLocalUser);
-        navigate(PATHS.login.path);
-      })
-      .catch((error) => {
-        console.error("Logout error:", error);
-      });
+    try {
+      await signOut(auth);
+      clearPrimaryColorOverrides();
+      setLocalUser(defaultLocalUser);
+      navigate(PATHS.login.path);
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("ログアウトに失敗しました");
+    }
   };
 
   const { theme, setTheme } = useTheme();
@@ -50,6 +59,17 @@ export const Header = () => {
         toast("システム設定のテーマを使用します");
         break;
     }
+  };
+
+  const {
+    primaryColor,
+    primaryColorOptions,
+    handlePrimaryColorChange,
+    isSavingPrimaryColor,
+  } = usePrimaryColor(localUser.uid);
+
+  const onPrimaryColorClick = (colorKey: PrimaryColorKey) => {
+    void handlePrimaryColorChange(colorKey);
   };
 
   const isSidebarOpen = isMobile ? openMobile : open;
@@ -101,6 +121,26 @@ export const Header = () => {
               label="システム"
               active={theme === "system"}
             />
+          </SettingsDropdownSubItem>
+          <SettingsDropdownSubItem icon={Palette} label={"プライマリカラー"}>
+            {primaryColorOptions.map((option) => (
+              <DropdownMenuItem
+                key={option.key}
+                disabled={isSavingPrimaryColor}
+                onClick={() => onPrimaryColorClick(option.key)}
+              >
+                <span
+                  className={cn(
+                    "h-3 w-3 shrink-0 rounded-full border border-border",
+                    option.previewClassName,
+                  )}
+                />
+                {option.label}
+                {primaryColor === option.key && (
+                  <Dot className="text-primary ml-auto" />
+                )}
+              </DropdownMenuItem>
+            ))}
           </SettingsDropdownSubItem>
           <SettingsDropdownItem icon={Settings} label="設定" />
         </AvatarMenu>
