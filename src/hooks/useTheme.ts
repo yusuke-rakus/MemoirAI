@@ -1,12 +1,19 @@
-import { useEffect, useState } from "react";
-
-export type Theme = "light" | "dark" | "system";
+import {
+  DEFAULT_THEME_KEY,
+  normalizeThemeKey,
+  type THemeKey,
+} from "@/constants/themes";
+import { useLocalUser } from "@/contexts/LocalUserContext";
+import { UserSettingsClient } from "@/lib/service/userSettingsClient";
+import { useCallback, useEffect, useState } from "react";
 
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === "undefined") return "system";
-    return (localStorage.getItem("theme") as Theme) || "system";
-  });
+  const { localUser } = useLocalUser();
+  const [theme, setThemeState] = useState<THemeKey>(DEFAULT_THEME_KEY);
+
+  useEffect(() => {
+    setThemeState(normalizeThemeKey(localUser.theme));
+  }, [localUser.theme]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -25,29 +32,27 @@ export function useTheme() {
       if (theme === "system") apply();
     };
 
-    try {
-      m.addEventListener("change", onChange);
-    } catch {
-      // Safari fallback
-      // @ts-ignore
-      m.addListener(onChange);
-    }
+    m.addEventListener("change", onChange);
 
     return () => {
-      try {
-        m.removeEventListener("change", onChange);
-      } catch {
-        // @ts-ignore
-        m.removeListener(onChange);
-      }
+      m.removeEventListener("change", onChange);
     };
   }, [theme]);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem("theme", theme);
-    } catch {}
-  }, [theme]);
+  const setTheme = useCallback(
+    (nextTheme: THemeKey) => {
+      setThemeState(nextTheme);
+      if (!localUser.uid) {
+        return;
+      }
+
+      void UserSettingsClient.update(localUser.uid, {
+        theme: nextTheme,
+        updatedAt: new Date(),
+      });
+    },
+    [localUser.uid],
+  );
 
   return { theme, setTheme } as const;
 }

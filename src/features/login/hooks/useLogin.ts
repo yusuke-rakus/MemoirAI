@@ -1,4 +1,3 @@
-import { useLocalUser } from "@/contexts/LocalUserContext";
 import { auth, provider, signInWithPopup } from "@/firebase/firebase";
 import { runNewUserSettingsMigrations } from "@/lib/service/userSettingsMigration";
 import { getAdditionalUserInfo } from "firebase/auth";
@@ -6,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 export const useLogin = () => {
-  const { setLocalUser } = useLocalUser();
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -22,11 +20,6 @@ export const useLogin = () => {
         await runNewUserSettingsMigrations(user.uid);
       }
 
-      setLocalUser({
-        uid: user.uid,
-        displayName: user.displayName ?? null,
-        photoURL: user.photoURL ?? null,
-      });
       navigate("/");
       if (user.displayName) {
         toast(`${user.displayName}さん、ようこそ🎉`);

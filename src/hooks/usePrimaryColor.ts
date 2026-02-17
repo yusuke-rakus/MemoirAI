@@ -5,6 +5,7 @@ import {
   primaryColorOptions,
   type PrimaryColorKey,
 } from "@/constants/primaryColors";
+import { useLocalUser } from "@/contexts/LocalUserContext";
 import { UserSettingsClient } from "@/lib/service/userSettingsClient";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -50,60 +51,14 @@ export const usePrimaryColor = (uid: string) => {
     DEFAULT_PRIMARY_COLOR_KEY,
   );
   const [isSavingPrimaryColor, setIsSavingPrimaryColor] = useState(false);
+  const { localUser } = useLocalUser();
 
   useEffect(() => {
-    let cancelled = false;
+    const colorKey = normalizePrimaryColorKey(localUser.primaryColor);
 
-    const loadUserPrimaryColor = async () => {
-      if (!uid) {
-        setPrimaryColor(DEFAULT_PRIMARY_COLOR_KEY);
-        clearPrimaryColorOverrides();
-        return;
-      }
-
-      try {
-        const settings = await UserSettingsClient.getByUid<{
-          primaryColor?: string;
-        }>(uid);
-
-        if (cancelled) {
-          return;
-        }
-
-        const colorKey = normalizePrimaryColorKey(settings?.primaryColor);
-
-        setPrimaryColor(colorKey);
-        applyPrimaryColor(colorKey);
-
-        if (settings?.primaryColor && settings.primaryColor !== colorKey) {
-          void UserSettingsClient.update(uid, {
-            primaryColor: colorKey,
-            updatedAt: new Date(),
-          }).catch((migrationError) => {
-            console.error(
-              "Failed to migrate legacy primary color key:",
-              migrationError,
-            );
-          });
-        }
-      } catch (error) {
-        if (cancelled) {
-          return;
-        }
-
-        console.error("Failed to load primary color settings:", error);
-        setPrimaryColor(DEFAULT_PRIMARY_COLOR_KEY);
-        clearPrimaryColorOverrides();
-        toast.error("カラー設定の読み込みに失敗しました");
-      }
-    };
-
-    void loadUserPrimaryColor();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [uid]);
+    setPrimaryColor(colorKey);
+    applyPrimaryColor(colorKey);
+  }, [localUser.primaryColor]);
 
   const handlePrimaryColorChange = async (nextKey: PrimaryColorKey) => {
     if (!uid || isSavingPrimaryColor || nextKey === primaryColor) {
