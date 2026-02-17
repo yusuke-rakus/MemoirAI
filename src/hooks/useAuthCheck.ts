@@ -1,5 +1,8 @@
 import { PATHS } from "@/constants/path";
+import { normalizePrimaryColorKey } from "@/constants/primaryColors";
+import { normalizeThemeKey } from "@/constants/themes";
 import { useLocalUser } from "@/contexts/LocalUserContext";
+import { UserSettingsClient } from "@/lib/service/userSettingsClient";
 import { getAuth, onAuthStateChanged, type User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -25,10 +28,19 @@ export const useAuthCheck = () => {
       }
 
       if (firebaseUser) {
+        const settings = await UserSettingsClient.getByUid<{
+          theme?: string;
+          primaryColor?: string;
+        }>(firebaseUser.uid);
+        const theme = normalizeThemeKey(settings?.theme);
+        const primaryColor = normalizePrimaryColorKey(settings?.primaryColor);
+
         setLocalUser({
           uid: firebaseUser.uid,
           displayName: firebaseUser.displayName ?? null,
           photoURL: firebaseUser.photoURL ?? null,
+          theme,
+          primaryColor,
         });
       }
       setUser(firebaseUser);
@@ -36,7 +48,7 @@ export const useAuthCheck = () => {
     });
 
     return () => unsubscribe();
-  }, [navigate]);
+  }, [auth, navigate, setLocalUser]);
 
   return { loading, user };
 };

@@ -11,13 +11,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSidebar } from "@/components/ui/sidebar";
 import { PATHS } from "@/constants/path";
-import { defaultLocalUser, useLocalUser } from "@/contexts/LocalUserContext";
 import { type PrimaryColorKey } from "@/constants/primaryColors";
+import type { THemeKey } from "@/constants/themes";
+import { defaultLocalUser, useLocalUser } from "@/contexts/LocalUserContext";
 import {
   clearPrimaryColorOverrides,
   usePrimaryColor,
 } from "@/hooks/usePrimaryColor";
-import useTheme, { type Theme } from "@/hooks/useTheme";
+import useTheme from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
 import { getAuth, signOut } from "firebase/auth";
 import { Dot, Moon, Palette, Settings, Sun, SunMoon } from "lucide-react";
@@ -44,7 +45,7 @@ export const Header = () => {
 
   const { theme, setTheme } = useTheme();
 
-  const handleThemeChange = (theme: Theme) => {
+  const handleThemeChange = (theme: THemeKey) => {
     switch (theme) {
       case "light":
         setTheme("light");

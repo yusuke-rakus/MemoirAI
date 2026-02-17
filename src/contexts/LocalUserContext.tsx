@@ -1,9 +1,16 @@
+import {
+  DEFAULT_PRIMARY_COLOR_KEY,
+  type PrimaryColorKey,
+} from "@/constants/primaryColors";
+import { DEFAULT_THEME_KEY, type THemeKey } from "@/constants/themes";
 import { createContext, useContext, useState, type ReactNode } from "react";
 
 export type LocalUser = {
   uid: string;
   displayName?: string | null;
   photoURL?: string | null;
+  theme?: THemeKey;
+  primaryColor?: PrimaryColorKey;
 };
 
 type UserContextType = {
@@ -15,6 +22,8 @@ export const defaultLocalUser: LocalUser = {
   uid: "",
   displayName: null,
   photoURL: null,
+  theme: DEFAULT_THEME_KEY,
+  primaryColor: DEFAULT_PRIMARY_COLOR_KEY,
 };
 
 const LocalUserContext = createContext<UserContextType | undefined>(undefined);
