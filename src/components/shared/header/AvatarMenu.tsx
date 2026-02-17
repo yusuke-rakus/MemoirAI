@@ -32,7 +32,7 @@ export const AvatarMenu = (props: AvatarMenuProps) => {
           {children}
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout}>
-            <LogOut className="text-primary" />
+            <LogOut />
             ログアウト
           </DropdownMenuItem>
         </DropdownMenuContent>
