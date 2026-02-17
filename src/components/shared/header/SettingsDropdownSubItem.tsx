@@ -21,7 +21,7 @@ export const SettingsDropdownSubItem = (
   return (
     <DropdownMenuSub>
       <DropdownMenuSubTrigger>
-        <Icon className="text-primary flex-shrink-0 w-4 h-4 mr-2" />
+        <Icon className="flex-shrink-0 w-4 h-4 mr-2" />
         {label}
       </DropdownMenuSubTrigger>
       <DropdownMenuPortal>

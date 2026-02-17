@@ -16,6 +16,7 @@ import {
 import { PATHS } from "@/constants/path";
 import { DiaryItems } from "@/features/sidebar";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export const AppSidebar = () => {
   const { open, openMobile, isMobile, toggleSidebar } = useSidebar();
@@ -41,7 +42,7 @@ export const AppSidebar = () => {
           <AppTooltip description={"日記を検索"}>
             <SidebarSearchButton
               onToggle={() => {
-                console.log("hello");
+                toast(":(機能が実装されていません");
               }}
             />
           </AppTooltip>
