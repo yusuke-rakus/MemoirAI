@@ -29,7 +29,7 @@ export const CalendarView = () => {
           onDateSelect={setSelectedDate}
         />
       </div>
-      {selectedDate && <Diaries dialies={selectedDateDiaries} />}
+      {selectedDate && <Diaries dialies={selectedDateDiaries} date={selectedDate} />}
     </div>
   );
 };
