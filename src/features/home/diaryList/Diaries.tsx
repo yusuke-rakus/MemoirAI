@@ -6,9 +6,10 @@ import { EmptyDiaries } from "./EmptyDiaries";
 
 interface DiariesProps {
   dialies: Diary[];
+  date?: Date;
 }
 
-export const Diaries = ({ dialies }: DiariesProps) => {
+export const Diaries = ({ dialies, date }: DiariesProps) => {
   return (
     <>
       {dialies.length > 0 ? (
@@ -21,7 +22,7 @@ export const Diaries = ({ dialies }: DiariesProps) => {
           ))}
         </Card>
       ) : (
-        <EmptyDiaries />
+        <EmptyDiaries date={date} />
       )}
     </>
   );

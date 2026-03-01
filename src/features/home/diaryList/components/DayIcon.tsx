@@ -24,7 +24,7 @@ export const DayIcon = ({ date }: DayIconProps) => {
       <div
         className={cn(
           "w-16 h-16 rounded-full flex items-center justify-center",
-          isHoliday ? "bg-secondary" : "bg-ring"
+          isHoliday ? "bg-secondary" : "bg-muted-foreground/50",
         )}
       >
         <p className="text-3xl font-bold text-accent-foreground">{day}</p>

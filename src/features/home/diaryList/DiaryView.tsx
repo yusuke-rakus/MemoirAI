@@ -3,10 +3,12 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { useDiaryList } from "../hooks/useDiaryList";
+import { useCurrentDateStore } from "../provider/CurrentDateProvider";
 import { Diaries } from "./Diaries";
 
 export const DiaryView = () => {
   const { dialies, loading } = useDiaryList();
+  const { date } = useCurrentDateStore();
   useDocumentTitle("日記一覧");
 
   const skeltonItemCount = 5;
@@ -23,7 +25,7 @@ export const DiaryView = () => {
           ))}
         </Card>
       ) : (
-        <Diaries dialies={dialies} />
+        <Diaries dialies={dialies} date={date} />
       )}
     </div>
   );
