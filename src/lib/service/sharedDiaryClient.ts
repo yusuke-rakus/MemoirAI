@@ -16,13 +16,11 @@ export class SharedDiaryClient {
     }
 
     const shareId = diary.id;
-    const sharedDiaryRef = doc(db, "shared", "diaries");
+    const sharedDiaryRef = doc(db, "sharedDiaries", shareId);
     await setDoc(sharedDiaryRef, {
-      [shareId]: {
-        ...diary,
-        sharedAt: new Date(),
-      },
-    }, { merge: true });
+      ...diary,
+      sharedAt: new Date(),
+    });
 
     return { shareId };
   }
@@ -30,19 +28,13 @@ export class SharedDiaryClient {
   static async getByShareId<T extends Record<string, unknown>>(
     shareId: string,
   ): Promise<T | null> {
-    const sharedDiaryRef = doc(db, "shared", "diaries");
+    const sharedDiaryRef = doc(db, "sharedDiaries", shareId);
     const snapshot = await getDoc(sharedDiaryRef);
 
     if (!snapshot.exists()) {
       return null;
     }
 
-    const data = snapshot.data();
-    const sharedDiary = data[shareId];
-    if (!sharedDiary) {
-      return null;
-    }
-
-    return sharedDiary as T;
+    return snapshot.data() as T;
   }
 }
