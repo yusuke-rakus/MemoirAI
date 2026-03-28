@@ -1,3 +1,4 @@
+import LineIcon from "@/components/shared/Icons/LineIcon";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,11 +11,23 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuPortal,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { Diary } from "@/types/diary/diary";
-import { Ellipsis, Loader2, Pencil, Share2, Tag, Trash2 } from "lucide-react";
+import {
+  Ellipsis,
+  Link,
+  Loader2,
+  Pencil,
+  Share2,
+  Tag,
+  Trash2,
+} from "lucide-react";
 import { useCallback, useState } from "react";
 import { DiaryTag } from "../../createDiary/components/DiaryTag";
 import {
@@ -37,7 +50,7 @@ export const DiaryPreviewCard = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const { isSharing, onShare } = useShareDiary(diary);
+  const { isSharing, copyShareLink, shareToLine } = useShareDiary(diary);
   const { isUpdating, isDeleting, updateDiary, deleteDiary } =
     useDiaryPreviewActions({
       diary,
@@ -92,44 +105,67 @@ export const DiaryPreviewCard = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-fit p-2">
-                <div className="flex flex-col">
-                  <DropdownMenuItem
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger
                     className="justify-start"
                     disabled={isSharing}
-                    onClick={onShare}
                   >
                     {isSharing ? (
-                      <Loader2 className="animate-spin" />
+                      <Loader2 className="flex-shrink-0 w-4 h-4 mr-2 animate-spin" />
                     ) : (
-                      <Share2 />
+                      <Share2 className="flex-shrink-0 w-4 h-4 mr-2" />
                     )}
                     共有
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="justify-start"
-                    disabled={isUpdating || isDeleting}
-                    onSelect={(event) => {
-                      event.preventDefault();
-                      handleEditSelect();
-                    }}
-                  >
-                    <Pencil />
-                    編集
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    className="justify-start"
-                    disabled={isUpdating || isDeleting}
-                    variant="destructive"
-                    onSelect={(event) => {
-                      event.preventDefault();
-                      handleDeleteSelect();
-                    }}
-                  >
-                    <Trash2 />
-                    削除
-                  </DropdownMenuItem>
-                </div>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem
+                        className="justify-start"
+                        disabled={isSharing}
+                        onSelect={() => {
+                          void copyShareLink();
+                        }}
+                      >
+                        <Link />
+                        リンクをコピー
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="justify-start"
+                        disabled={isSharing}
+                        onSelect={() => {
+                          void shareToLine();
+                        }}
+                      >
+                        <LineIcon />
+                        LINEで送る
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+                <DropdownMenuItem
+                  className="justify-start"
+                  disabled={isUpdating || isDeleting}
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    handleEditSelect();
+                  }}
+                >
+                  <Pencil />
+                  編集
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="justify-start"
+                  disabled={isUpdating || isDeleting}
+                  variant="destructive"
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    handleDeleteSelect();
+                  }}
+                >
+                  <Trash2 />
+                  削除
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </CardHeader>
