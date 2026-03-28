@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type { Diary } from "@/types/diary/diary";
 import type { EventClickArg } from "@fullcalendar/core/index.js";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -34,8 +35,11 @@ export const Calendar = ({
   onDateSelect,
 }: CalendarProps) => {
   const [events, setEvents] = useState<Event[]>([]);
+  const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
   const { date } = useCurrentDateStore();
   const calendarRef = useRef<FullCalendar>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     setEvents(
@@ -55,6 +59,35 @@ export const Calendar = ({
     }
   }, [date]);
 
+  useEffect(() => {
+    const updateCalendarHeight = () => {
+      if (!containerRef.current) {
+        return;
+      }
+
+      const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+      const top = containerRef.current.getBoundingClientRect().top;
+      const nextHeight = Math.floor(viewportHeight - top - 16);
+
+      if (nextHeight <= 0) {
+        return;
+      }
+
+      setCalendarHeight(isMobile ? nextHeight : Math.min(nextHeight, 800));
+    };
+
+    const frameId = window.requestAnimationFrame(updateCalendarHeight);
+
+    window.addEventListener("resize", updateCalendarHeight);
+    window.visualViewport?.addEventListener("resize", updateCalendarHeight);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener("resize", updateCalendarHeight);
+      window.visualViewport?.removeEventListener("resize", updateCalendarHeight);
+    };
+  }, [isMobile]);
+
   const handleDateClick = (arg: { date: Date }) => {
     onDateSelect?.(arg.date);
   };
@@ -66,7 +99,11 @@ export const Calendar = ({
   };
 
   return (
-    <div className="mx-auto h-[calc(100dvh-14rem)] min-h-[480px] w-full sm:h-[800px]">
+    <div
+      ref={containerRef}
+      className="mx-auto h-[calc(100svh-12rem)] max-h-[800px] w-full"
+      style={calendarHeight ? { height: `${calendarHeight}px` } : undefined}
+    >
       <FullCalendar
         ref={calendarRef}
         plugins={[dayGridPlugin, interactionPlugin]}

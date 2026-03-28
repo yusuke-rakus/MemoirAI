@@ -22,7 +22,7 @@ export const MainLayout = (props: MainLayoutProps) => {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-screen bg-background w-full">
+      <div className="flex h-screen w-screen bg-background">
         {sidebar}
         <main className="flex-1 min-w-0 mt-14 flex flex-col w-full">
           {header}

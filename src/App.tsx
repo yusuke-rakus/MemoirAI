@@ -4,6 +4,7 @@ import { NotificationToaster } from "./components/shared/common/NotificationToas
 import { NewDiaryPage } from "./features/createDiary";
 import { HomePage } from "./features/home";
 import { LoginPage } from "./features/login";
+import { SharedDiaryPage } from "./features/sharedDiary";
 import { useInitialDateStore } from "./stores/initialDateStore";
 import { DiariesPage } from "./features/diaries";
 
@@ -65,6 +66,10 @@ export const App = () => {
         <Route
           path={`${PATHS.newDiary.path}/:date`}
           element={<NewDiaryPage />}
+        />
+        <Route
+          path={`${PATHS.sharedDiary.path}/:diaryId`}
+          element={<SharedDiaryPage />}
         />
         <Route path={PATHS.login.path} element={<LoginPage />} />
       </Routes>

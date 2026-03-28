@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { CalendarDays, LogIn, Notebook, PenSquare } from "lucide-react";
+import { CalendarDays, Link2, LogIn, Notebook, PenSquare } from "lucide-react";
 
 type PagePath = {
   path: string;
@@ -8,7 +8,7 @@ type PagePath = {
 };
 
 export const PATHS: Record<
-  "calendar" | "diaries" | "newDiary" | "login",
+  "calendar" | "diaries" | "newDiary" | "login" | "sharedDiary",
   PagePath
 > = {
   calendar: {
@@ -30,6 +30,11 @@ export const PATHS: Record<
     path: "/login",
     name: "ログイン",
     icon: LogIn,
+  },
+  sharedDiary: {
+    path: "/shared",
+    name: "共有日記",
+    icon: Link2,
   },
 };
 

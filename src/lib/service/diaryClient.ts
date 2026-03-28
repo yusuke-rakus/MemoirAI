@@ -1,7 +1,9 @@
 import { db } from "@/firebase/firebase";
 import {
   collection,
+  deleteDoc,
   doc,
+  type DocumentData,
   getDocs,
   limit,
   query,
@@ -11,7 +13,7 @@ import {
 } from "firebase/firestore";
 
 export class DiaryClient {
-  static async getByUid<T extends Record<string, any>>(
+  static async getByUid<T extends DocumentData>(
     uid: string,
   ): Promise<T[] | null> {
     const q = query(
@@ -26,7 +28,7 @@ export class DiaryClient {
     return querySnapshot.docs.map((doc) => doc.data() as T);
   }
 
-  static async getByUidAndDate<T extends Record<string, any>>(
+  static async getByUidAndDate<T extends DocumentData>(
     uid: string,
     date: Date,
   ): Promise<T[] | null> {
@@ -47,7 +49,7 @@ export class DiaryClient {
     return querySnapshot.docs.map((doc) => doc.data() as T);
   }
 
-  static async getByUidPaged<T extends Record<string, any>>(
+  static async getByUidPaged<T extends DocumentData>(
     uid: string,
   ): Promise<T[] | null> {
     const q = query(collection(db, "users", uid, "diaries"), limit(10));
@@ -58,7 +60,7 @@ export class DiaryClient {
     return querySnapshot.docs.map((doc) => doc.data() as T);
   }
 
-  static async getByUidAndMonth<T extends Record<string, any>>(
+  static async getByUidAndMonth<T extends DocumentData>(
     uid: string,
     year: number,
     month: number,
@@ -79,7 +81,9 @@ export class DiaryClient {
     return querySnapshot.docs.map((doc) => doc.data() as T);
   }
 
-  static async add<T extends Record<string, any>>(data: T): Promise<void> {
+  static async add<T extends DocumentData & { id: string; uid: string }>(
+    data: T,
+  ): Promise<void> {
     const id = data.id;
 
     if (!data.uid) {
@@ -89,7 +93,9 @@ export class DiaryClient {
     await setDoc(doc(db, "users", data.uid, "diaries", id), data);
   }
 
-  static async update<T extends Record<string, any>>(data: T): Promise<void> {
+  static async update<T extends DocumentData & { id: string; uid: string }>(
+    data: T,
+  ): Promise<void> {
     if (!data.id) {
       throw new Error("Data must contain an 'id' field to update.");
     }
@@ -99,5 +105,16 @@ export class DiaryClient {
     await setDoc(doc(db, "users", data.uid, "diaries", data.id), data, {
       merge: true,
     });
+  }
+
+  static async delete(uid: string, id: string): Promise<void> {
+    if (!uid) {
+      throw new Error("uid is required to delete a diary.");
+    }
+    if (!id) {
+      throw new Error("id is required to delete a diary.");
+    }
+
+    await deleteDoc(doc(db, "users", uid, "diaries", id));
   }
 }
