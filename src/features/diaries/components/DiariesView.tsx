@@ -6,7 +6,7 @@ import { EmptyDiaries } from "./EmptyDiaries";
 
 export const DiariesView = () => {
   const { date, uploadedDiaries } = useDiaryDetailStore();
-  useFetchDiary();
+  const { refetch } = useFetchDiary();
 
   return (
     <div className="max-w-4xl mx-auto pt-8 flex flex-col gap-4 mb-10">
@@ -20,8 +20,12 @@ export const DiariesView = () => {
       <div>
         {uploadedDiaries.length > 0 ? (
           <div className="space-y-4">
-            {uploadedDiaries.map((diary, i) => (
-              <DiaryPreviewCard key={i} diary={diary} />
+            {uploadedDiaries.map((diary) => (
+              <DiaryPreviewCard
+                key={diary.id}
+                diary={diary}
+                onCompleted={refetch}
+              />
             ))}
           </div>
         ) : (
