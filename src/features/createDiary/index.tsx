@@ -1,3 +1,4 @@
+import { LoadingScreen } from "@/components/shared/common/LoadingScreen";
 import { useAuthCheck } from "@/hooks/useAuthCheck";
 import { MainLayout } from "@/layout/MainLayout";
 import { NewDiaryView } from "./components/NewDiaryView";
@@ -9,7 +10,7 @@ export const NewDiaryPage = () => {
   const initialDate = useInitialDiaryDate();
 
   return loading ? (
-    <h1>Loading...</h1>
+    <LoadingScreen variant="page" />
   ) : (
     <DiaryDetailProvider initialDate={initialDate}>
       <MainLayout title="日記の詳細">
