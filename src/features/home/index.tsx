@@ -1,3 +1,4 @@
+import { LoadingScreen } from "@/components/shared/common/LoadingScreen";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthCheck } from "@/hooks/useAuthCheck";
 import { MainLayout } from "@/layout/MainLayout";
@@ -38,7 +39,7 @@ export const HomePage = () => {
   };
 
   return loading ? (
-    <h1>Loading...</h1>
+    <LoadingScreen variant="page" />
   ) : (
     <CurrentDateProvider initialDate={initialDate}>
       <MainLayout>

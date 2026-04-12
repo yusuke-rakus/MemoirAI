@@ -1,3 +1,4 @@
+import { LoadingScreen } from "@/components/shared/common/LoadingScreen";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,11 +25,7 @@ export const SharedDiaryView = () => {
   const { diary, isLoading } = useSharedDiary();
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <p className="text-sm text-muted-foreground">共有日記を読み込んでいます...</p>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (!diary) {
@@ -55,7 +52,9 @@ export const SharedDiaryView = () => {
     <div className="max-w-4xl mx-auto pt-8 pb-10 flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <p className="text-sm text-muted-foreground">共有された日記</p>
-        <h2 className="text-3xl font-bold">{format(diary.date.toDate(), "M月d日")}</h2>
+        <h2 className="text-3xl font-bold">
+          {format(diary.date.toDate(), "M月d日")}
+        </h2>
       </div>
       <Card className="py-3">
         <CardContent className="flex flex-col gap-3">
@@ -63,7 +62,9 @@ export const SharedDiaryView = () => {
             <CardTitle>{diary.title}</CardTitle>
           </CardHeader>
           <CardContent className="px-2">
-            <p className="text-muted-foreground whitespace-pre-wrap">{diary.content}</p>
+            <p className="text-muted-foreground whitespace-pre-wrap">
+              {diary.content}
+            </p>
           </CardContent>
           {diary.tags.length >= 1 && (
             <CardFooter className="p-0 flex flex-wrap gap-2">
