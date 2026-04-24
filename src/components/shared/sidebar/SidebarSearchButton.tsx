@@ -18,6 +18,8 @@ export const SidebarSearchButton = React.forwardRef<
       ref={ref}
       variant="ghost"
       size="icon"
+      aria-label="日記を検索"
+      title="日記を検索"
       {...buttonProps}
       onClick={onToggle}
       className={cn("rounded-full", className)}

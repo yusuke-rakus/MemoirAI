@@ -6,10 +6,10 @@ import { useInitialDiaryDate } from "./hooks/useInitialDiaryDate";
 import { DiaryDetailProvider } from "./provider/DiaryDetailProvider";
 
 export const DiariesPage = () => {
-  const { loading } = useAuthCheck();
+  const { loading, user } = useAuthCheck();
   const initialDate = useInitialDiaryDate();
 
-  return loading ? (
+  return loading || !user ? (
     <LoadingScreen variant="page" />
   ) : (
     <DiaryDetailProvider initialDate={initialDate}>
