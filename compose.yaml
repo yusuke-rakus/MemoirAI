@@ -14,7 +14,8 @@ services:
       - "4000:4000" # Emulator UI
       - "8080:8080" # Firestore
       - "9099:9099" # Auth
+      - "9199:9199" # Storage
     command: >
-      sh -c "firebase emulators:start --only firestore,auth --project $$VITE_PROJECT_ID
+      sh -c "firebase emulators:start --only firestore,auth,storage --project $$VITE_PROJECT_ID
       --import=/firebase/firebase-data --export-on-exit=/firebase/firebase-data
       --config /firebase.json"

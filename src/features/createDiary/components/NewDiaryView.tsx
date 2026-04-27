@@ -13,17 +13,19 @@ import { PATHS } from "@/constants/path";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Plus, X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState, type DragEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { useCreateDiary } from "../hooks/useCreateDiary";
 import { useDiaryCard } from "../hooks/useDiaryCard";
 import { useFetchDiary } from "../hooks/useFetchDiary";
 import { usePickMessages } from "../hooks/usePickMessages";
 import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
+import { DiaryImagePicker } from "./DiaryImagePicker";
 
 export const NewDiaryView = () => {
   const navigate = useNavigate();
-  const { date, setDate, uploadedDiaries } = useDiaryDetailStore();
+  const { date, setDate } = useDiaryDetailStore();
   useFetchDiary();
   const { isCreating, onSave } = useCreateDiary();
   const {
@@ -32,6 +34,8 @@ export const NewDiaryView = () => {
     addCard,
     removeCard,
     updateCardBody,
+    addImages,
+    removeImage,
     addTag,
     removeTag,
     handleTagInputChange,
@@ -41,6 +45,7 @@ export const NewDiaryView = () => {
 
   const { pickRandomMessages } = usePickMessages();
   const placeholderText = useRotatingText(pickRandomMessages);
+  const [draggingCardId, setDraggingCardId] = useState<string | null>(null);
 
   const customSetDate = (date: Date) => {
     setDate(date);
@@ -56,6 +61,70 @@ export const NewDiaryView = () => {
     await onSave();
     const dateString = format(date, "yyyy-MM-dd");
     navigate(`${PATHS.diaries.path}/${dateString}`);
+  };
+
+  const hasDraggedFiles = (event: DragEvent<HTMLElement>) =>
+    Array.from(event.dataTransfer.types).includes("Files");
+
+  const showAddImagesResult = (result: ReturnType<typeof addImages>) => {
+    if (result.unsupportedCount > 0) {
+      toast.error("JPEG、PNG、WebP、HEIC/HEIFの画像のみ追加できます");
+    }
+
+    if (result.limitExceeded) {
+      toast.error("画像は1つの日記につき2枚まで追加できます");
+    }
+  };
+
+  const handleCardDragEnter = (
+    event: DragEvent<HTMLElement>,
+    cardId: string,
+  ) => {
+    if (!hasDraggedFiles(event)) return;
+
+    event.preventDefault();
+    setDraggingCardId(cardId);
+  };
+
+  const handleCardDragOver = (
+    event: DragEvent<HTMLElement>,
+    cardId: string,
+  ) => {
+    if (!hasDraggedFiles(event)) return;
+
+    event.preventDefault();
+    event.dataTransfer.dropEffect = isCreating ? "none" : "copy";
+    setDraggingCardId(cardId);
+  };
+
+  const handleCardDragLeave = (event: DragEvent<HTMLElement>) => {
+    const nextTarget = event.relatedTarget;
+
+    if (
+      nextTarget instanceof Node &&
+      event.currentTarget.contains(nextTarget)
+    ) {
+      return;
+    }
+
+    setDraggingCardId(null);
+  };
+
+  const handleCardDrop = (
+    event: DragEvent<HTMLElement>,
+    cardId: string,
+  ) => {
+    if (!hasDraggedFiles(event)) return;
+
+    event.preventDefault();
+    setDraggingCardId(null);
+
+    if (isCreating) return;
+
+    const files = Array.from(event.dataTransfer.files);
+    if (files.length === 0) return;
+
+    showAddImagesResult(addImages(cardId, files));
   };
 
   return (
@@ -101,7 +170,13 @@ export const NewDiaryView = () => {
               className={cn(
                 "border-none shadow-sm bg-card/50 hover:bg-card/80 transition-all duration-300",
                 "backdrop-blur-sm group relative overflow-visible",
+                draggingCardId === card.id &&
+                  "ring-2 ring-primary/60 bg-accent/30",
               )}
+              onDragEnter={(event) => handleCardDragEnter(event, card.id)}
+              onDragOver={(event) => handleCardDragOver(event, card.id)}
+              onDragLeave={handleCardDragLeave}
+              onDrop={(event) => handleCardDrop(event, card.id)}
             >
               {/* Card Remove Button (visible on hover or if multiple) */}
               {cards.length > 1 && (
@@ -134,6 +209,13 @@ export const NewDiaryView = () => {
 
                 {/* Tags Section */}
                 <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <DiaryImagePicker
+                    cardId={card.id}
+                    images={card.images}
+                    disabled={isCreating}
+                    onAddImages={addImages}
+                  />
+
                   <div className="flex flex-wrap gap-2">
                     {card.tags.map((tag, tagIndex) => (
                       <span
@@ -173,6 +255,33 @@ export const NewDiaryView = () => {
                     )}
                   </div>
                 </div>
+
+                {card.images.length > 0 && (
+                  <div className="flex flex-wrap gap-3 pt-4">
+                    {card.images.map((image) => (
+                      <div
+                        key={image.id}
+                        className="relative h-24 w-24 overflow-hidden rounded-md border bg-muted"
+                      >
+                        <img
+                          src={image.previewUrl}
+                          alt={`${image.file.name} のプレビュー`}
+                          className="h-full w-full object-cover"
+                        />
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="icon"
+                          disabled={isCreating}
+                          className="absolute right-1 top-1 h-6 w-6 rounded-full shadow-sm"
+                          onClick={() => removeImage(card.id, image.id)}
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}
