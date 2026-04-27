@@ -18,14 +18,25 @@ type AvatarMenuProps = {
 
 export const AvatarMenu = (props: AvatarMenuProps) => {
   const { user, handleLogout, children } = props;
+  const fallbackText =
+    user?.displayName
+      ?.split(/\s+/)
+      .filter(Boolean)
+      .map((word) => word[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "ME";
 
   return (
-    <div className="absolute top-4 right-4 z-50">
+    <div className="absolute top-2 right-4 z-50">
       <DropdownMenu>
         <DropdownMenuTrigger>
           <Avatar>
-            <AvatarImage src={user?.photoURL ?? undefined} alt="@shadcn" />
-            <AvatarFallback>CN</AvatarFallback>
+            <AvatarImage
+              src={user?.photoURL ?? undefined}
+              alt={user?.displayName ?? "ユーザー"}
+            />
+            <AvatarFallback>{fallbackText}</AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent>

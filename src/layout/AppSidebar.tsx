@@ -52,7 +52,7 @@ export const AppSidebar = () => {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroupLabel>MemoriAI</SidebarGroupLabel>
+        <SidebarGroupLabel>MemoirAI</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
             {menuItems.map((item) => {

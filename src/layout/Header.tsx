@@ -88,14 +88,18 @@ export const Header = () => {
           open && !isMobile && "hidden",
         )}
       >
-        <AppTooltip description={"サイドバーを開ける"}>
+        <AppTooltip description={"サイドバーを開く"}>
           <SidebarToggleButton
             isOpen={isSidebarOpen}
             onToggle={toggleSidebar}
           />
         </AppTooltip>
         <AppTooltip description={"日記を検索"}>
-          <SidebarSearchButton onToggle={() => {}} />
+          <SidebarSearchButton
+            onToggle={() => {
+              toast("検索機能はまだ実装されていません");
+            }}
+          />
         </AppTooltip>
         <AppTooltip description={"新しい日記"}>
           <SidebarPenButton onToggle={() => navigate(PATHS.newDiary.path)} />

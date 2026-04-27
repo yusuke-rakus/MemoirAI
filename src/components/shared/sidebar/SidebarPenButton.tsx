@@ -21,6 +21,8 @@ export const SidebarPenButton = React.forwardRef<
       ref={ref}
       variant="ghost"
       size="icon"
+      aria-label="新しい日記を書く"
+      title="新しい日記を書く"
       {...buttonProps}
       onClick={onToggle}
       className={cn("rounded-full", className)}

@@ -6,7 +6,10 @@ import * as React from "react";
 type SidebarToggleButtonProps = {
   isOpen: boolean;
   onToggle: () => void;
-} & Omit<React.ComponentPropsWithoutRef<typeof Button>, "onClick" | "size" | "variant">;
+} & Omit<
+  React.ComponentPropsWithoutRef<typeof Button>,
+  "onClick" | "size" | "variant"
+>;
 
 export const SidebarToggleButton = React.forwardRef<
   HTMLButtonElement,

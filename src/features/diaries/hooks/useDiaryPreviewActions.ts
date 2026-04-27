@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
 import { DiaryClient } from "@/lib/service/diaryClient";
+import { DiaryImageClient } from "@/lib/service/diaryImageClient";
 import type { Diary } from "@/types/diary/diary";
 
 export type DiaryPreviewMutationValues = Pick<
@@ -47,6 +48,7 @@ export const useDiaryPreviewActions = ({
   const deleteDiary = useCallback(async () => {
     setIsDeleting(true);
     try {
+      await DiaryImageClient.deleteMany(diary.images ?? []);
       await DiaryClient.delete(diary.uid, diary.id);
       await onCompleted();
       toast.success("日記を削除しました");
@@ -58,7 +60,7 @@ export const useDiaryPreviewActions = ({
     } finally {
       setIsDeleting(false);
     }
-  }, [diary.id, diary.uid, onCompleted]);
+  }, [diary.id, diary.images, diary.uid, onCompleted]);
 
   return {
     isUpdating,

@@ -1,4 +1,8 @@
 import { DefaultTagColor, type TagColor } from "@/constants/tagColors";
+import {
+  MAX_DIARY_IMAGE_COUNT,
+  isSupportedDiaryImageType,
+} from "@/constants/diaryImages";
 import type { KeyboardEvent } from "react";
 import { create } from "zustand";
 
@@ -7,15 +11,28 @@ interface Tag {
   name: string;
 }
 
+export interface DiaryCardImage {
+  id: string;
+  file: File;
+  previewUrl: string;
+}
+
 interface DiaryCard {
   id: string;
   title: string;
   body: string;
   tags: Tag[];
+  images: DiaryCardImage[];
   date: Date;
   isCollapsed: boolean;
   isRemoving: boolean;
 }
+
+type AddImagesResult = {
+  addedCount: number;
+  unsupportedCount: number;
+  limitExceeded: boolean;
+};
 
 interface DiaryCardState {
   cards: DiaryCard[];
@@ -28,6 +45,8 @@ interface DiaryCardActions {
   toggleCollapse: (id: string) => void;
   updateCardTitle: (id: string, title: string) => void;
   updateCardBody: (id: string, body: string) => void;
+  addImages: (id: string, files: File[]) => AddImagesResult;
+  removeImage: (cardId: string, imageId: string) => void;
   addTag: (id: string) => void;
   removeTag: (cardId: string, tagIndex: number) => void;
   handleTagInputChange: (id: string, value: string) => void;
@@ -49,7 +68,7 @@ const getDateFromPath = (): Date => {
   const match = path.match(/\/(\d{4}-\d{2}-\d{2})$/);
 
   if (match) {
-    const [_, dateStr] = match;
+    const dateStr = match[1];
     const [year, month, day] = dateStr.split("-").map(Number);
     return new Date(year, month - 1, day);
   }
@@ -62,10 +81,21 @@ const createCard = (id: string, date?: Date): DiaryCard => ({
   title: "",
   body: "",
   tags: [],
+  images: [],
   date: date ?? getDateFromPath(),
   isCollapsed: false,
   isRemoving: false,
 });
+
+const createCardImage = (file: File): DiaryCardImage => ({
+  id: `${Date.now()}-${file.name}-${Math.random().toString(36).slice(2)}`,
+  file,
+  previewUrl: URL.createObjectURL(file),
+});
+
+const revokeImagePreviewUrls = (images: DiaryCardImage[]) => {
+  images.forEach((image) => URL.revokeObjectURL(image.previewUrl));
+};
 
 const useDiaryCardStore = create<DiaryCardStore>((set, get) => ({
   cards: [createCard(INITIAL_CARD_ID)],
@@ -92,6 +122,11 @@ const useDiaryCardStore = create<DiaryCardStore>((set, get) => ({
     setTimeout(() => {
       set((state) => {
         if (state.cards.length <= 1) return state;
+        const removedCard = state.cards.find((card) => card.id === id);
+        if (removedCard) {
+          revokeImagePreviewUrls(removedCard.images);
+        }
+
         const cards = state.cards.filter((card) => card.id !== id);
         const nextTagInputs = { ...state.tagInputs };
         delete nextTagInputs[id];
@@ -120,6 +155,68 @@ const useDiaryCardStore = create<DiaryCardStore>((set, get) => ({
       ),
       tagInputs: state.tagInputs,
     })),
+  addImages: (id, files) => {
+    const card = get().cards.find((card) => card.id === id);
+    if (!card) {
+      return {
+        addedCount: 0,
+        unsupportedCount: files.length,
+        limitExceeded: false,
+      };
+    }
+
+    const supportedFiles = files.filter((file) =>
+      isSupportedDiaryImageType(file.type),
+    );
+    const unsupportedCount = files.length - supportedFiles.length;
+    const remainingCount = MAX_DIARY_IMAGE_COUNT - card.images.length;
+    const filesToAdd = supportedFiles.slice(0, Math.max(remainingCount, 0));
+    const limitExceeded = supportedFiles.length > filesToAdd.length;
+
+    if (filesToAdd.length === 0) {
+      return {
+        addedCount: 0,
+        unsupportedCount,
+        limitExceeded,
+      };
+    }
+
+    const images = filesToAdd.map(createCardImage);
+
+    set((state) => ({
+      cards: state.cards.map((card) =>
+        card.id === id
+          ? { ...card, images: [...card.images, ...images] }
+          : card,
+      ),
+      tagInputs: state.tagInputs,
+    }));
+
+    return {
+      addedCount: images.length,
+      unsupportedCount,
+      limitExceeded,
+    };
+  },
+  removeImage: (cardId, imageId) => {
+    const card = get().cards.find((card) => card.id === cardId);
+    const image = card?.images.find((image) => image.id === imageId);
+    if (image) {
+      URL.revokeObjectURL(image.previewUrl);
+    }
+
+    set((state) => ({
+      cards: state.cards.map((card) =>
+        card.id === cardId
+          ? {
+              ...card,
+              images: card.images.filter((image) => image.id !== imageId),
+            }
+          : card,
+      ),
+      tagInputs: state.tagInputs,
+    }));
+  },
   addTag: (id) =>
     set((state) => {
       const tagInput = state.tagInputs[id]?.trim();
@@ -163,11 +260,14 @@ const useDiaryCardStore = create<DiaryCardStore>((set, get) => ({
       tagInputs: { ...state.tagInputs, [id]: "" },
     }));
   },
-  reset: (date) =>
+  reset: (date) => {
+    get().cards.forEach((card) => revokeImagePreviewUrls(card.images));
+
     set(() => ({
       cards: [createCard(INITIAL_CARD_ID, date)],
       tagInputs: { [INITIAL_CARD_ID]: "" },
-    })),
+    }));
+  },
 }));
 
 export const useDiaryCard = () => useDiaryCardStore();

@@ -18,6 +18,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 import type { Diary } from "@/types/diary/diary";
 import {
   Ellipsis,
@@ -37,6 +38,7 @@ import {
 import { useShareDiary } from "../hooks/useShareDiary";
 import { DiaryDeleteDialog } from "./DiaryDeleteDialog";
 import { DiaryEditDialog } from "./DiaryEditDialog";
+import { DiaryImageGrid } from "./DiaryImageGrid";
 
 type DiaryPreviewCardProps = {
   diary: Diary;
@@ -85,7 +87,18 @@ export const DiaryPreviewCard = ({
 
   return (
     <>
-      <Card className="py-3">
+      {/* <Card className="pb-3 pt-0 overflow-hidden"> */}
+      <Card
+        className={cn(
+          "overflow-hidden",
+          diary.images && diary.images.length > 0 ? "pt-0 pb-3" : "py-3",
+        )}
+      >
+        {diary.images && diary.images.length > 0 && (
+          <CardContent className="px-0 pb-0">
+            <DiaryImageGrid images={diary.images} />
+          </CardContent>
+        )}
         <CardContent className="flex flex-col gap-3">
           <CardHeader className="px-0 flex flex-row items-start justify-between gap-2">
             <CardTitle>{diary.title}</CardTitle>

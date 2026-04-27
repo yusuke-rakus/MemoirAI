@@ -10,7 +10,7 @@ import { MonthSelector } from "./monthSelector/MonthSelector";
 import { CurrentDateProvider } from "./provider/CurrentDateProvider";
 
 export const HomePage = () => {
-  const { loading } = useAuthCheck();
+  const { loading, user } = useAuthCheck();
   const tabs = Views;
   const location = useLocation();
   const initialDate = useInitialDiaryDate();
@@ -38,7 +38,7 @@ export const HomePage = () => {
     );
   };
 
-  return loading ? (
+  return loading || !user ? (
     <LoadingScreen variant="page" />
   ) : (
     <CurrentDateProvider initialDate={initialDate}>
