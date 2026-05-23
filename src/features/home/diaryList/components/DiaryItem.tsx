@@ -1,3 +1,4 @@
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import {
   CardContent,
   CardFooter,
@@ -37,6 +38,24 @@ export const DiaryItem = (props: DiaryItemProps) => {
             <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
               {diary.content}
             </p>
+            {diary.images && diary.images.length > 0 && (
+              <div className="grid grid-cols-3 gap-2 pt-3 sm:grid-cols-4">
+                {diary.images.map((image, index) => (
+                  <AspectRatio
+                    key={image.id}
+                    ratio={1 / 1}
+                    className="overflow-hidden rounded-md bg-muted"
+                  >
+                    <img
+                      src={image.downloadURL}
+                      alt={`日記の画像 ${index + 1}`}
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                    />
+                  </AspectRatio>
+                ))}
+              </div>
+            )}
           </CardContent>
           {diary.tags && diary.tags.length > 0 && (
             <CardFooter className="p-0 flex flex-wrap gap-2">
