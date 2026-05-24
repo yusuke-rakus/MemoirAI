@@ -19,24 +19,12 @@ export type UserMemoryProfileKey =
   | "location"
   | "familyStatus";
 
-export type UserMemorySettings = {
-  uid: string;
-  schemaVersion: 1;
-  habits: MemoryFact[];
-  goals: MemoryFact[];
-  concerns: MemoryFact[];
-  summary: string;
-  lastExtractedDiaryId?: string;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-};
-
 export type UserProfileMemoryFact = MemoryFact & {
   id: string;
   key: UserMemoryProfileKey;
 };
 
-export type UserPreferenceMemoryFact = MemoryFact & {
+export type UserMemoryFact = MemoryFact & {
   id: string;
 };
 
@@ -47,7 +35,6 @@ export type PersonMemory = {
   relationshipToUser?: MemoryFact;
   attributes: MemoryFact[];
   relationshipNotes: MemoryFact[];
-  summary: string;
   sourceDiaryIds: string[];
   firstMentionedAt: Timestamp;
   lastMentionedAt: Timestamp;
@@ -65,12 +52,8 @@ export type ActivePersonMemory = Omit<
 };
 
 export type ActiveUserMemoryContext = {
-  summary: string;
   profileFacts: UserProfileMemoryFact[];
-  preferences: UserPreferenceMemoryFact[];
-  habits: MemoryFact[];
-  goals: MemoryFact[];
-  concerns: MemoryFact[];
+  preferences: UserMemoryFact[];
   people: ActivePersonMemory[];
 };
 
@@ -89,15 +72,10 @@ export type ExtractedPersonMemory = {
   relationshipToUser?: ExtractedMemoryFact;
   attributes?: ExtractedMemoryFact[];
   relationshipNotes?: ExtractedMemoryFact[];
-  summary?: string;
 };
 
 export type ExtractedUserMemory = {
   profileFacts?: ExtractedProfileFact[];
   preferences?: ExtractedMemoryFact[];
-  habits?: ExtractedMemoryFact[];
-  goals?: ExtractedMemoryFact[];
-  concerns?: ExtractedMemoryFact[];
   people?: ExtractedPersonMemory[];
-  summary?: string;
 };

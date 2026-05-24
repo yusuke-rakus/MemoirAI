@@ -9,10 +9,9 @@ import type {
   ExtractedUserMemory,
   MemoryFact,
   PersonMemory,
+  UserMemoryFact,
   UserMemoryProfileKey,
-  UserPreferenceMemoryFact,
   UserProfileMemoryFact,
-  UserMemorySettings,
 } from "@/types/memory";
 import {
   collection,
@@ -20,7 +19,6 @@ import {
   doc,
   getDoc,
   getDocs,
-  setDoc,
   Timestamp,
   writeBatch,
 } from "firebase/firestore";
@@ -29,13 +27,6 @@ const MEMORY_SETTINGS_DOC_ID = "memory";
 const PEOPLE_COLLECTION_ID = "people";
 const PREFERENCES_COLLECTION_ID = "preferences";
 const PROFILE_FACTS_COLLECTION_ID = "profileFacts";
-const MEMORY_SCHEMA_VERSION = 1;
-const MAX_SUMMARY_LENGTH = 3000;
-
-type LegacyUserMemorySettings = UserMemorySettings & {
-  profile?: Partial<Record<UserMemoryProfileKey, MemoryFact>>;
-  preferences?: MemoryFact[];
-};
 
 const profileKeys = new Set<UserMemoryProfileKey>([
   "displayName",
@@ -144,35 +135,12 @@ const mergeFactArray = (
   return nextFacts;
 };
 
-const mergeSummary = (current: string, extracted?: string) => {
-  const next = extracted?.trim();
-  if (!next) return current;
-  if (!current) return next.slice(0, MAX_SUMMARY_LENGTH);
-  if (current.includes(next)) return current;
-
-  return `${current}\n${next}`.slice(0, MAX_SUMMARY_LENGTH);
-};
-
-const createDefaultMemorySettings = (
-  uid: string,
-  now: Timestamp,
-): UserMemorySettings => ({
-  uid,
-  schemaVersion: MEMORY_SCHEMA_VERSION,
-  habits: [],
-  goals: [],
-  concerns: [],
-  summary: "",
-  createdAt: now,
-  updatedAt: now,
-});
-
-const mergePreferenceFacts = (
-  current: UserPreferenceMemoryFact[] = [],
+const mergeCollectionFacts = (
+  current: UserMemoryFact[] = [],
   extracted: ExtractedMemoryFact[] = [],
   diaryId: string,
   now: Timestamp,
-) => {
+): UserMemoryFact[] => {
   const nextFacts = [...current];
 
   extracted.forEach((fact) => {
@@ -244,31 +212,6 @@ const mergeProfileFacts = (
   return nextFacts;
 };
 
-const createProfileFactsFromLegacyProfile = (
-  profile: LegacyUserMemorySettings["profile"],
-): UserProfileMemoryFact[] =>
-  Object.entries(profile ?? {}).flatMap(([key, fact]) => {
-    const profileKey = key as UserMemoryProfileKey;
-
-    if (!profileKeys.has(profileKey) || !fact) return [];
-
-    return [
-      {
-        ...fact,
-        id: generateMemoryFactId(),
-        key: profileKey,
-      },
-    ];
-  });
-
-const createPreferencesFromLegacyPreferences = (
-  preferences: LegacyUserMemorySettings["preferences"] = [],
-): UserPreferenceMemoryFact[] =>
-  preferences.map((preference) => ({
-    ...preference,
-    id: generateMemoryFactId(),
-  }));
-
 const getPersonMatchKeys = (person: Pick<PersonMemory, "aliases" | "name">) =>
   new Set([person.name, ...person.aliases].map(normalizeText));
 
@@ -314,7 +257,6 @@ const mergePerson = (
         diaryId,
         now,
       ),
-      summary: extracted.summary?.trim() ?? "",
       sourceDiaryIds: [diaryId],
       firstMentionedAt: now,
       lastMentionedAt: now,
@@ -345,7 +287,6 @@ const mergePerson = (
       diaryId,
       now,
     ),
-    summary: mergeSummary(current.summary, extracted.summary),
     sourceDiaryIds: uniqueIds([...current.sourceDiaryIds, diaryId]),
     lastMentionedAt: now,
     updatedAt: now,
@@ -363,19 +304,25 @@ const filterActivePersonMemory = (person: PersonMemory): ActivePersonMemory => (
 });
 
 export class UserMemoryClient {
-  static async getByUid(uid: string): Promise<UserMemorySettings | null> {
+  private static async getMemoryFacts(
+    uid: string,
+    collectionId: string,
+  ): Promise<UserMemoryFact[]> {
     if (!uid) {
-      throw new Error("uid is required to fetch user memory.");
+      throw new Error("uid is required to fetch memory facts.");
     }
 
-    const memoryRef = doc(db, "users", uid, "settings", MEMORY_SETTINGS_DOC_ID);
-    const snapshot = await getDoc(memoryRef);
+    const factsRef = collection(
+      db,
+      "users",
+      uid,
+      "settings",
+      MEMORY_SETTINGS_DOC_ID,
+      collectionId,
+    );
+    const snapshot = await getDocs(factsRef);
 
-    if (!snapshot.exists()) {
-      return null;
-    }
-
-    return snapshot.data() as UserMemorySettings;
+    return snapshot.docs.map((doc) => doc.data() as UserMemoryFact);
   }
 
   static async getPeople(uid: string): Promise<PersonMemory[]> {
@@ -414,22 +361,12 @@ export class UserMemoryClient {
     return snapshot.docs.map((doc) => doc.data() as UserProfileMemoryFact);
   }
 
-  static async getPreferences(uid: string): Promise<UserPreferenceMemoryFact[]> {
+  static async getPreferences(uid: string): Promise<UserMemoryFact[]> {
     if (!uid) {
       throw new Error("uid is required to fetch preference memory.");
     }
 
-    const preferencesRef = collection(
-      db,
-      "users",
-      uid,
-      "settings",
-      MEMORY_SETTINGS_DOC_ID,
-      PREFERENCES_COLLECTION_ID,
-    );
-    const snapshot = await getDocs(preferencesRef);
-
-    return snapshot.docs.map((doc) => doc.data() as UserPreferenceMemoryFact);
+    return UserMemoryClient.getMemoryFacts(uid, PREFERENCES_COLLECTION_ID);
   }
 
   static async getActiveMemoryContext(
@@ -439,20 +376,15 @@ export class UserMemoryClient {
       throw new Error("uid is required to fetch active user memory.");
     }
 
-    const [memory, profileFacts, preferences, people] = await Promise.all([
-      UserMemoryClient.getByUid(uid),
+    const [profileFacts, preferences, people] = await Promise.all([
       UserMemoryClient.getProfileFacts(uid),
       UserMemoryClient.getPreferences(uid),
       UserMemoryClient.getPeople(uid),
     ]);
 
     return {
-      summary: memory?.summary ?? "",
       profileFacts: filterActiveMemoryFacts(profileFacts),
       preferences: filterActiveMemoryFacts(preferences),
-      habits: filterActiveMemoryFacts(memory?.habits),
-      goals: filterActiveMemoryFacts(memory?.goals),
-      concerns: filterActiveMemoryFacts(memory?.concerns),
       people: people.map(filterActivePersonMemory).filter(
         (person) =>
           person.relationshipToUser ||
@@ -479,51 +411,26 @@ export class UserMemoryClient {
     }
 
     const now = Timestamp.now();
-    const currentMemory =
-      (((await UserMemoryClient.getByUid(uid)) ??
-        createDefaultMemorySettings(uid, now)) as LegacyUserMemorySettings);
-    const currentProfileFacts = await UserMemoryClient.getProfileFacts(uid);
-    const currentPreferences = await UserMemoryClient.getPreferences(uid);
-    const currentPeople = await UserMemoryClient.getPeople(uid);
-    const profileFactsBase =
-      currentProfileFacts.length > 0
-        ? currentProfileFacts
-        : createProfileFactsFromLegacyProfile(currentMemory.profile);
-    const preferencesBase =
-      currentPreferences.length > 0
-        ? currentPreferences
-        : createPreferencesFromLegacyPreferences(currentMemory.preferences);
-
-    const memory: UserMemorySettings = {
-      ...currentMemory,
-      uid,
-      schemaVersion: MEMORY_SCHEMA_VERSION,
-      habits: mergeFactArray(currentMemory.habits, extracted.habits, diaryId, now),
-      goals: mergeFactArray(currentMemory.goals, extracted.goals, diaryId, now),
-      concerns: mergeFactArray(
-        currentMemory.concerns,
-        extracted.concerns,
-        diaryId,
-        now,
-      ),
-      summary: mergeSummary(currentMemory.summary ?? "", extracted.summary),
-      lastExtractedDiaryId: diaryId,
-      updatedAt: now,
-    };
+    const [currentProfileFacts, currentPreferences, currentPeople] =
+      await Promise.all([
+        UserMemoryClient.getProfileFacts(uid),
+        UserMemoryClient.getPreferences(uid),
+        UserMemoryClient.getPeople(uid),
+      ]);
 
     const peopleToSave = (extracted.people ?? [])
       .filter((person) => person.name.trim())
       .map((person) =>
         mergePerson(findExistingPerson(currentPeople, person), person, diaryId, now),
-      );
+    );
     const profileFactsToSave = mergeProfileFacts(
-      profileFactsBase,
+      currentProfileFacts,
       extracted.profileFacts,
       diaryId,
       now,
     );
-    const preferencesToSave = mergePreferenceFacts(
-      preferencesBase,
+    const preferencesToSave = mergeCollectionFacts(
+      currentPreferences,
       extracted.preferences,
       diaryId,
       now,
@@ -531,15 +438,26 @@ export class UserMemoryClient {
 
     const batch = writeBatch(db);
     const memoryRef = doc(db, "users", uid, "settings", MEMORY_SETTINGS_DOC_ID);
-    batch.set(
-      memoryRef,
-      {
-        ...memory,
-        profile: deleteField(),
-        preferences: deleteField(),
-      },
-      { merge: true },
-    );
+    const memorySnapshot = await getDoc(memoryRef);
+    if (memorySnapshot.exists()) {
+      batch.set(
+        memoryRef,
+        {
+          uid: deleteField(),
+          schemaVersion: deleteField(),
+          profile: deleteField(),
+          preferences: deleteField(),
+          habits: deleteField(),
+          goals: deleteField(),
+          concerns: deleteField(),
+          summary: deleteField(),
+          lastExtractedDiaryId: deleteField(),
+          createdAt: deleteField(),
+          updatedAt: deleteField(),
+        },
+        { merge: true },
+      );
+    }
 
     profileFactsToSave.forEach((profileFact) => {
       const profileFactRef = doc(
@@ -577,25 +495,16 @@ export class UserMemoryClient {
         PEOPLE_COLLECTION_ID,
         person.id,
       );
-      batch.set(personRef, person, { merge: true });
+      batch.set(
+        personRef,
+        {
+          ...person,
+          summary: deleteField(),
+        },
+        { merge: true },
+      );
     });
 
     await batch.commit();
-  }
-
-  static async update(uid: string, data: Partial<UserMemorySettings>) {
-    if (!uid) {
-      throw new Error("uid is required to update user memory.");
-    }
-
-    const memoryRef = doc(db, "users", uid, "settings", MEMORY_SETTINGS_DOC_ID);
-    await setDoc(
-      memoryRef,
-      {
-        uid,
-        ...data,
-      },
-      { merge: true },
-    );
   }
 }

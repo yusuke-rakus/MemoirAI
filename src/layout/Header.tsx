@@ -1,5 +1,6 @@
 import { AppTooltip } from "@/components/shared/common/AppTooltip";
 import { AvatarMenu } from "@/components/shared/header/AvatarMenu";
+import { MemorySettingsDialog } from "@/components/shared/header/MemorySettingsDialog";
 import { SettingsDropdownItem } from "@/components/shared/header/SettingsDropdownItem";
 import { SettingsDropdownSubItem } from "@/components/shared/header/SettingsDropdownSubItem";
 import { SidebarPenButton } from "@/components/shared/sidebar/SidebarPenButton";
@@ -22,12 +23,14 @@ import useTheme from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
 import { getAuth, signOut } from "firebase/auth";
 import { Dot, Moon, Palette, Settings, Sun, SunMoon } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 export const Header = () => {
   const { open, openMobile, isMobile, toggleSidebar } = useSidebar();
   const { localUser, setLocalUser } = useLocalUser();
+  const [isMemoryDialogOpen, setIsMemoryDialogOpen] = useState(false);
   const auth = getAuth();
   const navigate = useNavigate();
 
@@ -147,8 +150,17 @@ export const Header = () => {
               </DropdownMenuItem>
             ))}
           </SettingsDropdownSubItem>
-          <SettingsDropdownItem icon={Settings} label="設定" />
+          <SettingsDropdownItem
+            icon={Settings}
+            label="設定"
+            onSelect={() => setIsMemoryDialogOpen(true)}
+          />
         </AvatarMenu>
+        <MemorySettingsDialog
+          uid={localUser.uid}
+          open={isMemoryDialogOpen}
+          onOpenChange={setIsMemoryDialogOpen}
+        />
       </div>
     </header>
   );

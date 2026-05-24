@@ -35,18 +35,6 @@ const memoryExtractionSchema = Schema.object({
     preferences: Schema.array({
       items: memoryFactSchema,
     }),
-    // 習慣
-    habits: Schema.array({
-      items: memoryFactSchema,
-    }),
-    // 目標
-    goals: Schema.array({
-      items: memoryFactSchema,
-    }),
-    // 悩み
-    concerns: Schema.array({
-      items: memoryFactSchema,
-    }),
     // 登場人物との関係性
     people: Schema.array({
       items: Schema.object({
@@ -62,34 +50,26 @@ const memoryExtractionSchema = Schema.object({
           relationshipNotes: Schema.array({
             items: memoryFactSchema,
           }),
-          summary: Schema.string(),
         },
         optionalProperties: [
           "aliases",
           "relationshipToUser",
           "attributes",
           "relationshipNotes",
-          "summary",
         ],
       }),
     }),
-    // 長期記憶の短い要約
-    summary: Schema.string(),
   },
   optionalProperties: [
     "profileFacts",
     "preferences",
-    "habits",
-    "goals",
-    "concerns",
     "people",
-    "summary",
   ],
 });
 
 const instruction = `
 あなたは日記本文から長期記憶として保存できる事実だけを抽出する専門アシスタントです。
-ユーザー本人の属性、好み、習慣、目標、悩み、登場人物との関係性を抽出してください。
+ユーザー本人の属性、好み、登場人物との関係性を抽出してください。
 
 【抽出ルール】
 1. 日記本文から明確に読み取れる情報だけを抽出すること。
