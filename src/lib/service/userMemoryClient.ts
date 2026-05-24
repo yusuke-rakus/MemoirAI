@@ -1,6 +1,8 @@
 import { db } from "@/firebase/firebase";
 import { generateMemoryFactId, generatePersonMemoryId } from "@/lib/generateId";
 import type {
+  ActivePersonMemory,
+  ActiveUserMemoryContext,
   ExtractedMemoryFact,
   ExtractedProfileFact,
   ExtractedPersonMemory,
@@ -59,6 +61,9 @@ const compactUnique = (values: string[]) =>
   );
 
 const uniqueIds = (ids: string[]) => Array.from(new Set(ids.filter(Boolean)));
+
+const filterActiveMemoryFacts = <T extends MemoryFact>(facts: T[] = []) =>
+  facts.filter((fact) => fact.status === "active");
 
 const createMemoryFact = (
   fact: ExtractedMemoryFact,
@@ -347,6 +352,16 @@ const mergePerson = (
   };
 };
 
+const filterActivePersonMemory = (person: PersonMemory): ActivePersonMemory => ({
+  ...person,
+  relationshipToUser:
+    person.relationshipToUser?.status === "active"
+      ? person.relationshipToUser
+      : undefined,
+  attributes: filterActiveMemoryFacts(person.attributes),
+  relationshipNotes: filterActiveMemoryFacts(person.relationshipNotes),
+});
+
 export class UserMemoryClient {
   static async getByUid(uid: string): Promise<UserMemorySettings | null> {
     if (!uid) {
@@ -415,6 +430,36 @@ export class UserMemoryClient {
     const snapshot = await getDocs(preferencesRef);
 
     return snapshot.docs.map((doc) => doc.data() as UserPreferenceMemoryFact);
+  }
+
+  static async getActiveMemoryContext(
+    uid: string,
+  ): Promise<ActiveUserMemoryContext> {
+    if (!uid) {
+      throw new Error("uid is required to fetch active user memory.");
+    }
+
+    const [memory, profileFacts, preferences, people] = await Promise.all([
+      UserMemoryClient.getByUid(uid),
+      UserMemoryClient.getProfileFacts(uid),
+      UserMemoryClient.getPreferences(uid),
+      UserMemoryClient.getPeople(uid),
+    ]);
+
+    return {
+      summary: memory?.summary ?? "",
+      profileFacts: filterActiveMemoryFacts(profileFacts),
+      preferences: filterActiveMemoryFacts(preferences),
+      habits: filterActiveMemoryFacts(memory?.habits),
+      goals: filterActiveMemoryFacts(memory?.goals),
+      concerns: filterActiveMemoryFacts(memory?.concerns),
+      people: people.map(filterActivePersonMemory).filter(
+        (person) =>
+          person.relationshipToUser ||
+          person.attributes.length > 0 ||
+          person.relationshipNotes.length > 0,
+      ),
+    };
   }
 
   static async mergeExtractedMemory({

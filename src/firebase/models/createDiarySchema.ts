@@ -22,6 +22,9 @@ const diaryTitleSchema = Schema.object({
 const instruction = `
 あなたは日本語の日記要約とメタデータ生成の専門アシスタントです。
 日記本文をもとに、短いタイトルと関連タグを生成してください。
+入力は diaryContent と memoryContext を含む JSON です。
+memoryContext は保存済みの有効な長期記憶です。日記本文の文脈理解に使ってください。
+ただし、タイトルとタグは diaryContent の内容を主軸にし、memoryContext だけに存在する情報を過度に反映しないでください。
 
 【タスク】
 1. 日記の内容を象徴する絵文字をタイトルの先頭に1つだけ付けること。

@@ -7,7 +7,10 @@ import { DiaryClient } from "@/lib/service/diaryClient";
 import { DiaryImageClient } from "@/lib/service/diaryImageClient";
 import { UserMemoryClient } from "@/lib/service/userMemoryClient";
 import type { DiaryImage } from "@/types/diary/diary";
-import type { ExtractedUserMemory } from "@/types/memory";
+import type {
+  ActiveUserMemoryContext,
+  ExtractedUserMemory,
+} from "@/types/memory";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { type DiaryCardImage, useDiaryCard } from "./useDiaryCard";
@@ -47,8 +50,16 @@ type CreatedDiaryMemoryPayload = {
   memoryPromise: Promise<ExtractedUserMemory | null>;
 };
 
-const generateTitle = async (content: string) => {
-  const aiResponse = await diaryTitleModel.generateContent(content);
+const generateTitle = async (
+  content: string,
+  memoryContext: ActiveUserMemoryContext | null,
+) => {
+  const aiResponse = await diaryTitleModel.generateContent(
+    JSON.stringify({
+      diaryContent: content,
+      memoryContext,
+    }),
+  );
   const text = aiResponse.response.text();
   const json = JSON.parse(text) as DiaryMetaResponse;
   return {
@@ -64,13 +75,27 @@ const extractDiaryMemory = async (content: string) => {
   return JSON.parse(text) as ExtractedUserMemory;
 };
 
-const prepareDiary = (diary: Diary): DiaryPreparation => {
+const getActiveMemoryContext = async (uid: string) => {
+  try {
+    return await UserMemoryClient.getActiveMemoryContext(uid);
+  } catch (error) {
+    console.error("Failed to fetch active memory context", error);
+    return null;
+  }
+};
+
+const prepareDiary = (
+  diary: Diary,
+  memoryContextPromise: Promise<ActiveUserMemoryContext | null>,
+): DiaryPreparation => {
   const diaryId = generateDiaryId();
 
   return {
     diary,
     diaryId,
-    metaPromise: generateTitle(diary.content),
+    metaPromise: memoryContextPromise.then((memoryContext) =>
+      generateTitle(diary.content, memoryContext),
+    ),
     memoryPromise: extractDiaryMemory(diary.content).catch((error) => {
       console.error("Failed to extract diary memory", error);
       return null;
@@ -130,7 +155,10 @@ export const useCreateDiary = () => {
 
       setIsCreating(true);
       try {
-        const diaryPreparations = diaries.map(prepareDiary);
+        const memoryContextPromise = getActiveMemoryContext(localUser.uid);
+        const diaryPreparations = diaries.map((diary) =>
+          prepareDiary(diary, memoryContextPromise),
+        );
 
         // 並列でカードの追加処理を実行
         const addPromises = diaryPreparations.map(async (preparation) => {

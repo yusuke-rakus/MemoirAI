@@ -55,6 +55,25 @@ export type PersonMemory = {
   updatedAt: Timestamp;
 };
 
+export type ActivePersonMemory = Omit<
+  PersonMemory,
+  "attributes" | "relationshipNotes" | "relationshipToUser"
+> & {
+  relationshipToUser?: MemoryFact;
+  attributes: MemoryFact[];
+  relationshipNotes: MemoryFact[];
+};
+
+export type ActiveUserMemoryContext = {
+  summary: string;
+  profileFacts: UserProfileMemoryFact[];
+  preferences: UserPreferenceMemoryFact[];
+  habits: MemoryFact[];
+  goals: MemoryFact[];
+  concerns: MemoryFact[];
+  people: ActivePersonMemory[];
+};
+
 export type ExtractedMemoryFact = {
   value: string;
   confidence: number;
