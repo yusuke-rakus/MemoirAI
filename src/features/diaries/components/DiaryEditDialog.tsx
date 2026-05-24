@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -103,9 +102,6 @@ export const DiaryEditDialog = ({
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>日記を編集</DialogTitle>
-          <DialogDescription>
-            タイトル、本文、タグを更新できます。
-          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form className="space-y-4" onSubmit={handleSubmit}>
