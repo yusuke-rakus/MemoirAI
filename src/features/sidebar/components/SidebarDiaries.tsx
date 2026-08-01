@@ -6,15 +6,15 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { MessageSquareDashed } from "lucide-react";
+import { PATHS } from "@/constants/path";
+import { format } from "date-fns";
+import { ChevronDown, Loader2, MessageSquareDashed } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useFetchDiary } from "../hooks/useFetchDiary";
 import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
-import { PATHS } from "@/constants/path";
-import { format } from "date-fns";
 
 export const SidebarDiaries = () => {
-  useFetchDiary();
+  const { loadMore, hasMore, isLoadingMore } = useFetchDiary();
   const { uploadedDiaries, isLoading } = useDiaryDetailStore();
 
   return (
@@ -44,6 +44,25 @@ export const SidebarDiaries = () => {
                 </SidebarMenuSubItem>
               );
             })}
+            {hasMore && (
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  type="button"
+                  disabled={isLoadingMore}
+                  className="justify-center text-muted-foreground"
+                  onClick={() => void loadMore()}
+                >
+                  {isLoadingMore ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <ChevronDown />
+                  )}
+                  <span className="text-xs">
+                    {isLoadingMore ? "読み込み中..." : "さらに10件表示"}
+                  </span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
           </>
         ) : (
           <div className="flex items-center justify-center gap-1 text-center text-xs text-muted-foreground">
