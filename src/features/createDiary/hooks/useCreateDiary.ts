@@ -45,7 +45,6 @@ type DiaryPreparation = {
 };
 
 type CreatedDiaryMemoryPayload = {
-  diaryId: string;
   uid: string;
   memoryPromise: Promise<ExtractedUserMemory | null>;
 };
@@ -104,7 +103,6 @@ const prepareDiary = (
 };
 
 const saveDiaryMemory = async ({
-  diaryId,
   uid,
   memoryPromise,
 }: CreatedDiaryMemoryPayload) => {
@@ -113,7 +111,6 @@ const saveDiaryMemory = async ({
 
   await UserMemoryClient.mergeExtractedMemory({
     uid,
-    diaryId,
     extracted,
   });
 };
@@ -186,7 +183,6 @@ export const useCreateDiary = () => {
           try {
             await DiaryClient.add(payload);
             return {
-              diaryId: payload.id,
               uid: payload.uid,
               memoryPromise,
             };

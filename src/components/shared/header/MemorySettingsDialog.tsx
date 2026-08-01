@@ -9,9 +9,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserMemoryClient } from "@/lib/service/userMemoryClient";
 import type {
-  ActivePersonMemory,
   ActiveUserMemoryContext,
   MemoryFact,
+  PersonMemory,
   UserProfileMemoryFact,
 } from "@/types/memory";
 import { Brain } from "lucide-react";
@@ -63,7 +63,7 @@ const createProfileFactRows = (
     value: fact.value,
   }));
 
-const createPersonRows = (people: ActivePersonMemory[]): MemoryRow[] =>
+const createPersonRows = (people: PersonMemory[]): MemoryRow[] =>
   people.flatMap((person) => {
     const rows: MemoryRow[] = [];
 

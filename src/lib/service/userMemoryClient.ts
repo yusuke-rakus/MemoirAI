@@ -1,11 +1,9 @@
 import { db } from "@/firebase/firebase";
 import { generateMemoryFactId, generatePersonMemoryId } from "@/lib/generateId";
 import type {
-  ActivePersonMemory,
   ActiveUserMemoryContext,
-  ExtractedMemoryFact,
-  ExtractedProfileFact,
   ExtractedPersonMemory,
+  ExtractedProfileFact,
   ExtractedUserMemory,
   MemoryFact,
   PersonMemory,
@@ -13,15 +11,7 @@ import type {
   UserMemoryProfileKey,
   UserProfileMemoryFact,
 } from "@/types/memory";
-import {
-  collection,
-  deleteField,
-  doc,
-  getDoc,
-  getDocs,
-  Timestamp,
-  writeBatch,
-} from "firebase/firestore";
+import { collection, doc, getDocs, writeBatch } from "firebase/firestore";
 
 const MEMORY_SETTINGS_DOC_ID = "memory";
 const PEOPLE_COLLECTION_ID = "people";
@@ -51,52 +41,64 @@ const compactUnique = (values: string[]) =>
     ).values(),
   );
 
-const uniqueIds = (ids: string[]) => Array.from(new Set(ids.filter(Boolean)));
-
-const filterActiveMemoryFacts = <T extends MemoryFact>(facts: T[] = []) =>
-  facts.filter((fact) => fact.status === "active");
-
-const createMemoryFact = (
-  fact: ExtractedMemoryFact,
-  diaryId: string,
-  now: Timestamp,
-): MemoryFact => ({
+const createMemoryFact = (fact: MemoryFact): MemoryFact => ({
   value: fact.value.trim(),
   confidence: clampConfidence(fact.confidence),
-  sourceDiaryIds: [diaryId],
-  firstSeenAt: now,
-  lastSeenAt: now,
-  status: "active",
 });
+
+const areMemoryFactsEqual = (
+  current: MemoryFact | undefined,
+  next: MemoryFact | undefined,
+) => current?.value === next?.value && current?.confidence === next?.confidence;
+
+const areMemoryFactArraysEqual = (
+  current: MemoryFact[],
+  next: MemoryFact[],
+) =>
+  current.length === next.length &&
+  current.every((fact, index) => areMemoryFactsEqual(fact, next[index]));
+
+const areStringArraysEqual = (current: string[], next: string[]) =>
+  current.length === next.length &&
+  current.every((value, index) => value === next[index]);
+
+const arePeopleEqual = (current: PersonMemory, next: PersonMemory) =>
+  current.id === next.id &&
+  current.name === next.name &&
+  areStringArraysEqual(current.aliases, next.aliases) &&
+  areMemoryFactsEqual(current.relationshipToUser, next.relationshipToUser) &&
+  areMemoryFactArraysEqual(current.attributes, next.attributes) &&
+  areMemoryFactArraysEqual(current.relationshipNotes, next.relationshipNotes);
+
+const upsertById = <T extends { id: string }>(items: T[], item: T) => {
+  const index = items.findIndex((currentItem) => currentItem.id === item.id);
+  if (index >= 0) {
+    items[index] = item;
+    return;
+  }
+
+  items.push(item);
+};
 
 const mergeMemoryFact = (
   current: MemoryFact | undefined,
-  extracted: ExtractedMemoryFact | undefined,
-  diaryId: string,
-  now: Timestamp,
+  extracted: MemoryFact | undefined,
 ) => {
   if (!extracted?.value.trim()) return current;
 
-  const next = createMemoryFact(extracted, diaryId, now);
+  const next = createMemoryFact(extracted);
   if (!current) return next;
 
-  const sourceDiaryIds = uniqueIds([...current.sourceDiaryIds, diaryId]);
   if (normalizeText(current.value) === normalizeText(next.value)) {
     return {
       ...current,
       confidence: Math.max(current.confidence, next.confidence),
-      sourceDiaryIds,
-      lastSeenAt: now,
-      status: "active",
     } satisfies MemoryFact;
   }
 
   if (next.confidence >= current.confidence) {
     return {
       ...next,
-      sourceDiaryIds,
-      firstSeenAt: current.firstSeenAt,
-      status: "active",
     } satisfies MemoryFact;
   }
 
@@ -105,9 +107,7 @@ const mergeMemoryFact = (
 
 const mergeFactArray = (
   current: MemoryFact[] = [],
-  extracted: ExtractedMemoryFact[] = [],
-  diaryId: string,
-  now: Timestamp,
+  extracted: MemoryFact[] = [],
 ) => {
   const nextFacts = [...current];
 
@@ -120,16 +120,14 @@ const mergeFactArray = (
     );
 
     if (index >= 0) {
-      nextFacts[index] = mergeMemoryFact(
-        nextFacts[index],
-        fact,
-        diaryId,
-        now,
-      ) as MemoryFact;
+      const mergedFact = mergeMemoryFact(nextFacts[index], fact);
+      if (mergedFact) {
+        nextFacts[index] = mergedFact;
+      }
       return;
     }
 
-    nextFacts.push(createMemoryFact(fact, diaryId, now));
+    nextFacts.push(createMemoryFact(fact));
   });
 
   return nextFacts;
@@ -137,11 +135,10 @@ const mergeFactArray = (
 
 const mergeCollectionFacts = (
   current: UserMemoryFact[] = [],
-  extracted: ExtractedMemoryFact[] = [],
-  diaryId: string,
-  now: Timestamp,
+  extracted: MemoryFact[] = [],
 ): UserMemoryFact[] => {
   const nextFacts = [...current];
+  const factsToSave: UserMemoryFact[] = [];
 
   extracted.forEach((fact) => {
     if (!fact.value.trim()) return;
@@ -153,63 +150,72 @@ const mergeCollectionFacts = (
 
     if (index >= 0) {
       const currentFact = nextFacts[index];
-      const mergedFact = mergeMemoryFact(currentFact, fact, diaryId, now);
+      const mergedFact = mergeMemoryFact(currentFact, fact);
       if (mergedFact) {
-        nextFacts[index] = {
+        const nextFact = {
           ...mergedFact,
           id: currentFact.id,
         };
+        nextFacts[index] = nextFact;
+        if (!areMemoryFactsEqual(currentFact, nextFact)) {
+          upsertById(factsToSave, nextFact);
+        }
       }
       return;
     }
 
-    nextFacts.push({
+    const nextFact = {
       id: generateMemoryFactId(),
-      ...createMemoryFact(fact, diaryId, now),
-    });
+      ...createMemoryFact(fact),
+    };
+    nextFacts.push(nextFact);
+    factsToSave.push(nextFact);
   });
 
-  return nextFacts;
+  return factsToSave;
 };
 
 const mergeProfileFacts = (
   current: UserProfileMemoryFact[] = [],
   extracted: ExtractedProfileFact[] = [],
-  diaryId: string,
-  now: Timestamp,
 ) => {
   const nextFacts = [...current];
+  const factsToSave: UserProfileMemoryFact[] = [];
 
   extracted.forEach((fact) => {
     if (!profileKeys.has(fact.key) || !fact.value.trim()) return;
 
     const index = nextFacts.findIndex(
-      (currentFact) =>
-        currentFact.key === fact.key &&
-        normalizeText(currentFact.value) === normalizeText(fact.value),
+      (currentFact) => currentFact.key === fact.key,
     );
 
     if (index >= 0) {
       const currentFact = nextFacts[index];
-      const mergedFact = mergeMemoryFact(currentFact, fact, diaryId, now);
+      const mergedFact = mergeMemoryFact(currentFact, fact);
       if (mergedFact) {
-        nextFacts[index] = {
+        const nextFact = {
           ...mergedFact,
           id: currentFact.id,
           key: currentFact.key,
         };
+        nextFacts[index] = nextFact;
+        if (!areMemoryFactsEqual(currentFact, nextFact)) {
+          upsertById(factsToSave, nextFact);
+        }
       }
       return;
     }
 
-    nextFacts.push({
+    const nextFact = {
       id: generateMemoryFactId(),
       key: fact.key,
-      ...createMemoryFact(fact, diaryId, now),
-    });
+      ...createMemoryFact(fact),
+    };
+    nextFacts.push(nextFact);
+    factsToSave.push(nextFact);
   });
 
-  return nextFacts;
+  return factsToSave;
 };
 
 const getPersonMatchKeys = (person: Pick<PersonMemory, "aliases" | "name">) =>
@@ -233,8 +239,6 @@ const findExistingPerson = (
 const mergePerson = (
   current: PersonMemory | undefined,
   extracted: ExtractedPersonMemory,
-  diaryId: string,
-  now: Timestamp,
 ): PersonMemory => {
   const name = extracted.name.trim();
   const aliases = compactUnique(extracted.aliases ?? []);
@@ -247,21 +251,9 @@ const mergePerson = (
       relationshipToUser: mergeMemoryFact(
         undefined,
         extracted.relationshipToUser,
-        diaryId,
-        now,
       ),
-      attributes: mergeFactArray([], extracted.attributes, diaryId, now),
-      relationshipNotes: mergeFactArray(
-        [],
-        extracted.relationshipNotes,
-        diaryId,
-        now,
-      ),
-      sourceDiaryIds: [diaryId],
-      firstMentionedAt: now,
-      lastMentionedAt: now,
-      createdAt: now,
-      updatedAt: now,
+      attributes: mergeFactArray([], extracted.attributes),
+      relationshipNotes: mergeFactArray([], extracted.relationshipNotes),
     };
   }
 
@@ -272,47 +264,56 @@ const mergePerson = (
     relationshipToUser: mergeMemoryFact(
       current.relationshipToUser,
       extracted.relationshipToUser,
-      diaryId,
-      now,
     ),
-    attributes: mergeFactArray(
-      current.attributes,
-      extracted.attributes,
-      diaryId,
-      now,
-    ),
+    attributes: mergeFactArray(current.attributes, extracted.attributes),
     relationshipNotes: mergeFactArray(
       current.relationshipNotes,
       extracted.relationshipNotes,
-      diaryId,
-      now,
     ),
-    sourceDiaryIds: uniqueIds([...current.sourceDiaryIds, diaryId]),
-    lastMentionedAt: now,
-    updatedAt: now,
   };
 };
 
-const filterActivePersonMemory = (person: PersonMemory): ActivePersonMemory => ({
-  ...person,
-  relationshipToUser:
-    person.relationshipToUser?.status === "active"
-      ? person.relationshipToUser
-      : undefined,
-  attributes: filterActiveMemoryFacts(person.attributes),
-  relationshipNotes: filterActiveMemoryFacts(person.relationshipNotes),
-});
+const mergePeople = (
+  currentPeople: PersonMemory[],
+  extractedPeople: ExtractedPersonMemory[] = [],
+) => {
+  const knownPeople = [...currentPeople];
+  const peopleToSave: PersonMemory[] = [];
+
+  extractedPeople
+    .filter((person) => person.name.trim())
+    .forEach((person) => {
+      const currentPerson = findExistingPerson(knownPeople, person);
+      const mergedPerson = mergePerson(currentPerson, person);
+      const knownIndex = knownPeople.findIndex(
+        (knownPerson) => knownPerson.id === mergedPerson.id,
+      );
+
+      if (knownIndex >= 0) {
+        knownPeople[knownIndex] = mergedPerson;
+      } else {
+        knownPeople.push(mergedPerson);
+      }
+
+      if (!currentPerson || !arePeopleEqual(currentPerson, mergedPerson)) {
+        upsertById(peopleToSave, mergedPerson);
+      }
+    });
+
+  return peopleToSave;
+};
 
 export class UserMemoryClient {
-  private static async getMemoryFacts(
+  private static async getMemoryCollection<T>(
     uid: string,
     collectionId: string,
-  ): Promise<UserMemoryFact[]> {
+    errorMessage: string,
+  ): Promise<T[]> {
     if (!uid) {
-      throw new Error("uid is required to fetch memory facts.");
+      throw new Error(errorMessage);
     }
 
-    const factsRef = collection(
+    const collectionRef = collection(
       db,
       "users",
       uid,
@@ -320,53 +321,33 @@ export class UserMemoryClient {
       MEMORY_SETTINGS_DOC_ID,
       collectionId,
     );
-    const snapshot = await getDocs(factsRef);
+    const snapshot = await getDocs(collectionRef);
 
-    return snapshot.docs.map((doc) => doc.data() as UserMemoryFact);
+    return snapshot.docs.map((doc) => doc.data() as T);
   }
 
   static async getPeople(uid: string): Promise<PersonMemory[]> {
-    if (!uid) {
-      throw new Error("uid is required to fetch people memory.");
-    }
-
-    const peopleRef = collection(
-      db,
-      "users",
+    return UserMemoryClient.getMemoryCollection<PersonMemory>(
       uid,
-      "settings",
-      MEMORY_SETTINGS_DOC_ID,
       PEOPLE_COLLECTION_ID,
+      "uid is required to fetch people memory.",
     );
-    const snapshot = await getDocs(peopleRef);
-
-    return snapshot.docs.map((doc) => doc.data() as PersonMemory);
   }
 
   static async getProfileFacts(uid: string): Promise<UserProfileMemoryFact[]> {
-    if (!uid) {
-      throw new Error("uid is required to fetch profile memory.");
-    }
-
-    const profileFactsRef = collection(
-      db,
-      "users",
+    return UserMemoryClient.getMemoryCollection<UserProfileMemoryFact>(
       uid,
-      "settings",
-      MEMORY_SETTINGS_DOC_ID,
       PROFILE_FACTS_COLLECTION_ID,
+      "uid is required to fetch profile memory.",
     );
-    const snapshot = await getDocs(profileFactsRef);
-
-    return snapshot.docs.map((doc) => doc.data() as UserProfileMemoryFact);
   }
 
   static async getPreferences(uid: string): Promise<UserMemoryFact[]> {
-    if (!uid) {
-      throw new Error("uid is required to fetch preference memory.");
-    }
-
-    return UserMemoryClient.getMemoryFacts(uid, PREFERENCES_COLLECTION_ID);
+    return UserMemoryClient.getMemoryCollection<UserMemoryFact>(
+      uid,
+      PREFERENCES_COLLECTION_ID,
+      "uid is required to fetch preference memory.",
+    );
   }
 
   static async getActiveMemoryContext(
@@ -383,9 +364,9 @@ export class UserMemoryClient {
     ]);
 
     return {
-      profileFacts: filterActiveMemoryFacts(profileFacts),
-      preferences: filterActiveMemoryFacts(preferences),
-      people: people.map(filterActivePersonMemory).filter(
+      profileFacts,
+      preferences,
+      people: people.filter(
         (person) =>
           person.relationshipToUser ||
           person.attributes.length > 0 ||
@@ -396,21 +377,15 @@ export class UserMemoryClient {
 
   static async mergeExtractedMemory({
     uid,
-    diaryId,
     extracted,
   }: {
     uid: string;
-    diaryId: string;
     extracted: ExtractedUserMemory;
   }): Promise<void> {
     if (!uid) {
       throw new Error("uid is required to update user memory.");
     }
-    if (!diaryId) {
-      throw new Error("diaryId is required to update user memory.");
-    }
 
-    const now = Timestamp.now();
     const [currentProfileFacts, currentPreferences, currentPeople] =
       await Promise.all([
         UserMemoryClient.getProfileFacts(uid),
@@ -418,46 +393,20 @@ export class UserMemoryClient {
         UserMemoryClient.getPeople(uid),
       ]);
 
-    const peopleToSave = (extracted.people ?? [])
-      .filter((person) => person.name.trim())
-      .map((person) =>
-        mergePerson(findExistingPerson(currentPeople, person), person, diaryId, now),
-    );
+    const peopleToSave = mergePeople(currentPeople, extracted.people);
     const profileFactsToSave = mergeProfileFacts(
       currentProfileFacts,
       extracted.profileFacts,
-      diaryId,
-      now,
     );
     const preferencesToSave = mergeCollectionFacts(
       currentPreferences,
       extracted.preferences,
-      diaryId,
-      now,
     );
+    const writeCount =
+      profileFactsToSave.length + preferencesToSave.length + peopleToSave.length;
+    if (writeCount === 0) return;
 
     const batch = writeBatch(db);
-    const memoryRef = doc(db, "users", uid, "settings", MEMORY_SETTINGS_DOC_ID);
-    const memorySnapshot = await getDoc(memoryRef);
-    if (memorySnapshot.exists()) {
-      batch.set(
-        memoryRef,
-        {
-          uid: deleteField(),
-          schemaVersion: deleteField(),
-          profile: deleteField(),
-          preferences: deleteField(),
-          habits: deleteField(),
-          goals: deleteField(),
-          concerns: deleteField(),
-          summary: deleteField(),
-          lastExtractedDiaryId: deleteField(),
-          createdAt: deleteField(),
-          updatedAt: deleteField(),
-        },
-        { merge: true },
-      );
-    }
 
     profileFactsToSave.forEach((profileFact) => {
       const profileFactRef = doc(
@@ -469,7 +418,7 @@ export class UserMemoryClient {
         PROFILE_FACTS_COLLECTION_ID,
         profileFact.id,
       );
-      batch.set(profileFactRef, profileFact, { merge: true });
+      batch.set(profileFactRef, profileFact);
     });
 
     preferencesToSave.forEach((preference) => {
@@ -482,7 +431,7 @@ export class UserMemoryClient {
         PREFERENCES_COLLECTION_ID,
         preference.id,
       );
-      batch.set(preferenceRef, preference, { merge: true });
+      batch.set(preferenceRef, preference);
     });
 
     peopleToSave.forEach((person) => {
@@ -495,14 +444,7 @@ export class UserMemoryClient {
         PEOPLE_COLLECTION_ID,
         person.id,
       );
-      batch.set(
-        personRef,
-        {
-          ...person,
-          summary: deleteField(),
-        },
-        { merge: true },
-      );
+      batch.set(personRef, person);
     });
 
     await batch.commit();
