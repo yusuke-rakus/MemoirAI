@@ -18,8 +18,10 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { PATHS } from "@/constants/path";
 import { cn } from "@/lib/utils";
 import type { Diary } from "@/types/diary/diary";
+import { format, isSameDay } from "date-fns";
 import {
   Ellipsis,
   Link,
@@ -30,6 +32,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useCallback, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { DiaryTag } from "../../createDiary/components/DiaryTag";
 import {
   type DiaryPreviewMutationValues,
@@ -49,6 +52,7 @@ export const DiaryPreviewCard = ({
   diary,
   onCompleted,
 }: DiaryPreviewCardProps) => {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -64,6 +68,14 @@ export const DiaryPreviewCard = ({
 
     if (isUpdated) {
       setIsEditDialogOpen(false);
+
+      if (isSameDay(values.date, diary.date.toDate())) {
+        await onCompleted();
+        return;
+      }
+
+      const dateString = format(values.date, "yyyy-MM-dd");
+      navigate(`${PATHS.diaries.path}/${dateString}`);
     }
   };
 
