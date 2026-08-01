@@ -132,15 +132,25 @@ export const NewDiaryView = () => {
       <div className="max-w-4xl mx-auto">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-          <div className="flex items-center gap-3 text-muted-foreground group">
+          <div className="text-muted-foreground">
             <Popover>
               <PopoverTrigger asChild>
-                <CalendarIcon className="h-5 w-5 group-hover:text-primary transition-colors" />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="h-11 gap-3 px-3 text-base font-medium tracking-tight text-muted-foreground hover:text-foreground sm:text-lg"
+                  aria-label="日付を変更"
+                >
+                  <CalendarIcon className="h-5 w-5" />
+                  {format(date, "M月d日")}
+                </Button>
               </PopoverTrigger>
-              <span className="text-lg font-medium tracking-tight">
-                {format(date, "M月d日")}
-              </span>
-              <PopoverContent className="w-fit">
+              <PopoverContent
+                className="w-fit max-w-[calc(100vw-1rem)] p-0"
+                align="start"
+                sideOffset={8}
+                collisionPadding={8}
+              >
                 <Calendar
                   mode="single"
                   selected={date}

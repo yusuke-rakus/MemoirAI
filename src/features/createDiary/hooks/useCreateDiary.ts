@@ -1,10 +1,16 @@
 import type { TagColor } from "@/constants/tagColors";
 import { useLocalUser } from "@/contexts/LocalUserContext";
 import { diaryTitleModel } from "@/firebase/models/createDiarySchema";
+import { memoryExtractionModel } from "@/firebase/models/memoryExtractionSchema";
 import { generateDiaryId } from "@/lib/generateId";
 import { DiaryClient } from "@/lib/service/diaryClient";
 import { DiaryImageClient } from "@/lib/service/diaryImageClient";
+import { UserMemoryClient } from "@/lib/service/userMemoryClient";
 import type { DiaryImage } from "@/types/diary/diary";
+import type {
+  ActiveUserMemoryContext,
+  ExtractedUserMemory,
+} from "@/types/memory";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { type DiaryCardImage, useDiaryCard } from "./useDiaryCard";
@@ -21,14 +27,92 @@ interface Diary {
   images: DiaryCardImage[];
 }
 
-const generateTitle = async (content: string) => {
-  const aiResponse = await diaryTitleModel.generateContent(content);
+type DiaryMeta = {
+  title: string;
+  tags: Tag[];
+};
+
+type DiaryMetaResponse = {
+  title: string;
+  tags?: Tag[];
+};
+
+type DiaryPreparation = {
+  diary: Diary;
+  diaryId: string;
+  metaPromise: Promise<DiaryMeta>;
+  memoryPromise: Promise<ExtractedUserMemory | null>;
+};
+
+type CreatedDiaryMemoryPayload = {
+  uid: string;
+  memoryPromise: Promise<ExtractedUserMemory | null>;
+};
+
+const generateTitle = async (
+  content: string,
+  memoryContext: ActiveUserMemoryContext | null,
+) => {
+  const aiResponse = await diaryTitleModel.generateContent(
+    JSON.stringify({
+      diaryContent: content,
+      memoryContext,
+    }),
+  );
   const text = aiResponse.response.text();
-  const json = JSON.parse(text);
+  const json = JSON.parse(text) as DiaryMetaResponse;
   return {
     title: json.title,
-    tags: json.tags,
+    tags: json.tags ?? [],
   };
+};
+
+const extractDiaryMemory = async (content: string) => {
+  const aiResponse = await memoryExtractionModel.generateContent(content);
+  const text = aiResponse.response.text();
+
+  return JSON.parse(text) as ExtractedUserMemory;
+};
+
+const getActiveMemoryContext = async (uid: string) => {
+  try {
+    return await UserMemoryClient.getActiveMemoryContext(uid);
+  } catch (error) {
+    console.error("Failed to fetch active memory context", error);
+    return null;
+  }
+};
+
+const prepareDiary = (
+  diary: Diary,
+  memoryContextPromise: Promise<ActiveUserMemoryContext | null>,
+): DiaryPreparation => {
+  const diaryId = generateDiaryId();
+
+  return {
+    diary,
+    diaryId,
+    metaPromise: memoryContextPromise.then((memoryContext) =>
+      generateTitle(diary.content, memoryContext),
+    ),
+    memoryPromise: extractDiaryMemory(diary.content).catch((error) => {
+      console.error("Failed to extract diary memory", error);
+      return null;
+    }),
+  };
+};
+
+const saveDiaryMemory = async ({
+  uid,
+  memoryPromise,
+}: CreatedDiaryMemoryPayload) => {
+  const extracted = await memoryPromise;
+  if (!extracted) return;
+
+  await UserMemoryClient.mergeExtractedMemory({
+    uid,
+    extracted,
+  });
 };
 
 const uploadDiaryImages = async (
@@ -68,27 +152,29 @@ export const useCreateDiary = () => {
 
       setIsCreating(true);
       try {
-        // 並列でタイトルを作成
-        const titlePromises = diaries.map((d) => generateTitle(d.content));
-        const diaryMeta = await Promise.all(titlePromises);
+        const memoryContextPromise = getActiveMemoryContext(localUser.uid);
+        const diaryPreparations = diaries.map((diary) =>
+          prepareDiary(diary, memoryContextPromise),
+        );
 
         // 並列でカードの追加処理を実行
-        const addPromises = diaries.map(async (d, i) => {
+        const addPromises = diaryPreparations.map(async (preparation) => {
+          const { diary, diaryId, memoryPromise, metaPromise } = preparation;
+          const diaryMeta = await metaPromise;
           const mergedTags = Array.from(
-            new Set([...d.tags, ...diaryMeta[i].tags]),
+            new Set([...diary.tags, ...diaryMeta.tags]),
           );
-          const diaryId = generateDiaryId();
           const uploadedImages = await uploadDiaryImages(
             localUser.uid,
             diaryId,
-            d.images,
+            diary.images,
           );
           const payload = {
             id: diaryId,
             uid: localUser.uid,
-            date: d.date,
-            title: diaryMeta[i].title,
-            content: d.content,
+            date: diary.date,
+            title: diaryMeta.title,
+            content: diary.content,
             tags: mergedTags,
             images: uploadedImages,
             createdAt: new Date(),
@@ -96,7 +182,10 @@ export const useCreateDiary = () => {
 
           try {
             await DiaryClient.add(payload);
-            return payload.id;
+            return {
+              uid: payload.uid,
+              memoryPromise,
+            };
           } catch (error) {
             await DiaryImageClient.deleteMany(uploadedImages).catch(
               (deleteError) => {
@@ -110,7 +199,15 @@ export const useCreateDiary = () => {
           }
         });
 
-        await Promise.all(addPromises);
+        const createdDiaries = await Promise.all(addPromises);
+
+        for (const diary of createdDiaries) {
+          try {
+            await saveDiaryMemory(diary);
+          } catch (error) {
+            console.error("Failed to save diary memory", error);
+          }
+        }
       } finally {
         setIsCreating(false);
       }

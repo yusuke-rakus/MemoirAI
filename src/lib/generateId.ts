@@ -7,3 +7,11 @@ export function generateDiaryId() {
 export function generateDiaryImageId() {
   return `diary-image-${uuidv4()}`;
 }
+
+export function generateMemoryFactId() {
+  return `memory-fact-${uuidv4()}`;
+}
+
+export function generatePersonMemoryId() {
+  return `person-memory-${uuidv4()}`;
+}
