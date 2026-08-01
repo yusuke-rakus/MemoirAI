@@ -30,6 +30,7 @@ import { toast } from "sonner";
 export const Header = () => {
   const { open, openMobile, isMobile, toggleSidebar } = useSidebar();
   const { localUser, setLocalUser } = useLocalUser();
+  const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
   const [isMemoryDialogOpen, setIsMemoryDialogOpen] = useState(false);
   const auth = getAuth();
   const navigate = useNavigate();
@@ -76,6 +77,11 @@ export const Header = () => {
     void handlePrimaryColorChange(colorKey);
   };
 
+  const handleMemorySettingsSelect = () => {
+    setIsAvatarMenuOpen(false);
+    requestAnimationFrame(() => setIsMemoryDialogOpen(true));
+  };
+
   const isSidebarOpen = isMobile ? openMobile : open;
 
   return (
@@ -109,7 +115,12 @@ export const Header = () => {
         </AppTooltip>
       </div>
       <div className="ml-auto flex items-center gap-4">
-        <AvatarMenu user={localUser} handleLogout={handleLogout}>
+        <AvatarMenu
+          user={localUser}
+          handleLogout={handleLogout}
+          open={isAvatarMenuOpen}
+          onOpenChange={setIsAvatarMenuOpen}
+        >
           <SettingsDropdownSubItem icon={SunMoon} label={"テーマ"}>
             <SettingsDropdownItem
               onClick={() => handleThemeChange("light")}
@@ -153,7 +164,7 @@ export const Header = () => {
           <SettingsDropdownItem
             icon={Settings}
             label="設定"
-            onSelect={() => setIsMemoryDialogOpen(true)}
+            onSelect={handleMemorySettingsSelect}
           />
         </AvatarMenu>
         <MemorySettingsDialog

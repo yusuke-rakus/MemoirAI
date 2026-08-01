@@ -15,7 +15,7 @@ import type {
   UserProfileMemoryFact,
 } from "@/types/memory";
 import { Brain } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type MemorySettingsDialogProps = {
   uid?: string;
@@ -122,6 +122,7 @@ export const MemorySettingsDialog = ({
   open,
   onOpenChange,
 }: MemorySettingsDialogProps) => {
+  const dialogTitleRef = useRef<HTMLHeadingElement>(null);
   const [memory, setMemory] = useState<ActiveUserMemoryContext | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -138,7 +139,8 @@ export const MemorySettingsDialog = ({
 
     const fetchMemory = async () => {
       try {
-        const memoryContext = await UserMemoryClient.getActiveMemoryContext(uid);
+        const memoryContext =
+          await UserMemoryClient.getActiveMemoryContext(uid);
         if (!isMounted) return;
         setMemory(memoryContext);
       } catch (error) {
@@ -164,9 +166,17 @@ export const MemorySettingsDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[min(720px,calc(100vh-2rem))] gap-0 overflow-hidden p-0 sm:max-w-3xl">
+      <DialogContent
+        className="max-h-[min(720px,calc(100vh-2rem))] gap-0 overflow-hidden p-0 sm:max-w-3xl"
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          dialogTitleRef.current?.focus();
+        }}
+      >
         <DialogHeader className="sr-only">
-          <DialogTitle>設定</DialogTitle>
+          <DialogTitle ref={dialogTitleRef} tabIndex={-1}>
+            設定
+          </DialogTitle>
           <DialogDescription>メモリの内容を表示します</DialogDescription>
         </DialogHeader>
         <div className="grid min-h-[560px] grid-cols-1 sm:grid-cols-[180px_minmax(0,1fr)]">
@@ -208,9 +218,7 @@ export const MemorySettingsDialog = ({
                   !hasError &&
                   sections.map((section) => (
                     <div key={section.collectionKey} className="space-y-2">
-                      <h3 className="text-sm font-semibold">
-                        {section.title}
-                      </h3>
+                      <h3 className="text-sm font-semibold">{section.title}</h3>
                       <div className="divide-y rounded-md border">
                         {section.rows.map((row, index) => (
                           <div
