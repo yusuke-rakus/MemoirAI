@@ -6,11 +6,24 @@ import {
   type DocumentData,
   getDocs,
   limit,
+  orderBy,
   query,
+  type QueryDocumentSnapshot,
   setDoc,
+  startAfter,
   Timestamp,
   where,
 } from "firebase/firestore";
+
+const DIARY_PAGE_SIZE = 10;
+
+export type DiaryPageCursor = QueryDocumentSnapshot<DocumentData>;
+
+export type DiaryPage<T> = {
+  diaries: T[];
+  cursor: DiaryPageCursor | null;
+  hasMore: boolean;
+};
 
 export class DiaryClient {
   static async getByUid<T extends DocumentData>(
@@ -51,13 +64,30 @@ export class DiaryClient {
 
   static async getByUidPaged<T extends DocumentData>(
     uid: string,
-  ): Promise<T[] | null> {
-    const q = query(collection(db, "users", uid, "diaries"), limit(10));
+    cursor?: DiaryPageCursor | null,
+  ): Promise<DiaryPage<T>> {
+    const diariesRef = collection(db, "users", uid, "diaries");
+    const q = cursor
+      ? query(
+          diariesRef,
+          orderBy("createdAt", "desc"),
+          startAfter(cursor),
+          limit(DIARY_PAGE_SIZE + 1),
+        )
+      : query(
+          diariesRef,
+          orderBy("createdAt", "desc"),
+          limit(DIARY_PAGE_SIZE + 1),
+        );
 
     const querySnapshot = await getDocs(q);
-    if (querySnapshot.empty) return null;
+    const pageDocuments = querySnapshot.docs.slice(0, DIARY_PAGE_SIZE);
 
-    return querySnapshot.docs.map((doc) => doc.data() as T);
+    return {
+      diaries: pageDocuments.map((document) => document.data() as T),
+      cursor: pageDocuments[pageDocuments.length - 1] ?? null,
+      hasMore: querySnapshot.docs.length > DIARY_PAGE_SIZE,
+    };
   }
 
   static async getByUidAndMonth<T extends DocumentData>(

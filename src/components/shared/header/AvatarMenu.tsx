@@ -14,10 +14,12 @@ type AvatarMenuProps = {
   user: LocalUser | null;
   handleLogout?: () => void;
   children: ReactNode;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 };
 
 export const AvatarMenu = (props: AvatarMenuProps) => {
-  const { user, handleLogout, children } = props;
+  const { user, handleLogout, children, open, onOpenChange } = props;
   const fallbackText =
     user?.displayName
       ?.split(/\s+/)
@@ -29,7 +31,7 @@ export const AvatarMenu = (props: AvatarMenuProps) => {
 
   return (
     <div className="absolute top-2 right-4 z-50">
-      <DropdownMenu>
+      <DropdownMenu open={open} onOpenChange={onOpenChange} modal={false}>
         <DropdownMenuTrigger>
           <Avatar>
             <AvatarImage
