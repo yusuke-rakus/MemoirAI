@@ -5,6 +5,7 @@ import { DiaryClient } from "@/lib/service/diaryClient";
 import { DiaryImageClient } from "@/lib/service/diaryImageClient";
 import type { Diary, DiaryImage } from "@/types/diary/diary";
 import { Timestamp } from "firebase/firestore";
+import { invalidateDiarySearchCache } from "@/stores/diarySearchStore";
 
 export type DiaryPreviewMutationValues = Pick<
   Diary,
@@ -51,6 +52,7 @@ export const useDiaryPreviewActions = ({
           tags: values.tags,
           images: [...values.retainedImages, ...uploadedImages],
         });
+        invalidateDiarySearchCache();
       } catch (error) {
         await DiaryImageClient.deleteMany(uploadedImages).catch(
           (deleteError) => {
@@ -95,6 +97,7 @@ export const useDiaryPreviewActions = ({
     try {
       await DiaryImageClient.deleteMany(diary.images ?? []);
       await DiaryClient.delete(diary.uid, diary.id);
+      invalidateDiarySearchCache();
       await onCompleted();
       toast.success("日記を削除しました");
       return true;

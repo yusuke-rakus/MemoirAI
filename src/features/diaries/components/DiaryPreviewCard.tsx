@@ -101,8 +101,10 @@ export const DiaryPreviewCard = ({
     <>
       {/* <Card className="pb-3 pt-0 overflow-hidden"> */}
       <Card
+        id={`diary-${diary.id}`}
+        tabIndex={-1}
         className={cn(
-          "overflow-hidden",
+          "scroll-mt-20 overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           diary.images && diary.images.length > 0 ? "pt-0 pb-3" : "py-3",
         )}
       >
