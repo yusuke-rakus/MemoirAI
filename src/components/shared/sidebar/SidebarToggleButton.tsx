@@ -22,9 +22,11 @@ export const SidebarToggleButton = React.forwardRef<
       ref={ref}
       variant="ghost"
       size="icon"
+      aria-label={isOpen ? "ナビゲーションを閉じる" : "ナビゲーションを開く"}
+      title={isOpen ? "ナビゲーションを閉じる" : "ナビゲーションを開く"}
       {...buttonProps}
       onClick={onToggle}
-      className={cn("rounded-full", className)}
+      className={cn("size-11 rounded-full sm:size-9", className)}
     >
       {isOpen ? (
         <PanelLeft className="h-5 w-5" />

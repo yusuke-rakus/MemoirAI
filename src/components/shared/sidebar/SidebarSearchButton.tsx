@@ -5,7 +5,10 @@ import * as React from "react";
 
 type SidebarSearchButtonProps = {
   onToggle: () => void;
-} & Omit<React.ComponentPropsWithoutRef<typeof Button>, "onClick" | "size" | "variant">;
+} & Omit<
+  React.ComponentPropsWithoutRef<typeof Button>,
+  "onClick" | "size" | "variant"
+>;
 
 export const SidebarSearchButton = React.forwardRef<
   HTMLButtonElement,
@@ -22,7 +25,7 @@ export const SidebarSearchButton = React.forwardRef<
       title="日記を検索"
       {...buttonProps}
       onClick={onToggle}
-      className={cn("rounded-full", className)}
+      className={cn("size-11 rounded-full sm:size-9", className)}
     >
       <Search className="h-5 w-5" />
     </Button>

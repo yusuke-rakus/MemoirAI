@@ -9,5 +9,5 @@ type DiaryTagProps = {
 export const DiaryTag = (props: DiaryTagProps) => {
   const { tag } = props;
   const color = tagBgMap[tag.color] ?? "bg-muted-foreground";
-  return <Badge className={color}>{tag.name}</Badge>;
+  return <Badge className={`${color} text-foreground`}>{tag.name}</Badge>;
 };

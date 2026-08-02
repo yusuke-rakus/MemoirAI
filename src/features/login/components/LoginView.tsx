@@ -1,8 +1,10 @@
 import PixelBlast from "@/components/shared/background/pixelBlast";
+import { useReducedMotion } from "motion/react";
 
 export const LoginView = () => {
+  const shouldReduceMotion = useReducedMotion();
   return (
-    <div className="relative w-full overflow-hidden text-white h-[500px]">
+    <div className="relative h-[500px] w-full overflow-hidden text-foreground">
       <div className="absolute inset-0 z-0">
         <PixelBlast
           variant="circle"
@@ -10,8 +12,8 @@ export const LoginView = () => {
           pixelSize={6}
           patternScale={3}
           patternDensity={1.2}
-          enableRipples
-          liquid
+          enableRipples={!shouldReduceMotion}
+          liquid={!shouldReduceMotion}
           transparent
         />
       </div>
@@ -24,11 +26,11 @@ export const LoginView = () => {
             </span>
           </h1>
 
-          <h2 className="text-xl font-medium leading-relaxed tracking-wide text-gray-200 sm:text-2xl md:text-3xl">
+          <h2 className="text-xl font-medium leading-relaxed tracking-wide text-foreground sm:text-2xl md:text-3xl">
             1日を、いくつものメモで
           </h2>
 
-          <p className="mx-auto max-w-lg text-base text-gray-400 sm:text-lg">
+          <p className="mx-auto max-w-lg text-base text-muted-foreground sm:text-lg">
             書きたいことを、書きたい順に。
             <br className="hidden sm:inline" />
             An AI journal built for fragmented days.

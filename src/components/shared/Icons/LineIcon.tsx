@@ -1,4 +1,4 @@
-const LineIcon = ({}) => {
+const LineIcon = () => {
   return (
     <div className="w-4">
       <img

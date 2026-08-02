@@ -143,10 +143,7 @@ export const NewDiaryView = () => {
     setDraggingCardId(null);
   };
 
-  const handleCardDrop = (
-    event: DragEvent<HTMLElement>,
-    cardId: string,
-  ) => {
+  const handleCardDrop = (event: DragEvent<HTMLElement>, cardId: string) => {
     if (!hasDraggedFiles(event)) return;
 
     event.preventDefault();
@@ -195,7 +192,7 @@ export const NewDiaryView = () => {
             </Popover>
           </div>
 
-          <div className="flex items-center gap-4 self-end sm:self-auto">
+          <div className="flex items-center gap-3 self-end sm:self-auto">
             <Button
               onClick={handleSave}
               disabled={isCreating}
@@ -223,11 +220,12 @@ export const NewDiaryView = () => {
             >
               {/* Card Remove Button (visible on hover or if multiple) */}
               {cards.length > 1 && (
-                <div className="absolute -right-2 -top-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                <div className="absolute -right-2 -top-2 opacity-100 transition-opacity z-10 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => removeCard(card.id)}
+                    aria-label={`セクション${cards.indexOf(card) + 1}を削除`}
                     className="h-8 w-8 rounded-full bg-background border border-border shadow-sm hover:bg-destructive/10 hover:text-destructive transition-colors"
                   >
                     <X className="h-4 w-4" />
@@ -270,7 +268,9 @@ export const NewDiaryView = () => {
                       >
                         {tag.name}
                         <button
+                          type="button"
                           onClick={() => removeTag(card.id, tagIndex)}
+                          aria-label={`${tag.name}タグを削除`}
                           className="hover:text-destructive transition-colors"
                         >
                           <X className="h-3 w-3" />
@@ -291,10 +291,12 @@ export const NewDiaryView = () => {
                     />
                     {tagInputs[card.id] && (
                       <Button
+                        type="button"
                         size="icon"
                         variant="ghost"
                         className="h-6 w-6 ml-2"
                         onClick={() => addTag(card.id)}
+                        aria-label="タグを追加"
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
