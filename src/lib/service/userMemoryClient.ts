@@ -11,7 +11,14 @@ import type {
   UserMemoryProfileKey,
   UserProfileMemoryFact,
 } from "@/types/memory";
-import { collection, doc, getDocs, writeBatch } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  setDoc,
+  writeBatch,
+} from "firebase/firestore";
 
 const MEMORY_SETTINGS_DOC_ID = "memory";
 const PEOPLE_COLLECTION_ID = "people";
@@ -347,6 +354,99 @@ export class UserMemoryClient {
       uid,
       PREFERENCES_COLLECTION_ID,
       "uid is required to fetch preference memory.",
+    );
+  }
+
+  static async updateProfileFact(
+    uid: string,
+    fact: UserProfileMemoryFact,
+  ): Promise<void> {
+    await setDoc(
+      doc(
+        db,
+        "users",
+        uid,
+        "settings",
+        MEMORY_SETTINGS_DOC_ID,
+        PROFILE_FACTS_COLLECTION_ID,
+        fact.id,
+      ),
+      fact,
+    );
+  }
+
+  static async deleteProfileFact(uid: string, id: string): Promise<void> {
+    await deleteDoc(
+      doc(
+        db,
+        "users",
+        uid,
+        "settings",
+        MEMORY_SETTINGS_DOC_ID,
+        PROFILE_FACTS_COLLECTION_ID,
+        id,
+      ),
+    );
+  }
+
+  static async updatePreference(
+    uid: string,
+    fact: UserMemoryFact,
+  ): Promise<void> {
+    await setDoc(
+      doc(
+        db,
+        "users",
+        uid,
+        "settings",
+        MEMORY_SETTINGS_DOC_ID,
+        PREFERENCES_COLLECTION_ID,
+        fact.id,
+      ),
+      fact,
+    );
+  }
+
+  static async deletePreference(uid: string, id: string): Promise<void> {
+    await deleteDoc(
+      doc(
+        db,
+        "users",
+        uid,
+        "settings",
+        MEMORY_SETTINGS_DOC_ID,
+        PREFERENCES_COLLECTION_ID,
+        id,
+      ),
+    );
+  }
+
+  static async updatePerson(uid: string, person: PersonMemory): Promise<void> {
+    await setDoc(
+      doc(
+        db,
+        "users",
+        uid,
+        "settings",
+        MEMORY_SETTINGS_DOC_ID,
+        PEOPLE_COLLECTION_ID,
+        person.id,
+      ),
+      person,
+    );
+  }
+
+  static async deletePerson(uid: string, id: string): Promise<void> {
+    await deleteDoc(
+      doc(
+        db,
+        "users",
+        uid,
+        "settings",
+        MEMORY_SETTINGS_DOC_ID,
+        PEOPLE_COLLECTION_ID,
+        id,
+      ),
     );
   }
 
