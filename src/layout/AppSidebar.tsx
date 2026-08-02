@@ -15,8 +15,8 @@ import {
 } from "@/components/ui/sidebar";
 import { PATHS } from "@/constants/path";
 import { DiaryItems } from "@/features/sidebar";
+import { useDiarySearchStore } from "@/stores/diarySearchStore";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 
 export const AppSidebar = () => {
   const { open, openMobile, isMobile, toggleSidebar } = useSidebar();
@@ -26,6 +26,7 @@ export const AppSidebar = () => {
 
   const location = useLocation();
   const navigate = useNavigate();
+  const setDiarySearchOpen = useDiarySearchStore((state) => state.setOpen);
 
   return (
     <Sidebar>
@@ -40,11 +41,7 @@ export const AppSidebar = () => {
         </div>
         <div>
           <AppTooltip description={"日記を検索"}>
-            <SidebarSearchButton
-              onToggle={() => {
-                toast(":(機能が実装されていません");
-              }}
-            />
+            <SidebarSearchButton onToggle={() => setDiarySearchOpen(true)} />
           </AppTooltip>
           <AppTooltip description={"新しい日記"}>
             <SidebarPenButton onToggle={() => navigate(PATHS.newDiary.path)} />

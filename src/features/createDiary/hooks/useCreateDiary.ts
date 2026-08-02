@@ -6,6 +6,7 @@ import { generateDiaryId } from "@/lib/generateId";
 import { DiaryClient } from "@/lib/service/diaryClient";
 import { DiaryImageClient } from "@/lib/service/diaryImageClient";
 import { UserMemoryClient } from "@/lib/service/userMemoryClient";
+import { invalidateDiarySearchCache } from "@/stores/diarySearchStore";
 import type { DiaryImage } from "@/types/diary/diary";
 import type {
   ActiveUserMemoryContext,
@@ -208,6 +209,7 @@ export const useCreateDiary = () => {
             console.error("Failed to save diary memory", error);
           }
         }
+        invalidateDiarySearchCache();
       } finally {
         setIsCreating(false);
       }
@@ -217,12 +219,14 @@ export const useCreateDiary = () => {
 
   const diariesToCreate = useMemo(
     () =>
-      cards.map((card) => ({
-        content: card.body,
-        date: card.date,
-        tags: card.tags,
-        images: card.images,
-      })),
+      cards
+        .filter((card) => card.body.trim())
+        .map((card) => ({
+          content: card.body.trim(),
+          date: card.date,
+          tags: card.tags,
+          images: card.images,
+        })),
     [cards],
   );
 

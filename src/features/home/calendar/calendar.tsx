@@ -98,6 +98,16 @@ export const Calendar = ({
     }
   };
 
+  const addKeyboardActivation = (element: HTMLElement, activate: () => void) => {
+    element.tabIndex = 0;
+    element.setAttribute("role", "button");
+    element.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      activate();
+    });
+  };
+
   return (
     <div
       ref={containerRef}
@@ -112,6 +122,18 @@ export const Calendar = ({
         events={events}
         dateClick={handleDateClick}
         eventClick={handleEventClick}
+        eventDidMount={(arg) => {
+          const start = arg.event.start;
+          arg.el.setAttribute(
+            "aria-label",
+            `${start?.toLocaleDateString("ja-JP") ?? "日記"} ${arg.event.title}`,
+          );
+          if (start) addKeyboardActivation(arg.el, () => onDateSelect?.(start));
+        }}
+        dayCellDidMount={(arg) => {
+          arg.el.setAttribute("aria-label", arg.date.toLocaleDateString("ja-JP"));
+          addKeyboardActivation(arg.el, () => onDateSelect?.(arg.date));
+        }}
         dayMaxEvents={3}
         moreLinkContent={(arg) => `+${arg.num}件`}
         moreLinkClick="popover"

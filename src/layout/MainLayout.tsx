@@ -1,4 +1,5 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { DiarySearchDialog } from "@/features/searchDiary/components/DiarySearchDialog";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { type ReactElement, type ReactNode } from "react";
 import { AppSidebar } from "./AppSidebar";
@@ -14,7 +15,7 @@ type MainLayoutProps = {
 export const MainLayout = (props: MainLayoutProps) => {
   const { title, headerComponent, sidebarComponent, children } = props;
 
-  title && useDocumentTitle(title);
+  useDocumentTitle(title);
 
   const header = headerComponent === undefined ? <Header /> : headerComponent;
   const sidebar =
@@ -30,6 +31,7 @@ export const MainLayout = (props: MainLayoutProps) => {
             <div className="max-w-4xl mx-auto px-2">{children}</div>
           </div>
         </main>
+        <DiarySearchDialog />
       </div>
     </SidebarProvider>
   );

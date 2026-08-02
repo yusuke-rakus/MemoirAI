@@ -3,6 +3,7 @@ import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -31,7 +32,7 @@ import type { Diary, DiaryImage, Tag } from "@/types/diary/diary";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { CalendarIcon, ImagePlus, X } from "lucide-react";
-import { useEffect, useRef, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -84,6 +85,7 @@ export const DiaryEditDialog = ({
   onSubmit,
 }: DiaryEditDialogProps) => {
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState(false);
   const {
     retainedImages,
     newImages,
@@ -145,15 +147,23 @@ export const DiaryEditDialog = ({
 
   const handleOpenChange = (open: boolean) => {
     if (isSubmitting) return;
+    if (!open && form.formState.isDirty) {
+      setIsDiscardDialogOpen(true);
+      return;
+    }
 
     onOpenChange(open);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+    <>
+      <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>日記を編集</DialogTitle>
+          <DialogDescription>
+            日付、タイトル、本文、タグ、画像を編集できます。
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form className="space-y-4" onSubmit={handleSubmit}>
@@ -345,6 +355,33 @@ export const DiaryEditDialog = ({
           </form>
         </Form>
       </DialogContent>
-    </Dialog>
+      </Dialog>
+      <Dialog open={isDiscardDialogOpen} onOpenChange={setIsDiscardDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>変更を破棄しますか？</DialogTitle>
+            <DialogDescription>
+              保存していない編集内容は元に戻せません。
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setIsDiscardDialogOpen(false)}>
+              編集を続ける
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => {
+                setIsDiscardDialogOpen(false);
+                form.reset();
+                onOpenChange(false);
+              }}
+            >
+              破棄する
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };

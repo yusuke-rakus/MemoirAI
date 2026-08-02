@@ -21,6 +21,7 @@ import {
 } from "@/hooks/usePrimaryColor";
 import useTheme from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
+import { useDiarySearchStore } from "@/stores/diarySearchStore";
 import { getAuth, signOut } from "firebase/auth";
 import { Dot, Moon, Palette, Settings, Sun, SunMoon } from "lucide-react";
 import { useState } from "react";
@@ -34,6 +35,7 @@ export const Header = () => {
   const [isMemoryDialogOpen, setIsMemoryDialogOpen] = useState(false);
   const auth = getAuth();
   const navigate = useNavigate();
+  const setDiarySearchOpen = useDiarySearchStore((state) => state.setOpen);
 
   const handleLogout = async () => {
     try {
@@ -105,9 +107,7 @@ export const Header = () => {
         </AppTooltip>
         <AppTooltip description={"日記を検索"}>
           <SidebarSearchButton
-            onToggle={() => {
-              toast("検索機能はまだ実装されていません");
-            }}
+            onToggle={() => setDiarySearchOpen(true)}
           />
         </AppTooltip>
         <AppTooltip description={"新しい日記"}>

@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { useEffect } from "react";
 import { useFetchDiary } from "../hooks/useFetchDiary";
 import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
 import { DiaryPreviewCard } from "./DiaryPreviewCard";
@@ -7,6 +8,13 @@ import { EmptyDiaries } from "./EmptyDiaries";
 export const DiariesView = () => {
   const { date, uploadedDiaries } = useDiaryDetailStore();
   const { refetch } = useFetchDiary();
+
+  useEffect(() => {
+    if (!window.location.hash || uploadedDiaries.length === 0) return;
+    const target = document.getElementById(window.location.hash.slice(1));
+    target?.scrollIntoView({ block: "start" });
+    target?.focus();
+  }, [uploadedDiaries]);
 
   return (
     <div className="max-w-4xl mx-auto pt-8 flex flex-col gap-4 mb-10">

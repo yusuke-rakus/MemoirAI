@@ -31,9 +31,9 @@ export const SidebarDiaries = () => {
           </>
         ) : uploadedDiaries.length > 0 ? (
           <>
-            {uploadedDiaries.map((diary, i) => {
+            {uploadedDiaries.map((diary) => {
               return (
-                <SidebarMenuSubItem key={i}>
+                <SidebarMenuSubItem key={diary.id}>
                   <SidebarMenuButton asChild>
                     <Link
                       to={`${PATHS.diaries.path}/${format(diary.date.toDate(), "yyyy-MM-dd")}`}
