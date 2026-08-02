@@ -219,12 +219,14 @@ export const useCreateDiary = () => {
 
   const diariesToCreate = useMemo(
     () =>
-      cards.map((card) => ({
-        content: card.body,
-        date: card.date,
-        tags: card.tags,
-        images: card.images,
-      })),
+      cards
+        .filter((card) => card.body.trim())
+        .map((card) => ({
+          content: card.body.trim(),
+          date: card.date,
+          tags: card.tags,
+          images: card.images,
+        })),
     [cards],
   );
 

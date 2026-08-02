@@ -6,7 +6,7 @@ import {
 import type { KeyboardEvent } from "react";
 import { create } from "zustand";
 
-interface Tag {
+export interface DiaryCardTag {
   color: TagColor;
   name: string;
 }
@@ -17,11 +17,11 @@ export interface DiaryCardImage {
   previewUrl: string;
 }
 
-interface DiaryCard {
+export interface DiaryCard {
   id: string;
   title: string;
   body: string;
-  tags: Tag[];
+  tags: DiaryCardTag[];
   images: DiaryCardImage[];
   date: Date;
   isCollapsed: boolean;
@@ -55,6 +55,7 @@ interface DiaryCardActions {
     id: string,
   ) => void;
   reset: (date?: Date) => void;
+  restore: (cards: DiaryCard[]) => void;
 }
 
 type DiaryCardStore = DiaryCardState & DiaryCardActions;
@@ -266,6 +267,15 @@ const useDiaryCardStore = create<DiaryCardStore>((set, get) => ({
     set(() => ({
       cards: [createCard(INITIAL_CARD_ID, date)],
       tagInputs: { [INITIAL_CARD_ID]: "" },
+    }));
+  },
+  restore: (cards) => {
+    get().cards.forEach((card) => revokeImagePreviewUrls(card.images));
+
+    const restoredCards = cards.length > 0 ? cards : [createCard(INITIAL_CARD_ID)];
+    set(() => ({
+      cards: restoredCards,
+      tagInputs: Object.fromEntries(restoredCards.map((card) => [card.id, ""])),
     }));
   },
 }));
