@@ -6,7 +6,6 @@ services:
     working_dir: /firebase
     volumes:
       - ./firebase:/firebase
-      - ./firebase-data:/firebase/firebase-data
       - ./firebase.json:/firebase.json:ro
     env_file:
       - .env.development
@@ -17,5 +16,4 @@ services:
       - "9199:9199" # Storage
     command: >
       sh -c "firebase emulators:start --only firestore,auth,storage --project $$VITE_PROJECT_ID
-      --import=/firebase/firebase-data --export-on-exit=/firebase/firebase-data
       --config /firebase.json"

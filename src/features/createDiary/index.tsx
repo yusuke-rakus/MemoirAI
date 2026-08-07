@@ -1,21 +1,15 @@
-import { LoadingScreen } from "@/components/shared/common/LoadingScreen";
-import { useAuthCheck } from "@/hooks/useAuthCheck";
-import { MainLayout } from "@/layout/MainLayout";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { NewDiaryView } from "./components/NewDiaryView";
 import { useInitialDiaryDate } from "./hooks/useInitialDiaryDate";
 import { DiaryDetailProvider } from "./provider/DiaryDetailProvider";
 
 export const NewDiaryPage = () => {
-  const { loading, user } = useAuthCheck();
   const initialDate = useInitialDiaryDate();
+  useDocumentTitle("日記の詳細");
 
-  return loading || !user ? (
-    <LoadingScreen variant="page" />
-  ) : (
+  return (
     <DiaryDetailProvider initialDate={initialDate}>
-      <MainLayout title="日記の詳細">
-        <NewDiaryView />
-      </MainLayout>
+      <NewDiaryView />
     </DiaryDetailProvider>
   );
 };

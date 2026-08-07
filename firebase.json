@@ -29,7 +29,5 @@
       "port": 4000,
       "host": "0.0.0.0"
     }
-  },
-  "exportOnExit": "./firebase-data",
-  "import": "./firebase-data"
+  }
 }
