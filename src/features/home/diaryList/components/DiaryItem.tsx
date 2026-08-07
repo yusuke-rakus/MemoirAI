@@ -6,10 +6,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { PATHS } from "@/constants/path";
+import type { DiaryDetailNavigationState } from "@/features/diaries/types";
 import type { Diary } from "@/types/diary/diary";
 import { format } from "date-fns";
 import { Tag } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { DayIcon } from "./DayIcon";
 import { DiaryTag } from "./DiaryTag";
 
@@ -19,11 +20,16 @@ type DiaryItemProps = {
 
 export const DiaryItem = (props: DiaryItemProps) => {
   const { diary } = props;
+  const location = useLocation();
   const navigate = useNavigate();
 
   const handleSearch = () => {
     const dateStr = format(diary.date.toDate(), "yyyy-MM-dd");
-    navigate(`${PATHS.diaries.path}/${dateStr}`);
+    const state = {
+      returnTo: location.pathname,
+    } satisfies DiaryDetailNavigationState;
+
+    navigate(`${PATHS.diaries.path}/${dateStr}`, { state });
   };
 
   return (
