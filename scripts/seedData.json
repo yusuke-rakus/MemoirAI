@@ -1,0 +1,203 @@
+{
+  "users": [
+    {
+      "uid": "memoir-ai-development-user",
+      "email": "developer@memoir-ai.local",
+      "displayName": "開発ユーザー",
+      "appearance": {
+        "theme": "system",
+        "primaryColor": "default"
+      },
+      "diaries": [
+        {
+          "id": "seed-diary-current-01",
+          "monthOffset": 0,
+          "day": 3,
+          "hour": 8,
+          "title": "静かな朝の散歩",
+          "content": "少し早起きして近所を散歩した。空気が涼しく、いつもの道も新鮮に見えた。帰宅してからゆっくりコーヒーを淹れた。",
+          "tags": [
+            {
+              "name": "散歩",
+              "color": "lime"
+            },
+            {
+              "name": "朝",
+              "color": "amber"
+            }
+          ]
+        },
+        {
+          "id": "seed-diary-current-02",
+          "monthOffset": 0,
+          "day": 8,
+          "hour": 9,
+          "title": "朝会で決めたこと",
+          "content": "今週取り組むタスクを整理した。まずは小さく動くものを作る。",
+          "tags": [
+            {
+              "name": "仕事",
+              "color": "sky"
+            }
+          ]
+        },
+        {
+          "id": "seed-diary-current-03",
+          "monthOffset": 0,
+          "day": 8,
+          "hour": 12,
+          "title": "新しい店でランチ",
+          "content": "駅前にできた店でカレーを食べた。辛さと香りのバランスがよかった。",
+          "tags": [
+            {
+              "name": "食事",
+              "color": "amber"
+            }
+          ]
+        },
+        {
+          "id": "seed-diary-current-04",
+          "monthOffset": 0,
+          "day": 8,
+          "hour": 18,
+          "title": "帰り道の夕焼け",
+          "content": "ビルの間から見えた夕焼けがきれいだった。数分だけ立ち止まった。",
+          "tags": []
+        },
+        {
+          "id": "seed-diary-current-05",
+          "monthOffset": 0,
+          "day": 8,
+          "hour": 21,
+          "title": "一日の振り返り",
+          "content": "今日は予定していた作業を最後まで終えられた。\n途中で迷った箇所は、明日の自分が分かるようにメモを残した。",
+          "tags": [
+            {
+              "name": "振り返り",
+              "color": "violet"
+            },
+            {
+              "name": "仕事",
+              "color": "sky"
+            }
+          ]
+        },
+        {
+          "id": "seed-diary-current-06",
+          "monthOffset": 0,
+          "day": 14,
+          "hour": 19,
+          "title": "本を読み終えた",
+          "content": "少しずつ読んでいた本を読み終えた。答えを急ぐより、よい問いを持ち続けることの大切さが印象に残った。気になった章は時間を置いて読み返したい。",
+          "tags": [
+            {
+              "name": "読書",
+              "color": "indigo"
+            }
+          ]
+        },
+        {
+          "id": "seed-diary-current-07",
+          "monthOffset": 0,
+          "day": 20,
+          "hour": 16,
+          "title": "小さな模様替え",
+          "content": "机の向きを変え、使っていないものを片付けた。作業しやすくなった。",
+          "tags": [
+            {
+              "name": "暮らし",
+              "color": "pink"
+            }
+          ]
+        },
+        {
+          "id": "seed-diary-current-08",
+          "monthOffset": 0,
+          "day": 24,
+          "hour": 20,
+          "title": "友人との久しぶりの会話",
+          "content": "久しぶりに友人と話した。最近始めたことや、これから挑戦したいことを聞けて刺激になった。話しているうちに、自分が考えていたことも少し整理できた。",
+          "tags": [
+            {
+              "name": "友人",
+              "color": "pink"
+            },
+            {
+              "name": "会話",
+              "color": "default"
+            }
+          ]
+        },
+        {
+          "id": "seed-diary-current-09",
+          "monthOffset": 0,
+          "day": 28,
+          "hour": 22,
+          "title": "何もしない時間",
+          "content": "音楽を聴きながら、何も決めずにゆっくり過ごした。",
+          "tags": []
+        },
+        {
+          "id": "seed-diary-previous-01",
+          "monthOffset": -1,
+          "day": 4,
+          "hour": 10,
+          "title": "月初めの計画",
+          "content": "今月やりたいことをノートに書き出した。詰め込みすぎないよう三つに絞った。",
+          "tags": [
+            {
+              "name": "計画",
+              "color": "violet"
+            }
+          ]
+        },
+        {
+          "id": "seed-diary-previous-02",
+          "monthOffset": -1,
+          "day": 11,
+          "hour": 15,
+          "title": "雨の日の午後",
+          "content": "午後から雨が強くなったので、外出の予定を変えて家で過ごした。\n積んだままになっていた本を開き、温かいお茶を飲みながら数章読んだ。",
+          "tags": [
+            {
+              "name": "雨",
+              "color": "sky"
+            },
+            {
+              "name": "読書",
+              "color": "indigo"
+            }
+          ]
+        },
+        {
+          "id": "seed-diary-previous-03",
+          "monthOffset": -1,
+          "day": 19,
+          "hour": 18,
+          "title": "料理を試した日",
+          "content": "初めてのレシピに挑戦した。見た目は不揃いだったが、味は満足できた。",
+          "tags": [
+            {
+              "name": "料理",
+              "color": "amber"
+            }
+          ]
+        },
+        {
+          "id": "seed-diary-previous-04",
+          "monthOffset": -1,
+          "day": 26,
+          "hour": 21,
+          "title": "月末の振り返り",
+          "content": "慌ただしい日もあったが、新しい習慣を続けられた一か月だった。できなかったことより、続けられたことを覚えておきたい。",
+          "tags": [
+            {
+              "name": "振り返り",
+              "color": "lime"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

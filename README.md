@@ -15,12 +15,35 @@
 # 依存関係のインストール
 pnpm install
 
+# Firebase Emulator の起動
+docker compose up -d
+
+# 開発用ユーザーと日記データの投入
+pnpm seed
+
 # 開発サーバーの起動
 pnpm dev
 
 # 本番用ビルド
 pnpm build
 ```
+
+`pnpm seed` は起動済みの Auth、Firestore、Storage Emulator にのみ接続します。
+Emulator が起動していない場合はデータを投入せず終了します。
+投入内容は `scripts/seedData.json` で編集できます。
+
+シードユーザーは Google アカウントとして Auth Emulator に登録されるため、
+既存のログインボタンで開くポップアップから選択できます。
+
+- UID: `memoir-ai-development-user`
+- メールアドレス: `developer@memoir-ai.local`
+
+ユーザーを追加する場合は、`scripts/seedData.json` の `users` 配列へ
+UID とメールアドレスが重複しない要素を追加します。
+
+シードを再実行すると、`users` 配列に定義された各ユーザーの Auth データ、
+Firestore の `users/{uid}` 以下、Storage の `users/{uid}/` 以下を削除してから
+初期データを作り直します。それ以外のユーザーのデータは削除しません。
 
 ## ESLint 設定の拡張
 
