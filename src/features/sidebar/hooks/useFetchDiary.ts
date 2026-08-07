@@ -1,5 +1,6 @@
 import { useLocalUser } from "@/contexts/LocalUserContext";
 import { DiaryClient, type DiaryPageCursor } from "@/lib/service/diaryClient";
+import { useDiaryRefreshStore } from "@/stores/diaryRefreshStore";
 import type { Diary } from "@/types/diary/diary";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -7,6 +8,7 @@ import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
 
 export const useFetchDiary = () => {
   const { localUser } = useLocalUser();
+  const refreshRevision = useDiaryRefreshStore((state) => state.revision);
   const { uploadedDiaries, setUploadedDiaries, setIsLoading } =
     useDiaryDetailStore();
   const cursorRef = useRef<DiaryPageCursor | null>(null);
@@ -36,7 +38,7 @@ export const useFetchDiary = () => {
     cursorRef.current = null;
     setHasMore(false);
     void fetchFirstPage();
-  }, [fetchFirstPage]);
+  }, [fetchFirstPage, refreshRevision]);
 
   const loadMore = useCallback(async () => {
     if (

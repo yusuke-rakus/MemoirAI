@@ -158,203 +158,200 @@ export const DiaryEditDialog = ({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>日記を編集</DialogTitle>
-          <DialogDescription>
-            日付、タイトル、本文、タグ、画像を編集できます。
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <FormField
-              control={form.control}
-              name="date"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>日付</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>日記を編集</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>日付</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            disabled={isSubmitting}
+                            className="w-full justify-start text-left font-normal"
+                          >
+                            <CalendarIcon className="h-4 w-4" />
+                            {format(field.value, "yyyy年M月d日")}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        className="w-fit max-w-[calc(100vw-1rem)] p-0"
+                        align="start"
+                        sideOffset={8}
+                        collisionPadding={8}
+                      >
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={(selectedDate) => {
+                            if (selectedDate) field.onChange(selectedDate);
+                          }}
+                          captionLayout="dropdown"
+                          disabled={isSubmitting}
+                          required
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>タイトル</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        disabled={isSubmitting}
+                        placeholder="タイトルを入力"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>本文</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        disabled={isSubmitting}
+                        className="min-h-48 resize-y"
+                        placeholder="本文を入力"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="tagsText"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>タグ</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        disabled={isSubmitting}
+                        placeholder="タグをカンマ区切りで入力"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormItem>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-medium leading-none">
+                    画像（{imageCount}/{MAX_DIARY_IMAGE_COUNT}）
+                  </p>
+                  <input
+                    ref={imageInputRef}
+                    type="file"
+                    accept={SUPPORTED_DIARY_IMAGE_TYPES.join(",")}
+                    multiple
+                    disabled={isSubmitting}
+                    className="hidden"
+                    onChange={handleSelectImages}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={
+                      isSubmitting || imageCount >= MAX_DIARY_IMAGE_COUNT
+                    }
+                    onClick={() => imageInputRef.current?.click()}
+                  >
+                    <ImagePlus className="h-4 w-4" />
+                    画像を追加
+                  </Button>
+                </div>
+                {imageCount > 0 && (
+                  <div className="flex flex-wrap gap-3 pt-2">
+                    {retainedImages.map((image, index) => (
+                      <div
+                        key={image.id}
+                        className="relative h-24 w-24 overflow-hidden rounded-md border bg-muted"
+                      >
+                        <img
+                          src={image.downloadURL}
+                          alt={`${diary.title}の画像${index + 1}`}
+                          className="h-full w-full object-cover"
+                        />
                         <Button
                           type="button"
-                          variant="outline"
+                          variant="secondary"
+                          size="icon"
                           disabled={isSubmitting}
-                          className="w-full justify-start text-left font-normal"
+                          aria-label={`画像${index + 1}を削除`}
+                          className="absolute right-1 top-1 h-6 w-6 rounded-full shadow-sm"
+                          onClick={() => removeRetainedImage(image.id)}
                         >
-                          <CalendarIcon className="h-4 w-4" />
-                          {format(field.value, "yyyy年M月d日")}
+                          <X className="h-3.5 w-3.5" />
                         </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent
-                      className="w-fit max-w-[calc(100vw-1rem)] p-0"
-                      align="start"
-                      sideOffset={8}
-                      collisionPadding={8}
-                    >
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={(selectedDate) => {
-                          if (selectedDate) field.onChange(selectedDate);
-                        }}
-                        captionLayout="dropdown"
-                        disabled={isSubmitting}
-                        required
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>タイトル</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      disabled={isSubmitting}
-                      placeholder="タイトルを入力"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="content"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>本文</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      disabled={isSubmitting}
-                      className="min-h-48 resize-y"
-                      placeholder="本文を入力"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="tagsText"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>タグ</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      disabled={isSubmitting}
-                      placeholder="タグをカンマ区切りで入力"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormItem>
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-medium leading-none">
-                  画像（{imageCount}/{MAX_DIARY_IMAGE_COUNT}）
-                </p>
-                <input
-                  ref={imageInputRef}
-                  type="file"
-                  accept={SUPPORTED_DIARY_IMAGE_TYPES.join(",")}
-                  multiple
-                  disabled={isSubmitting}
-                  className="hidden"
-                  onChange={handleSelectImages}
-                />
+                      </div>
+                    ))}
+                    {newImages.map((image, index) => (
+                      <div
+                        key={image.id}
+                        className="relative h-24 w-24 overflow-hidden rounded-md border bg-muted"
+                      >
+                        <img
+                          src={image.previewUrl}
+                          alt={`${image.file.name}のプレビュー`}
+                          className="h-full w-full object-cover"
+                        />
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="icon"
+                          disabled={isSubmitting}
+                          aria-label={`追加画像${index + 1}を削除`}
+                          className="absolute right-1 top-1 h-6 w-6 rounded-full shadow-sm"
+                          onClick={() => removeNewImage(image.id)}
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </FormItem>
+              <DialogFooter>
                 <Button
                   type="button"
                   variant="outline"
-                  size="sm"
-                  disabled={
-                    isSubmitting || imageCount >= MAX_DIARY_IMAGE_COUNT
-                  }
-                  onClick={() => imageInputRef.current?.click()}
+                  onClick={() => handleOpenChange(false)}
+                  disabled={isSubmitting}
                 >
-                  <ImagePlus className="h-4 w-4" />
-                  画像を追加
+                  キャンセル
                 </Button>
-              </div>
-              {imageCount > 0 && (
-                <div className="flex flex-wrap gap-3 pt-2">
-                  {retainedImages.map((image, index) => (
-                    <div
-                      key={image.id}
-                      className="relative h-24 w-24 overflow-hidden rounded-md border bg-muted"
-                    >
-                      <img
-                        src={image.downloadURL}
-                        alt={`${diary.title}の画像${index + 1}`}
-                        className="h-full w-full object-cover"
-                      />
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        size="icon"
-                        disabled={isSubmitting}
-                        aria-label={`画像${index + 1}を削除`}
-                        className="absolute right-1 top-1 h-6 w-6 rounded-full shadow-sm"
-                        onClick={() => removeRetainedImage(image.id)}
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  ))}
-                  {newImages.map((image, index) => (
-                    <div
-                      key={image.id}
-                      className="relative h-24 w-24 overflow-hidden rounded-md border bg-muted"
-                    >
-                      <img
-                        src={image.previewUrl}
-                        alt={`${image.file.name}のプレビュー`}
-                        className="h-full w-full object-cover"
-                      />
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        size="icon"
-                        disabled={isSubmitting}
-                        aria-label={`追加画像${index + 1}を削除`}
-                        className="absolute right-1 top-1 h-6 w-6 rounded-full shadow-sm"
-                        onClick={() => removeNewImage(image.id)}
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </FormItem>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleOpenChange(false)}
-                disabled={isSubmitting}
-              >
-                キャンセル
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "保存中..." : "保存する"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "保存中..." : "保存する"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
       </Dialog>
       <Dialog open={isDiscardDialogOpen} onOpenChange={setIsDiscardDialogOpen}>
         <DialogContent className="sm:max-w-md">
@@ -365,7 +362,11 @@ export const DiaryEditDialog = ({
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setIsDiscardDialogOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsDiscardDialogOpen(false)}
+            >
               編集を続ける
             </Button>
             <Button

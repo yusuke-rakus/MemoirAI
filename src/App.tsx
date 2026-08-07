@@ -2,11 +2,12 @@ import { PATHS } from "@/constants/path";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { NotificationToaster } from "./components/shared/common/NotificationToaster";
 import { NewDiaryPage } from "./features/createDiary";
+import { DiariesPage } from "./features/diaries";
 import { HomePage } from "./features/home";
 import { LoginPage } from "./features/login";
 import { SharedDiaryPage } from "./features/sharedDiary";
+import { AuthenticatedLayout } from "./layout/AuthenticatedLayout";
 import { useInitialDateStore } from "./stores/initialDateStore";
-import { DiariesPage } from "./features/diaries";
 
 export const App = () => {
   const { dateParamString, yearMonth } = useInitialDateStore();
@@ -15,58 +16,60 @@ export const App = () => {
     <>
       <NotificationToaster />
       <Routes>
-        <Route
-          path="/"
-          element={
-            <Navigate
-              to={`${PATHS.calendar.path}/${yearMonth.year}/${yearMonth.month}`}
-              replace
-            />
-          }
-        />
-        <Route
-          path={`${PATHS.calendar.path}/:year/:month`}
-          element={<HomePage />}
-        />
-        <Route
-          path={PATHS.calendar.path}
-          element={
-            <Navigate
-              to={`${PATHS.calendar.path}/${yearMonth.year}/${yearMonth.month}`}
-              replace
-            />
-          }
-        />
-        <Route
-          path={`${PATHS.diaries.path}/:year/:month`}
-          element={<HomePage />}
-        />
-        <Route
-          path={`${PATHS.diaries.path}/:dateParamString`}
-          element={<DiariesPage />}
-        />
-        <Route
-          path={PATHS.diaries.path}
-          element={
-            <Navigate
-              to={`${PATHS.diaries.path}/${yearMonth.year}/${yearMonth.month}`}
-              replace
-            />
-          }
-        />
-        <Route
-          path={PATHS.newDiary.path}
-          element={
-            <Navigate
-              to={`${PATHS.newDiary.path}/${dateParamString}`}
-              replace
-            />
-          }
-        />
-        <Route
-          path={`${PATHS.newDiary.path}/:date`}
-          element={<NewDiaryPage />}
-        />
+        <Route element={<AuthenticatedLayout />}>
+          <Route
+            path="/"
+            element={
+              <Navigate
+                to={`${PATHS.calendar.path}/${yearMonth.year}/${yearMonth.month}`}
+                replace
+              />
+            }
+          />
+          <Route
+            path={`${PATHS.calendar.path}/:year/:month`}
+            element={<HomePage />}
+          />
+          <Route
+            path={PATHS.calendar.path}
+            element={
+              <Navigate
+                to={`${PATHS.calendar.path}/${yearMonth.year}/${yearMonth.month}`}
+                replace
+              />
+            }
+          />
+          <Route
+            path={`${PATHS.diaries.path}/:year/:month`}
+            element={<HomePage />}
+          />
+          <Route
+            path={`${PATHS.diaries.path}/:dateParamString`}
+            element={<DiariesPage />}
+          />
+          <Route
+            path={PATHS.diaries.path}
+            element={
+              <Navigate
+                to={`${PATHS.diaries.path}/${yearMonth.year}/${yearMonth.month}`}
+                replace
+              />
+            }
+          />
+          <Route
+            path={PATHS.newDiary.path}
+            element={
+              <Navigate
+                to={`${PATHS.newDiary.path}/${dateParamString}`}
+                replace
+              />
+            }
+          />
+          <Route
+            path={`${PATHS.newDiary.path}/:date`}
+            element={<NewDiaryPage />}
+          />
+        </Route>
         <Route
           path={`${PATHS.sharedDiary.path}/:diaryId`}
           element={<SharedDiaryPage />}

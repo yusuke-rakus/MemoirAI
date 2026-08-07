@@ -7,6 +7,7 @@ import { DiaryClient } from "@/lib/service/diaryClient";
 import { DiaryImageClient } from "@/lib/service/diaryImageClient";
 import { UserMemoryClient } from "@/lib/service/userMemoryClient";
 import { invalidateDiarySearchCache } from "@/stores/diarySearchStore";
+import { requestDiaryRefresh } from "@/stores/diaryRefreshStore";
 import type { DiaryImage } from "@/types/diary/diary";
 import type {
   ActiveUserMemoryContext,
@@ -210,6 +211,7 @@ export const useCreateDiary = () => {
           }
         }
         invalidateDiarySearchCache();
+        requestDiaryRefresh();
       } finally {
         setIsCreating(false);
       }

@@ -5,6 +5,7 @@ import {
   SidebarMenuSkeleton,
   SidebarMenuSub,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { PATHS } from "@/constants/path";
 import { format } from "date-fns";
@@ -16,6 +17,13 @@ import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
 export const SidebarDiaries = () => {
   const { loadMore, hasMore, isLoadingMore } = useFetchDiary();
   const { uploadedDiaries, isLoading } = useDiaryDetailStore();
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  const handleNavigation = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   return (
     <>
@@ -37,6 +45,7 @@ export const SidebarDiaries = () => {
                   <SidebarMenuButton asChild>
                     <Link
                       to={`${PATHS.diaries.path}/${format(diary.date.toDate(), "yyyy-MM-dd")}`}
+                      onClick={handleNavigation}
                     >
                       <span className="truncate text-xs">{diary.title}</span>
                     </Link>

@@ -1,7 +1,4 @@
-import { LoadingScreen } from "@/components/shared/common/LoadingScreen";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuthCheck } from "@/hooks/useAuthCheck";
-import { MainLayout } from "@/layout/MainLayout";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Views } from "./constants/views";
@@ -10,7 +7,6 @@ import { MonthSelector } from "./monthSelector/MonthSelector";
 import { CurrentDateProvider } from "./provider/CurrentDateProvider";
 
 export const HomePage = () => {
-  const { loading, user } = useAuthCheck();
   const tabs = Views;
   const location = useLocation();
   const initialDate = useInitialDiaryDate();
@@ -38,27 +34,24 @@ export const HomePage = () => {
     );
   };
 
-  return loading || !user ? (
-    <LoadingScreen variant="page" />
-  ) : (
+  return (
     <CurrentDateProvider initialDate={initialDate}>
-      <MainLayout>
-        <div className="flex justify-center w-full mx-auto">
-          <MonthSelector targetDate={initialDate} />
-        </div>
-        <Tabs
-          value={tabValue}
-          onValueChange={setTabValue}
-          className="w-full mx-auto"
-        >
-          <TabsList className="mr-auto max-w-xs w-full p-0 bg-inherit justify-start border-b rounded-none">
-            {tabs.map((tab) => {
-              return (
-                <TabsTrigger
-                  key={tab.value}
-                  value={tab.value}
-                  onClick={() => handleClickTab(tab.value)}
-                  className="
+      <div className="flex justify-center w-full mx-auto">
+        <MonthSelector targetDate={initialDate} />
+      </div>
+      <Tabs
+        value={tabValue}
+        onValueChange={setTabValue}
+        className="w-full mx-auto"
+      >
+        <TabsList className="mr-auto max-w-xs w-full p-0 bg-inherit justify-start border-b rounded-none">
+          {tabs.map((tab) => {
+            return (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                onClick={() => handleClickTab(tab.value)}
+                className="
                   rounded-none
                   h-full
                   text-muted-foreground
@@ -73,23 +66,22 @@ export const HomePage = () => {
                   data-[state=active]:text-primary
                   data-[state=active]:bg-inherit
               "
-                >
-                  <code className="flex items-center text-[16px] gap-1">
-                    {tab.icon}
-                    {tab.name}
-                  </code>
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
+              >
+                <code className="flex items-center text-[16px] gap-1">
+                  {tab.icon}
+                  {tab.name}
+                </code>
+              </TabsTrigger>
+            );
+          })}
+        </TabsList>
 
-          {tabs.map((tab) => (
-            <TabsContent key={tab.value} value={tab.value} className="w-full">
-              {tab.component}
-            </TabsContent>
-          ))}
-        </Tabs>
-      </MainLayout>
+        {tabs.map((tab) => (
+          <TabsContent key={tab.value} value={tab.value} className="w-full">
+            {tab.component}
+          </TabsContent>
+        ))}
+      </Tabs>
     </CurrentDateProvider>
   );
 };
