@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
@@ -234,9 +235,9 @@ export const NewDiaryView = () => {
               )}
               <CardHeader>
                 <CardTitle className="text-sm font-medium text-foreground">
-                  <label htmlFor={`diary-body-${card.id}`}>
+                  <Label htmlFor={`diary-body-${card.id}`}>
                     今日の出来事を書き留めよう ✨
-                  </label>
+                  </Label>
                 </CardTitle>
               </CardHeader>
 
@@ -267,14 +268,16 @@ export const NewDiaryView = () => {
                         className="inline-flex items-center gap-1.5 px-3 py-1 bg-secondary/50 text-secondary-foreground rounded-md text-sm font-medium transition-colors hover:bg-secondary"
                       >
                         {tag.name}
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="icon"
                           onClick={() => removeTag(card.id, tagIndex)}
                           aria-label={`${tag.name}タグを削除`}
-                          className="hover:text-destructive transition-colors"
+                          className="size-4 rounded-full hover:bg-transparent hover:text-destructive [&_svg]:size-3"
                         >
                           <X className="h-3 w-3" />
-                        </button>
+                        </Button>
                       </span>
                     ))}
                   </div>
@@ -359,15 +362,20 @@ export const NewDiaryView = () => {
               この端末に残っている本文・タグ・画像を復元できます。
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <DialogFooter className="flex-row gap-2 sm:gap-0">
             <Button
               type="button"
               variant="outline"
+              className="flex-1 sm:flex-none"
               onClick={() => void discardDraft()}
             >
               破棄する
             </Button>
-            <Button type="button" onClick={() => void restoreDraft()}>
+            <Button
+              type="button"
+              className="flex-1 sm:flex-none"
+              onClick={() => void restoreDraft()}
+            >
               復元する
             </Button>
           </DialogFooter>
@@ -390,15 +398,20 @@ export const NewDiaryView = () => {
               移動する前に、入力内容を下書きとして残すか、破棄してください。
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <DialogFooter className="flex-row gap-2 sm:gap-0">
             <Button
               type="button"
               variant="destructive"
+              className="flex-1 sm:flex-none"
               onClick={() => void discardAndLeave()}
             >
               破棄
             </Button>
-            <Button type="button" onClick={() => void leaveWithDraft()}>
+            <Button
+              type="button"
+              className="flex-1 sm:flex-none"
+              onClick={() => void leaveWithDraft()}
+            >
               下書きを残す
             </Button>
           </DialogFooter>
