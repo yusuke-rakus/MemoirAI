@@ -53,11 +53,13 @@ type CreatedDiaryMemoryPayload = {
 
 const generateTitle = async (
   content: string,
+  selectedTags: string[],
   memoryContext: ActiveUserMemoryContext | null,
 ) => {
   const aiResponse = await diaryTitleModel.generateContent(
     JSON.stringify({
       diaryContent: content,
+      selectedTags,
       memoryContext,
     }),
   );
@@ -69,11 +71,39 @@ const generateTitle = async (
   };
 };
 
-const extractDiaryMemory = async (content: string) => {
-  const aiResponse = await memoryExtractionModel.generateContent(content);
+const extractDiaryMemory = async (
+  content: string,
+  memoryContext: ActiveUserMemoryContext | null,
+) => {
+  const aiResponse = await memoryExtractionModel.generateContent(
+    JSON.stringify({
+      diaryContent: content,
+      memoryContext,
+    }),
+  );
   const text = aiResponse.response.text();
 
   return JSON.parse(text) as ExtractedUserMemory;
+};
+
+const normalizeTagName = (name: string) =>
+  name.trim().toLocaleLowerCase("ja-JP");
+
+const mergeTags = (selectedTags: Tag[], generatedTags: Tag[]): Tag[] => {
+  const tagsByName = new Map<string, Tag>();
+
+  [...selectedTags, ...generatedTags].forEach((tag) => {
+    const name = tag.name.trim();
+    const normalizedName = normalizeTagName(name);
+    if (!normalizedName || tagsByName.has(normalizedName)) return;
+
+    tagsByName.set(normalizedName, {
+      ...tag,
+      name,
+    });
+  });
+
+  return Array.from(tagsByName.values());
 };
 
 const getActiveMemoryContext = async (uid: string) => {
@@ -95,12 +125,20 @@ const prepareDiary = (
     diary,
     diaryId,
     metaPromise: memoryContextPromise.then((memoryContext) =>
-      generateTitle(diary.content, memoryContext),
+      generateTitle(
+        diary.content,
+        diary.tags.map((tag) => tag.name),
+        memoryContext,
+      ),
     ),
-    memoryPromise: extractDiaryMemory(diary.content).catch((error) => {
-      console.error("Failed to extract diary memory", error);
-      return null;
-    }),
+    memoryPromise: memoryContextPromise
+      .then((memoryContext) =>
+        extractDiaryMemory(diary.content, memoryContext),
+      )
+      .catch((error) => {
+        console.error("Failed to extract diary memory", error);
+        return null;
+      }),
   };
 };
 
@@ -163,9 +201,7 @@ export const useCreateDiary = () => {
         const addPromises = diaryPreparations.map(async (preparation) => {
           const { diary, diaryId, memoryPromise, metaPromise } = preparation;
           const diaryMeta = await metaPromise;
-          const mergedTags = Array.from(
-            new Set([...diary.tags, ...diaryMeta.tags]),
-          );
+          const mergedTags = mergeTags(diary.tags, diaryMeta.tags);
           const uploadedImages = await uploadDiaryImages(
             localUser.uid,
             diaryId,
