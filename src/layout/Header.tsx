@@ -1,29 +1,18 @@
 import { AppTooltip } from "@/components/shared/common/AppTooltip";
 import { AvatarMenu } from "@/components/shared/header/AvatarMenu";
-import { MemorySettingsDialog } from "@/components/shared/header/MemorySettingsDialog";
+import { SettingsDialog } from "@/components/shared/header/SettingsDialog";
 import { SettingsDropdownItem } from "@/components/shared/header/SettingsDropdownItem";
-import { SettingsDropdownSubItem } from "@/components/shared/header/SettingsDropdownSubItem";
 import { SidebarPenButton } from "@/components/shared/sidebar/SidebarPenButton";
 import { SidebarSearchButton } from "@/components/shared/sidebar/SidebarSearchButton";
 import { SidebarToggleButton } from "@/components/shared/sidebar/SidebarToggleButton";
-import {
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
 import { useSidebar } from "@/components/ui/sidebar";
 import { PATHS } from "@/constants/path";
-import { type PrimaryColorKey } from "@/constants/primaryColors";
-import type { THemeKey } from "@/constants/themes";
 import { defaultLocalUser, useLocalUser } from "@/contexts/LocalUserContext";
-import {
-  clearPrimaryColorOverrides,
-  usePrimaryColor,
-} from "@/hooks/usePrimaryColor";
-import useTheme from "@/hooks/useTheme";
+import { clearPrimaryColorOverrides } from "@/hooks/usePrimaryColor";
 import { cn } from "@/lib/utils";
 import { useDiarySearchStore } from "@/stores/diarySearchStore";
 import { getAuth, signOut } from "firebase/auth";
-import { Dot, Moon, Palette, Settings, Sun, SunMoon } from "lucide-react";
+import { Settings } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -32,7 +21,7 @@ export const Header = () => {
   const { open, openMobile, isMobile, toggleSidebar } = useSidebar();
   const { localUser, setLocalUser } = useLocalUser();
   const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
-  const [isMemoryDialogOpen, setIsMemoryDialogOpen] = useState(false);
+  const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const auth = getAuth();
   const navigate = useNavigate();
   const setDiarySearchOpen = useDiarySearchStore((state) => state.setOpen);
@@ -49,39 +38,9 @@ export const Header = () => {
     }
   };
 
-  const { theme, setTheme } = useTheme();
-
-  const handleThemeChange = (theme: THemeKey) => {
-    switch (theme) {
-      case "light":
-        setTheme("light");
-        toast("ライトテーマに設定しました", { icon: <Sun /> });
-        break;
-      case "dark":
-        setTheme("dark");
-        toast("ダークテーマに設定しました", { icon: <Moon /> });
-        break;
-      case "system":
-        setTheme("system");
-        toast("システム設定のテーマを使用します");
-        break;
-    }
-  };
-
-  const {
-    primaryColor,
-    primaryColorOptions,
-    handlePrimaryColorChange,
-    isSavingPrimaryColor,
-  } = usePrimaryColor(localUser.uid);
-
-  const onPrimaryColorClick = (colorKey: PrimaryColorKey) => {
-    void handlePrimaryColorChange(colorKey);
-  };
-
-  const handleMemorySettingsSelect = () => {
+  const handleSettingsSelect = () => {
     setIsAvatarMenuOpen(false);
-    requestAnimationFrame(() => setIsMemoryDialogOpen(true));
+    requestAnimationFrame(() => setIsSettingsDialogOpen(true));
   };
 
   const isSidebarOpen = isMobile ? openMobile : open;
@@ -106,9 +65,7 @@ export const Header = () => {
           />
         </AppTooltip>
         <AppTooltip description={"日記を検索"}>
-          <SidebarSearchButton
-            onToggle={() => setDiarySearchOpen(true)}
-          />
+          <SidebarSearchButton onToggle={() => setDiarySearchOpen(true)} />
         </AppTooltip>
         <AppTooltip description={"新しい日記"}>
           <SidebarPenButton onToggle={() => navigate(PATHS.newDiary.path)} />
@@ -121,56 +78,16 @@ export const Header = () => {
           open={isAvatarMenuOpen}
           onOpenChange={setIsAvatarMenuOpen}
         >
-          <SettingsDropdownSubItem icon={SunMoon} label={"テーマ"}>
-            <SettingsDropdownItem
-              onClick={() => handleThemeChange("light")}
-              icon={Sun}
-              label="ライト"
-              active={theme === "light"}
-            />
-            <SettingsDropdownItem
-              onClick={() => handleThemeChange("dark")}
-              icon={Moon}
-              label="ダーク"
-              active={theme === "dark"}
-            />
-            <DropdownMenuSeparator />
-            <SettingsDropdownItem
-              onClick={() => handleThemeChange("system")}
-              label="システム"
-              active={theme === "system"}
-            />
-          </SettingsDropdownSubItem>
-          <SettingsDropdownSubItem icon={Palette} label={"プライマリカラー"}>
-            {primaryColorOptions.map((option) => (
-              <DropdownMenuItem
-                key={option.key}
-                disabled={isSavingPrimaryColor}
-                onClick={() => onPrimaryColorClick(option.key)}
-              >
-                <span
-                  className={cn(
-                    "h-3 w-3 shrink-0 rounded-full border border-border",
-                    option.previewClassName,
-                  )}
-                />
-                {option.label}
-                {primaryColor === option.key && (
-                  <Dot className="text-primary ml-auto" />
-                )}
-              </DropdownMenuItem>
-            ))}
-          </SettingsDropdownSubItem>
           <SettingsDropdownItem
             icon={Settings}
             label="設定"
-            onSelect={handleMemorySettingsSelect}
+            onSelect={handleSettingsSelect}
           />
         </AvatarMenu>
-        <MemorySettingsDialog
+        <SettingsDialog
           uid={localUser.uid}
-          open={isMemoryDialogOpen}
-          onOpenChange={setIsMemoryDialogOpen}
+          open={isSettingsDialogOpen}
+          onOpenChange={setIsSettingsDialogOpen}
         />
       </div>
     </header>

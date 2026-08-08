@@ -52,10 +52,24 @@ type Props = {
 
 const getDefaults = (item: EditableMemory | null): MemoryEditValues => {
   if (!item) {
-    return { value: "", name: "", aliases: "", relationship: "", attributes: "", notes: "" };
+    return {
+      value: "",
+      name: "",
+      aliases: "",
+      relationship: "",
+      attributes: "",
+      notes: "",
+    };
   }
   if (item.kind !== "person") {
-    return { value: item.fact.value, name: "", aliases: "", relationship: "", attributes: "", notes: "" };
+    return {
+      value: item.fact.value,
+      name: "",
+      aliases: "",
+      relationship: "",
+      attributes: "",
+      notes: "",
+    };
   }
   return {
     value: "",
@@ -67,7 +81,12 @@ const getDefaults = (item: EditableMemory | null): MemoryEditValues => {
   };
 };
 
-export const MemoryEditDialog = ({ item, isSubmitting, onOpenChange, onSubmit }: Props) => {
+export const MemoryEditDialog = ({
+  item,
+  isSubmitting,
+  onOpenChange,
+  onSubmit,
+}: Props) => {
   const form = useForm<MemoryEditValues>({
     resolver: zodResolver(schema),
     defaultValues: getDefaults(item),
@@ -94,40 +113,124 @@ export const MemoryEditDialog = ({ item, isSubmitting, onOpenChange, onSubmit }:
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{item?.label ?? "メモリ"}を編集</DialogTitle>
-          <DialogDescription>保存すると、今後の日記生成で使われる内容が更新されます。</DialogDescription>
+          <DialogDescription>
+            保存すると、今後の日記生成で使われる内容が更新されます。
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form className="space-y-4" onSubmit={handleSubmit}>
             {item?.kind !== "person" ? (
-              <FormField control={form.control} name="value" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>内容</FormLabel>
-                  <FormControl><Textarea {...field} disabled={isSubmitting} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
+              <FormField
+                control={form.control}
+                name="value"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>内容</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} disabled={isSubmitting} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             ) : (
               <>
-                <FormField control={form.control} name="name" render={({ field }) => (
-                  <FormItem><FormLabel>人物名</FormLabel><FormControl><Input {...field} disabled={isSubmitting} /></FormControl><FormMessage /></FormItem>
-                )} />
-                <FormField control={form.control} name="aliases" render={({ field }) => (
-                  <FormItem><FormLabel>別名</FormLabel><FormControl><Input {...field} disabled={isSubmitting} placeholder="カンマ区切り" /></FormControl><FormMessage /></FormItem>
-                )} />
-                <FormField control={form.control} name="relationship" render={({ field }) => (
-                  <FormItem><FormLabel>あなたとの関係</FormLabel><FormControl><Input {...field} disabled={isSubmitting} /></FormControl><FormMessage /></FormItem>
-                )} />
-                <FormField control={form.control} name="attributes" render={({ field }) => (
-                  <FormItem><FormLabel>属性</FormLabel><FormControl><Textarea {...field} disabled={isSubmitting} placeholder="1行に1項目" /></FormControl><FormMessage /></FormItem>
-                )} />
-                <FormField control={form.control} name="notes" render={({ field }) => (
-                  <FormItem><FormLabel>関係メモ</FormLabel><FormControl><Textarea {...field} disabled={isSubmitting} placeholder="1行に1項目" /></FormControl><FormMessage /></FormItem>
-                )} />
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>人物名</FormLabel>
+                      <FormControl>
+                        <Input {...field} disabled={isSubmitting} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="aliases"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>別名</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          disabled={isSubmitting}
+                          placeholder="カンマ区切り"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="relationship"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>あなたとの関係</FormLabel>
+                      <FormControl>
+                        <Input {...field} disabled={isSubmitting} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="attributes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>属性</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          disabled={isSubmitting}
+                          placeholder="1行に1項目"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>関係メモ</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          disabled={isSubmitting}
+                          placeholder="1行に1項目"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </>
             )}
-            <DialogFooter>
-              <Button type="button" variant="outline" disabled={isSubmitting} onClick={() => onOpenChange(false)}>キャンセル</Button>
-              <Button type="submit" disabled={isSubmitting}>{isSubmitting ? "保存中…" : "保存する"}</Button>
+            <DialogFooter className="flex-row gap-2 sm:gap-0">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1 sm:flex-none"
+                disabled={isSubmitting}
+                onClick={() => onOpenChange(false)}
+              >
+                キャンセル
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1 sm:flex-none"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "保存中…" : "保存する"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>
