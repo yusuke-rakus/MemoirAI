@@ -263,7 +263,7 @@ export const DiaryEditDialog = ({
                   <p className="text-sm font-medium leading-none">
                     画像（{imageCount}/{MAX_DIARY_IMAGE_COUNT}）
                   </p>
-                  <input
+                  <Input
                     ref={imageInputRef}
                     type="file"
                     accept={SUPPORTED_DIARY_IMAGE_TYPES.join(",")}
@@ -336,16 +336,21 @@ export const DiaryEditDialog = ({
                   </div>
                 )}
               </FormItem>
-              <DialogFooter>
+              <DialogFooter className="flex-row gap-2 sm:gap-0">
                 <Button
                   type="button"
                   variant="outline"
+                  className="flex-1 sm:flex-none"
                   onClick={() => handleOpenChange(false)}
                   disabled={isSubmitting}
                 >
                   キャンセル
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
+                <Button
+                  type="submit"
+                  className="flex-1 sm:flex-none"
+                  disabled={isSubmitting}
+                >
                   {isSubmitting ? "保存中..." : "保存する"}
                 </Button>
               </DialogFooter>

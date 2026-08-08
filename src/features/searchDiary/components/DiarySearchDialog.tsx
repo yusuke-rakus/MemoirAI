@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -43,7 +44,9 @@ const searchDiaries = (diaries: Diary[], query: string) => {
       );
       return { diary, score };
     })
-    .filter((result): result is { diary: Diary; score: number } => result !== null)
+    .filter(
+      (result): result is { diary: Diary; score: number } => result !== null,
+    )
     .sort(
       (a, b) =>
         b.score - a.score || b.diary.date.toMillis() - a.diary.date.toMillis(),
@@ -135,7 +138,7 @@ export const DiarySearchDialog = () => {
         </div>
         <ScrollArea className="h-[min(60vh,480px)]">
           <div className="p-3" role="list" aria-label="検索結果">
-            {isLoading && (
+            {isLoading && !query && (
               <p className="p-6 text-center text-sm text-muted-foreground">
                 日記を読み込んでいます…
               </p>
@@ -160,10 +163,11 @@ export const DiarySearchDialog = () => {
               )}
             {visibleResults.map(({ diary }) => (
               <div key={diary.id} role="listitem">
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => openDiary(diary)}
-                  className="w-full rounded-md px-3 py-3 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="h-auto w-full flex-col items-stretch justify-start gap-0 whitespace-normal px-3 py-3 text-left font-normal"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <span className="font-medium">{diary.title}</span>
@@ -174,7 +178,7 @@ export const DiarySearchDialog = () => {
                   <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
                     {diary.content}
                   </p>
-                </button>
+                </Button>
               </div>
             ))}
             {results.length > 50 && (
