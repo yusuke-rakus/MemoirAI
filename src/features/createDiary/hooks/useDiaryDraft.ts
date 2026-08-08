@@ -21,6 +21,7 @@ export const useDiaryDraft = (date: Date) => {
   const [hasRestorableDraft, setHasRestorableDraft] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [allowNavigation, setAllowNavigation] = useState(false);
+  const allowNavigationRef = useRef(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savePromiseRef = useRef<Promise<void> | null>(null);
   const dateKey = format(date, "yyyy-MM-dd");
@@ -108,7 +109,7 @@ export const useDiaryDraft = (date: Date) => {
 
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
-      !allowNavigation &&
+      !allowNavigationRef.current &&
       hasContent &&
       currentLocation.pathname !== nextLocation.pathname,
   );
@@ -145,6 +146,7 @@ export const useDiaryDraft = (date: Date) => {
   const completeDraft = useCallback(async () => {
     if (!localUser.uid) return;
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    allowNavigationRef.current = true;
     setAllowNavigation(true);
     await savePromiseRef.current?.catch(() => undefined);
     await DiaryDraftClient.clear(localUser.uid, dateKey, cards);
@@ -152,12 +154,14 @@ export const useDiaryDraft = (date: Date) => {
 
   const leaveWithDraft = useCallback(async () => {
     await saveDraft().catch(() => undefined);
+    allowNavigationRef.current = true;
     setAllowNavigation(true);
     blocker.proceed?.();
   }, [blocker, saveDraft]);
 
   const discardAndLeave = useCallback(async () => {
     await discardDraft();
+    allowNavigationRef.current = true;
     setAllowNavigation(true);
     blocker.proceed?.();
   }, [blocker, discardDraft]);
