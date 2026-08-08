@@ -42,14 +42,18 @@ const diarySchema = z.object({
   monthOffset: z.union([z.literal(-1), z.literal(0)]),
   day: z.number().int().min(1).max(28),
   hour: z.number().int().min(0).max(23),
-  title: z.string().min(1),
+  title: z
+    .string()
+    .regex(/^\p{Extended_Pictographic}/u, "タイトルは絵文字で始めてください。"),
   content: z.string().min(1),
-  tags: z.array(
-    z.object({
-      name: z.string().min(1),
-      color: tagColorSchema,
-    }),
-  ),
+  tags: z
+    .array(
+      z.object({
+        name: z.string().min(1),
+        color: tagColorSchema,
+      }),
+    )
+    .min(1, "タグを1件以上設定してください。"),
 });
 
 const userSeedSchema = z.object({
