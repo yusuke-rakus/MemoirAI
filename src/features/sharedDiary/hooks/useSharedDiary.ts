@@ -19,7 +19,8 @@ export const useSharedDiary = () => {
     const fetchSharedDiary = async () => {
       setIsLoading(true);
       try {
-        const sharedDiary = await SharedDiaryClient.getByShareId<SharedDiary>(diaryId);
+        const sharedDiary =
+          await SharedDiaryClient.getByShareId<SharedDiary>(diaryId);
         setDiary(sharedDiary);
       } catch (error) {
         console.error("Failed to fetch shared diary", error);

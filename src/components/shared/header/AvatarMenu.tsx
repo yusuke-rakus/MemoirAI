@@ -34,7 +34,7 @@ export const AvatarMenu = (props: AvatarMenuProps) => {
       <DropdownMenu open={open} onOpenChange={onOpenChange} modal={false}>
         <DropdownMenuTrigger
           aria-label="アカウントメニューを開く"
-          className="flex size-11 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:size-9"
+          className="flex size-11 items-center justify-center rounded-full focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:size-9"
         >
           <Avatar>
             <AvatarImage

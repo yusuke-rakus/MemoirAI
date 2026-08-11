@@ -262,7 +262,7 @@ export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
           >
             <nav
               aria-label="設定カテゴリー"
-              className="shrink-0 overflow-x-auto overscroll-x-contain border-b [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:min-h-0 sm:overflow-x-hidden sm:overflow-y-auto sm:border-b-0 sm:border-r sm:bg-muted/30 sm:p-4"
+              className="shrink-0 overflow-x-auto overscroll-x-contain border-b [scrollbar-width:none] sm:min-h-0 sm:overflow-x-hidden sm:overflow-y-auto sm:border-r sm:border-b-0 sm:bg-muted/30 sm:p-4 [&::-webkit-scrollbar]:hidden"
             >
               <TabsList
                 className="h-auto min-w-max justify-start rounded-none bg-transparent px-3 py-0 sm:w-full sm:min-w-0 sm:flex-col sm:gap-1 sm:p-0"
@@ -458,7 +458,7 @@ export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
                                 key={fact.id}
                                 className="flex items-center gap-4 px-4 py-2"
                               >
-                                <p className="min-w-0 flex-1 break-words text-sm">
+                                <p className="min-w-0 flex-1 text-sm break-words">
                                   {fact.value}
                                 </p>
                                 {actions(item)}

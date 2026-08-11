@@ -49,7 +49,7 @@ export const SharedDiaryView = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto pt-8 pb-10 flex flex-col gap-4">
+    <div className="mx-auto flex max-w-4xl flex-col gap-4 pt-8 pb-10">
       <div className="flex flex-col gap-1">
         <p className="text-sm text-muted-foreground">共有された日記</p>
         <h2 className="text-3xl font-bold">
@@ -62,13 +62,13 @@ export const SharedDiaryView = () => {
             <CardTitle>{diary.title}</CardTitle>
           </CardHeader>
           <CardContent className="px-2">
-            <p className="text-muted-foreground whitespace-pre-wrap">
+            <p className="whitespace-pre-wrap text-muted-foreground">
               {diary.content}
             </p>
           </CardContent>
           {diary.tags.length >= 1 && (
-            <CardFooter className="p-0 flex flex-wrap gap-2">
-              <Tag className="w-4 h-4 text-ring" />
+            <CardFooter className="flex flex-wrap gap-2 p-0">
+              <Tag className="h-4 w-4 text-ring" />
               {diary.tags.map((tag, i) => (
                 <DiaryTag key={i} tag={tag} />
               ))}

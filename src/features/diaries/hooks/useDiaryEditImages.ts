@@ -36,11 +36,7 @@ export const useDiaryEditImages = ({
   const newImagesRef = useRef<NewDiaryEditImage[]>([]);
 
   const replaceNewImages = useCallback(
-    (
-      update: (
-        currentImages: NewDiaryEditImage[],
-      ) => NewDiaryEditImage[],
-    ) => {
+    (update: (currentImages: NewDiaryEditImage[]) => NewDiaryEditImage[]) => {
       setNewImages((currentImages) => {
         const nextImages = update(currentImages);
         newImagesRef.current = nextImages;
@@ -93,17 +89,16 @@ export const useDiaryEditImages = ({
         previewUrl: URL.createObjectURL(file),
       }));
 
-      replaceNewImages((currentImages) => [
-        ...currentImages,
-        ...imagesToAdd,
-      ]);
+      replaceNewImages((currentImages) => [...currentImages, ...imagesToAdd]);
 
       return {
         addedCount: imagesToAdd.length,
         unsupportedCount,
         limitExceeded,
       };
-    }, [newImages.length, replaceNewImages, retainedImages.length]);
+    },
+    [newImages.length, replaceNewImages, retainedImages.length],
+  );
 
   const removeRetainedImage = useCallback((imageId: string) => {
     setRetainedImages((currentImages) =>

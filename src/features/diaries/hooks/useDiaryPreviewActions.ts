@@ -82,9 +82,7 @@ export const useDiaryPreviewActions = ({
         toast.success("日記を更新しました");
       } catch (error) {
         console.error("Failed to delete removed diary images", error);
-        toast.warning(
-          "日記を更新しましたが、削除した画像の整理に失敗しました",
-        );
+        toast.warning("日記を更新しましたが、削除した画像の整理に失敗しました");
       } finally {
         setIsUpdating(false);
       }

@@ -65,7 +65,8 @@ export const Calendar = ({
         return;
       }
 
-      const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+      const viewportHeight =
+        window.visualViewport?.height ?? window.innerHeight;
       const top = containerRef.current.getBoundingClientRect().top;
       const nextHeight = Math.floor(viewportHeight - top - 16);
 
@@ -84,7 +85,10 @@ export const Calendar = ({
     return () => {
       window.cancelAnimationFrame(frameId);
       window.removeEventListener("resize", updateCalendarHeight);
-      window.visualViewport?.removeEventListener("resize", updateCalendarHeight);
+      window.visualViewport?.removeEventListener(
+        "resize",
+        updateCalendarHeight,
+      );
     };
   }, [isMobile]);
 
@@ -98,7 +102,10 @@ export const Calendar = ({
     }
   };
 
-  const addKeyboardActivation = (element: HTMLElement, activate: () => void) => {
+  const addKeyboardActivation = (
+    element: HTMLElement,
+    activate: () => void,
+  ) => {
     element.tabIndex = 0;
     element.setAttribute("role", "button");
     element.addEventListener("keydown", (event) => {
@@ -131,7 +138,10 @@ export const Calendar = ({
           if (start) addKeyboardActivation(arg.el, () => onDateSelect?.(start));
         }}
         dayCellDidMount={(arg) => {
-          arg.el.setAttribute("aria-label", arg.date.toLocaleDateString("ja-JP"));
+          arg.el.setAttribute(
+            "aria-label",
+            arg.date.toLocaleDateString("ja-JP"),
+          );
           addKeyboardActivation(arg.el, () => onDateSelect?.(arg.date));
         }}
         dayMaxEvents={3}
@@ -142,7 +152,7 @@ export const Calendar = ({
         height="100%"
         dayCellClassNames={(arg) =>
           cn(
-            "cursor-pointer hover:bg-muted/50 duration-300",
+            "cursor-pointer duration-300 hover:bg-muted/50",
             selectedDate &&
               isSameDay(arg.date, selectedDate) &&
               "bg-primary/10",
@@ -153,7 +163,7 @@ export const Calendar = ({
           return (
             <div
               className={cn(
-                "w-full cursor-pointer rounded text-left text-xs truncate transition-opacity sm:text-sm",
+                "w-full cursor-pointer truncate rounded text-left text-xs transition-opacity sm:text-sm",
                 arg.event.classNames.join(" "),
               )}
               title={arg.event.title}

@@ -48,13 +48,13 @@ export const Header = () => {
   return (
     <header
       className={cn(
-        "fixed top-0 right-0 h-14 px-4 border-b bg-background shadow-sm z-40 items-center transition-all duration-250",
+        "fixed top-0 right-0 z-40 h-14 items-center border-b bg-background px-4 shadow-sm transition-all duration-250",
         open && !isMobile ? "left-64" : "left-0",
       )}
     >
       <div
         className={cn(
-          "flex items-center h-full",
+          "flex h-full items-center",
           open && !isMobile && "hidden",
         )}
       >

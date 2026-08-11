@@ -17,6 +17,4 @@ export type SupportedDiaryImageType =
 export const isSupportedDiaryImageType = (
   contentType: string,
 ): contentType is SupportedDiaryImageType =>
-  SUPPORTED_DIARY_IMAGE_TYPES.includes(
-    contentType as SupportedDiaryImageType,
-  );
+  SUPPORTED_DIARY_IMAGE_TYPES.includes(contentType as SupportedDiaryImageType);

@@ -19,11 +19,11 @@ export const DayIcon = ({ date }: DayIconProps) => {
   }, [date]);
 
   return (
-    <div className="flex flex-col items-center justify-start gap-1 w-16 text-center">
+    <div className="flex w-16 flex-col items-center justify-start gap-1 text-center">
       <p className="text-sm font-medium text-muted-foreground">{dayOfWeek}</p>
       <div
         className={cn(
-          "w-16 h-16 rounded-full flex items-center justify-center",
+          "flex h-16 w-16 items-center justify-center rounded-full",
           isHoliday ? "bg-secondary" : "bg-muted-foreground/50",
         )}
       >

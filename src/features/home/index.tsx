@@ -36,38 +36,24 @@ export const HomePage = () => {
 
   return (
     <CurrentDateProvider initialDate={initialDate}>
-      <div className="flex justify-center w-full mx-auto">
+      <div className="mx-auto flex w-full justify-center">
         <MonthSelector targetDate={initialDate} />
       </div>
       <Tabs
         value={tabValue}
         onValueChange={setTabValue}
-        className="w-full mx-auto"
+        className="mx-auto w-full"
       >
-        <TabsList className="mr-auto max-w-xs w-full p-0 bg-inherit justify-start border-b rounded-none">
+        <TabsList className="mr-auto w-full max-w-xs justify-start rounded-none border-b bg-inherit p-0">
           {tabs.map((tab) => {
             return (
               <TabsTrigger
                 key={tab.value}
                 value={tab.value}
                 onClick={() => handleClickTab(tab.value)}
-                className="
-                  rounded-none
-                  h-full
-                  text-muted-foreground
-                  border-t-0
-                  border-r-0
-                  border-b-2
-                  border-l-0
-                  transition-all
-                  duration-250
-                  data-[state=active]:shadow-none
-                  data-[state=active]:border-primary
-                  data-[state=active]:text-primary
-                  data-[state=active]:bg-inherit
-              "
+                className="h-full rounded-none border-t-0 border-r-0 border-b-2 border-l-0 text-muted-foreground transition-all duration-250 data-[state=active]:border-primary data-[state=active]:bg-inherit data-[state=active]:text-primary data-[state=active]:shadow-none"
               >
-                <code className="flex items-center text-[16px] gap-1">
+                <code className="flex items-center gap-1 text-[16px]">
                   {tab.icon}
                   {tab.name}
                 </code>

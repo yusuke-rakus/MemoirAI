@@ -260,7 +260,7 @@ export const DiaryEditDialog = ({
               />
               <FormItem>
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-medium leading-none">
+                  <p className="text-sm leading-none font-medium">
                     画像（{imageCount}/{MAX_DIARY_IMAGE_COUNT}）
                   </p>
                   <Input
@@ -303,7 +303,7 @@ export const DiaryEditDialog = ({
                           size="icon"
                           disabled={isSubmitting}
                           aria-label={`画像${index + 1}を削除`}
-                          className="absolute right-1 top-1 h-6 w-6 rounded-full shadow-sm"
+                          className="absolute top-1 right-1 h-6 w-6 rounded-full shadow-sm"
                           onClick={() => removeRetainedImage(image.id)}
                         >
                           <X className="h-3.5 w-3.5" />
@@ -326,7 +326,7 @@ export const DiaryEditDialog = ({
                           size="icon"
                           disabled={isSubmitting}
                           aria-label={`追加画像${index + 1}を削除`}
-                          className="absolute right-1 top-1 h-6 w-6 rounded-full shadow-sm"
+                          className="absolute top-1 right-1 h-6 w-6 rounded-full shadow-sm"
                           onClick={() => removeNewImage(image.id)}
                         >
                           <X className="h-3.5 w-3.5" />

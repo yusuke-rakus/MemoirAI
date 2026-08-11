@@ -29,14 +29,14 @@ export const MonthSelector = (props: MonthSelectorProps) => {
   setScrollToCurrentMonth(currentMonthRef, months);
 
   return (
-    <div className="flex items-center w-full max-w-lg mx-auto overflow-hidden">
+    <div className="mx-auto flex w-full max-w-lg items-center overflow-hidden">
       <div className="flex-shrink-0">
         <MonthSelectorScrollButton onToggle={scrollLeft} scroll={"left"} />
       </div>
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <div
           ref={scrollRef}
-          className="flex w-full space-x-4 p-4 overflow-x-auto snap-x"
+          className="flex w-full snap-x space-x-4 overflow-x-auto p-4"
         >
           {months.map((month) => {
             const isTargetMonth =
@@ -46,7 +46,7 @@ export const MonthSelector = (props: MonthSelectorProps) => {
             return (
               <div
                 key={month.isButton ? month.date.toISOString() : month.label}
-                className="flex justify-center items-center snap-end snap-always"
+                className="flex snap-end snap-always items-center justify-center"
               >
                 {month.isButton ? (
                   <Button

@@ -62,9 +62,7 @@ export const isPrimaryColorKey = (value: string): value is PrimaryColorKey => {
 export const normalizePrimaryColorKey = (
   value?: string | null,
 ): PrimaryColorKey => {
-  return value && isPrimaryColorKey(value)
-    ? value
-    : DEFAULT_PRIMARY_COLOR_KEY;
+  return value && isPrimaryColorKey(value) ? value : DEFAULT_PRIMARY_COLOR_KEY;
 };
 
 export const getPrimaryColorOption = (key: PrimaryColorKey) => {

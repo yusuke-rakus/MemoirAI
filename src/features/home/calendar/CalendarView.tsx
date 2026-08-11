@@ -37,7 +37,7 @@ export const CalendarView = () => {
   }, [selectedDate, selectedDateDiaries.length]);
 
   return (
-    <div className=" mb-10">
+    <div className="mb-10">
       <div className="pb-10">
         <Calendar
           dialies={dialies}

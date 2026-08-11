@@ -25,10 +25,10 @@ export const MainLayout = (props: MainLayoutProps) => {
     <SidebarProvider>
       <div className="flex h-screen w-screen bg-background">
         {sidebar}
-        <main className="flex-1 min-w-0 mt-14 flex flex-col w-full">
+        <main className="mt-14 flex w-full min-w-0 flex-1 flex-col">
           {header}
-          <div className="flex-1 w-full overflow-auto">
-            <div className="max-w-4xl mx-auto px-2">{children}</div>
+          <div className="w-full flex-1 overflow-auto">
+            <div className="mx-auto max-w-4xl px-2">{children}</div>
           </div>
         </main>
         <DiarySearchDialog />

@@ -40,7 +40,7 @@ export const DiariesView = () => {
   return (
     <div
       className={cn(
-        "max-w-4xl mx-auto flex flex-col gap-4 mb-10",
+        "mx-auto mb-10 flex max-w-4xl flex-col gap-4",
         returnTo ? "pt-4" : "pt-8",
       )}
     >

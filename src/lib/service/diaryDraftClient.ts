@@ -200,9 +200,7 @@ export class DiaryDraftClient {
         imageKeys.add(getImageKey(uid, date, card.id, image.id)),
       ),
     );
-    await Promise.all(
-      Array.from(imageKeys, (key) => deleteImage(key)),
-    );
+    await Promise.all(Array.from(imageKeys, (key) => deleteImage(key)));
     localStorage.removeItem(getDraftKey(uid, date));
   }
 }

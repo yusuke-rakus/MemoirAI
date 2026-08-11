@@ -161,7 +161,9 @@ const deleteStoragePrefix = async (storageBucket: string, prefix: string) => {
       `${EMULATORS.storage.url}/storage/v1/b/${encodeURIComponent(storageBucket)}/o?${searchParams}`,
     );
     if (!listResponse.ok) {
-      throw new Error("Storage Emulator のファイル一覧を取得できませんでした。");
+      throw new Error(
+        "Storage Emulator のファイル一覧を取得できませんでした。",
+      );
     }
 
     const objectList = (await listResponse.json()) as StorageObjectList;
@@ -181,7 +183,9 @@ const deleteStoragePrefix = async (storageBucket: string, prefix: string) => {
         { method: "DELETE" },
       );
       if (!deleteResponse.ok && deleteResponse.status !== 404) {
-        throw new Error(`Storage Emulator のファイルを削除できませんでした: ${name}`);
+        throw new Error(
+          `Storage Emulator のファイルを削除できませんでした: ${name}`,
+        );
       }
     }),
   );

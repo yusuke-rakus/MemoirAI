@@ -58,10 +58,7 @@ const areMemoryFactsEqual = (
   next: MemoryFact | undefined,
 ) => current?.value === next?.value && current?.confidence === next?.confidence;
 
-const areMemoryFactArraysEqual = (
-  current: MemoryFact[],
-  next: MemoryFact[],
-) =>
+const areMemoryFactArraysEqual = (current: MemoryFact[], next: MemoryFact[]) =>
   current.length === next.length &&
   current.every((fact, index) => areMemoryFactsEqual(fact, next[index]));
 
@@ -503,7 +500,9 @@ export class UserMemoryClient {
       extracted.preferences,
     );
     const writeCount =
-      profileFactsToSave.length + preferencesToSave.length + peopleToSave.length;
+      profileFactsToSave.length +
+      preferencesToSave.length +
+      peopleToSave.length;
     if (writeCount === 0) return;
 
     const batch = writeBatch(db);
