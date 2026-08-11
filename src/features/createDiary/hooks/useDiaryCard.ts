@@ -272,7 +272,8 @@ const useDiaryCardStore = create<DiaryCardStore>((set, get) => ({
   restore: (cards) => {
     get().cards.forEach((card) => revokeImagePreviewUrls(card.images));
 
-    const restoredCards = cards.length > 0 ? cards : [createCard(INITIAL_CARD_ID)];
+    const restoredCards =
+      cards.length > 0 ? cards : [createCard(INITIAL_CARD_ID)];
     set(() => ({
       cards: restoredCards,
       tagInputs: Object.fromEntries(restoredCards.map((card) => [card.id, ""])),

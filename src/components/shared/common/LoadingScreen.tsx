@@ -29,7 +29,7 @@ export const LoadingScreen = ({
       className={cn(
         "flex w-full items-center justify-center px-4",
         variant === "page"
-          ? "min-h-screen h-dvh w-screen"
+          ? "h-dvh min-h-screen w-screen"
           : "min-h-[44vh] py-10",
         className,
       )}

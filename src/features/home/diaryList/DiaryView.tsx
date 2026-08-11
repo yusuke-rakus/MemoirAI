@@ -14,9 +14,9 @@ export const DiaryView = () => {
   const skeltonItemCount = 5;
 
   return (
-    <div className=" mb-10">
+    <div className="mb-10">
       {loading ? (
-        <Card className="w-full items-start p-4 md:p-3 gap-0">
+        <Card className="w-full items-start gap-0 p-4 md:p-3">
           {Array.from({ length: skeltonItemCount }).map((_, i) => (
             <CardContent key={i} className="w-full px-0">
               <Skeleton className="h-[125px] w-full" />

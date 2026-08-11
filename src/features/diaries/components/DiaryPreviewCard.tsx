@@ -104,7 +104,7 @@ export const DiaryPreviewCard = ({
         id={`diary-${diary.id}`}
         tabIndex={-1}
         className={cn(
-          "scroll-mt-20 overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          "scroll-mt-20 overflow-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
           diary.images && diary.images.length > 0 ? "pt-0 pb-3" : "py-3",
         )}
       >
@@ -114,7 +114,7 @@ export const DiaryPreviewCard = ({
           </CardContent>
         )}
         <CardContent className="flex flex-col gap-3">
-          <CardHeader className="px-0 flex flex-row items-start justify-between gap-2">
+          <CardHeader className="flex flex-row items-start justify-between gap-2 px-0">
             <CardTitle>{diary.title}</CardTitle>
             <DropdownMenu
               modal={false}
@@ -138,9 +138,9 @@ export const DiaryPreviewCard = ({
                     disabled={isSharing}
                   >
                     {isSharing ? (
-                      <Loader2 className="flex-shrink-0 w-4 h-4 mr-2 animate-spin" />
+                      <Loader2 className="mr-2 h-4 w-4 flex-shrink-0 animate-spin" />
                     ) : (
-                      <Share2 className="flex-shrink-0 w-4 h-4 mr-2" />
+                      <Share2 className="mr-2 h-4 w-4 flex-shrink-0" />
                     )}
                     共有
                   </DropdownMenuSubTrigger>
@@ -197,13 +197,13 @@ export const DiaryPreviewCard = ({
             </DropdownMenu>
           </CardHeader>
           <CardContent className="px-2">
-            <p className="max-w-[70ch] text-muted-foreground whitespace-pre-wrap">
+            <p className="max-w-[70ch] whitespace-pre-wrap text-muted-foreground">
               {diary.content}
             </p>
           </CardContent>
           {diary.tags.length >= 1 && (
-            <CardFooter className="p-0 flex flex-wrap gap-2">
-              <Tag className="w-4 h-4 text-ring" />
+            <CardFooter className="flex flex-wrap gap-2 p-0">
+              <Tag className="h-4 w-4 text-ring" />
               {diary.tags.map((tag, i) => (
                 <DiaryTag key={`${tag.name}-${i}`} tag={tag} />
               ))}

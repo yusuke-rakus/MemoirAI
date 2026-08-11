@@ -14,7 +14,7 @@ export const SettingsDropdownItem = (props: SettingsDropdownItemProps) => {
 
   return (
     <DropdownMenuItem {...itemProps}>
-      {Icon && <Icon className="flex-shrink-0 w-4 h-4" />}
+      {Icon && <Icon className="h-4 w-4 flex-shrink-0" />}
       {label}
       {active && <Dot className="text-primary" />}
     </DropdownMenuItem>

@@ -33,15 +33,15 @@ export const DiaryItem = (props: DiaryItemProps) => {
   };
 
   return (
-    <CardContent onClick={handleSearch} className="px-0 cursor-pointer">
-      <div className="flex rounded-sm transition-all hover:bg-ring/20 p-2">
+    <CardContent onClick={handleSearch} className="cursor-pointer px-0">
+      <div className="flex rounded-sm p-2 transition-all hover:bg-ring/20">
         <DayIcon date={diary.date.toDate()} />
-        <div className="flex-1 mx-2">
-          <CardHeader className="p-0 mb-2 w-full">
+        <div className="mx-2 flex-1">
+          <CardHeader className="mb-2 w-full p-0">
             <CardTitle className="text-lg">{diary.title}</CardTitle>
           </CardHeader>
-          <CardContent className="p-0 mb-4">
-            <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+          <CardContent className="mb-4 p-0">
+            <p className="text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
               {diary.content}
             </p>
             {diary.images && diary.images.length > 0 && (
@@ -64,8 +64,8 @@ export const DiaryItem = (props: DiaryItemProps) => {
             )}
           </CardContent>
           {diary.tags && diary.tags.length > 0 && (
-            <CardFooter className="p-0 flex flex-wrap gap-2">
-              <Tag className="w-4 h-4 text-ring" />
+            <CardFooter className="flex flex-wrap gap-2 p-0">
+              <Tag className="h-4 w-4 text-ring" />
               {diary.tags.map((tag, i) => (
                 <DiaryTag key={i} tag={tag} />
               ))}

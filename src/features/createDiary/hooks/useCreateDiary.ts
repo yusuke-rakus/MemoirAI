@@ -132,9 +132,7 @@ const prepareDiary = (
       ),
     ),
     memoryPromise: memoryContextPromise
-      .then((memoryContext) =>
-        extractDiaryMemory(diary.content, memoryContext),
-      )
+      .then((memoryContext) => extractDiaryMemory(diary.content, memoryContext))
       .catch((error) => {
         console.error("Failed to extract diary memory", error);
         return null;

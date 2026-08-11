@@ -19,14 +19,14 @@ export const LoginView = () => {
       </div>
 
       <div className="relative z-10 flex h-full flex-col items-center justify-center p-6 text-center">
-        <div className="max-w-3xl space-y-8 animate-in fade-in zoom-in duration-1000 slide-in-from-bottom-10">
+        <div className="animate-in fade-in zoom-in slide-in-from-bottom-10 max-w-3xl space-y-8 duration-1000">
           <h1 className="text-4xl font-extrabold tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl">
             <span className="block bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               Memoir AI
             </span>
           </h1>
 
-          <h2 className="text-xl font-medium leading-relaxed tracking-wide text-foreground sm:text-2xl md:text-3xl">
+          <h2 className="text-xl leading-relaxed font-medium tracking-wide text-foreground sm:text-2xl md:text-3xl">
             1日を、いくつものメモで
           </h2>
 

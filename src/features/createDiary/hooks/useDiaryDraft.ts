@@ -7,12 +7,7 @@ import { toast } from "sonner";
 import { useDiaryCard } from "./useDiaryCard";
 
 export type DraftStatus =
-  | "idle"
-  | "restoring"
-  | "dirty"
-  | "saving"
-  | "saved"
-  | "error";
+  "idle" | "restoring" | "dirty" | "saving" | "saved" | "error";
 
 export const useDiaryDraft = (date: Date) => {
   const { localUser } = useLocalUser();

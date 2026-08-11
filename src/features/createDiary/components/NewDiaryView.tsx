@@ -159,10 +159,10 @@ export const NewDiaryView = () => {
   };
 
   return (
-    <div className="min-h-screen pt-8 pb-32 px-4 sm:px-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen px-4 pt-8 pb-32 sm:px-6">
+      <div className="mx-auto max-w-4xl">
         {/* Header Section */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div className="text-muted-foreground">
             <Popover>
               <PopoverTrigger asChild>
@@ -197,7 +197,7 @@ export const NewDiaryView = () => {
             <Button
               onClick={handleSave}
               disabled={isCreating}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 h-10 rounded-md font-medium shadow-sm transition-all active:scale-[0.98]"
+              className="h-10 rounded-md bg-primary px-6 font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary/90 active:scale-[0.98]"
             >
               {isCreating ? "保存中..." : "保存"}
             </Button>
@@ -209,10 +209,10 @@ export const NewDiaryView = () => {
             <Card
               key={card.id}
               className={cn(
-                "border-none shadow-sm bg-card/50 hover:bg-card/80 transition-all duration-300",
-                "backdrop-blur-sm group relative overflow-visible",
+                "border-none bg-card/50 shadow-sm transition-all duration-300 hover:bg-card/80",
+                "group relative overflow-visible backdrop-blur-sm",
                 draggingCardId === card.id &&
-                  "ring-2 ring-primary/60 bg-accent/30",
+                  "bg-accent/30 ring-2 ring-primary/60",
               )}
               onDragEnter={(event) => handleCardDragEnter(event, card.id)}
               onDragOver={(event) => handleCardDragOver(event, card.id)}
@@ -221,13 +221,13 @@ export const NewDiaryView = () => {
             >
               {/* Card Remove Button (visible on hover or if multiple) */}
               {cards.length > 1 && (
-                <div className="absolute -right-2 -top-2 opacity-100 transition-opacity z-10 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+                <div className="absolute -top-2 -right-2 z-10 opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => removeCard(card.id)}
                     aria-label={`セクション${cards.indexOf(card) + 1}を削除`}
-                    className="h-8 w-8 rounded-full bg-background border border-border shadow-sm hover:bg-destructive/10 hover:text-destructive transition-colors"
+                    className="h-8 w-8 rounded-full border border-border bg-background shadow-sm transition-colors hover:bg-destructive/10 hover:text-destructive"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -247,7 +247,7 @@ export const NewDiaryView = () => {
                   placeholder={placeholderText}
                   value={card.body}
                   onChange={(e) => updateCardBody(card.id, e.target.value)}
-                  className="min-h-[300px] max-h-[500px] overflow-y-auto leading-relaxed resize-none shadow border-none focus-visible:ring-0 placeholder:text-muted-foreground/30"
+                  className="max-h-[500px] min-h-[300px] resize-none overflow-y-auto border-none leading-relaxed shadow placeholder:text-muted-foreground/30 focus-visible:ring-0"
                 />
 
                 <div className="h-px w-full bg-gradient-to-r from-transparent via-border to-transparent opacity-50" />
@@ -265,7 +265,7 @@ export const NewDiaryView = () => {
                     {card.tags.map((tag, tagIndex) => (
                       <span
                         key={tagIndex}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 bg-secondary/50 text-secondary-foreground rounded-md text-sm font-medium transition-colors hover:bg-secondary"
+                        className="inline-flex items-center gap-1.5 rounded-md bg-secondary/50 px-3 py-1 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary"
                       >
                         {tag.name}
                         <Button
@@ -282,7 +282,7 @@ export const NewDiaryView = () => {
                     ))}
                   </div>
 
-                  <div className="relative flex items-center min-w-[200px]">
+                  <div className="relative flex min-w-[200px] items-center">
                     <Input
                       placeholder="タグを追加"
                       value={tagInputs[card.id] || ""}
@@ -290,14 +290,14 @@ export const NewDiaryView = () => {
                         handleTagInputChange(card.id, e.target.value)
                       }
                       onKeyDown={(e) => handleTagInputKeyDown(e, card.id)}
-                      className="h-8 text-sm border-none shadow bg-transparent focus-visible:ring-0 placeholder:text-muted-foreground/40"
+                      className="h-8 border-none bg-transparent text-sm shadow placeholder:text-muted-foreground/40 focus-visible:ring-0"
                     />
                     {tagInputs[card.id] && (
                       <Button
                         type="button"
                         size="icon"
                         variant="ghost"
-                        className="h-6 w-6 ml-2"
+                        className="ml-2 h-6 w-6"
                         onClick={() => addTag(card.id)}
                         aria-label="タグを追加"
                       >
@@ -324,7 +324,7 @@ export const NewDiaryView = () => {
                           variant="secondary"
                           size="icon"
                           disabled={isCreating}
-                          className="absolute right-1 top-1 h-6 w-6 rounded-full shadow-sm"
+                          className="absolute top-1 right-1 h-6 w-6 rounded-full shadow-sm"
                           onClick={() => removeImage(card.id, image.id)}
                         >
                           <X className="h-3.5 w-3.5" />
@@ -343,9 +343,9 @@ export const NewDiaryView = () => {
           <Button
             onClick={addCard}
             variant="outline"
-            className="rounded-full px-6 py-6 h-auto border-dashed border-border hover:border-primary/50 hover:bg-accent/5 transition-all group"
+            className="group h-auto rounded-full border-dashed border-border px-6 py-6 transition-all hover:border-primary/50 hover:bg-accent/5"
           >
-            <Plus className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
+            <Plus className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
             セクションを追加
           </Button>
         </div>

@@ -167,7 +167,7 @@ export const DiarySearchDialog = () => {
                   type="button"
                   variant="ghost"
                   onClick={() => openDiary(diary)}
-                  className="h-auto w-full flex-col items-stretch justify-start gap-0 whitespace-normal px-3 py-3 text-left font-normal"
+                  className="h-auto w-full flex-col items-stretch justify-start gap-0 px-3 py-3 text-left font-normal whitespace-normal"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <span className="font-medium">{diary.title}</span>

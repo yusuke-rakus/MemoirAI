@@ -13,7 +13,7 @@ export const Diaries = ({ dialies, date }: DiariesProps) => {
   return (
     <>
       {dialies.length > 0 ? (
-        <Card className="w-full p-4 md:p-3 gap-0">
+        <Card className="w-full gap-0 p-4 md:p-3">
           {dialies.map((diary, index) => (
             <div key={index}>
               <DiaryItem key={index} diary={diary} />

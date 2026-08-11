@@ -60,11 +60,7 @@ const memoryExtractionSchema = Schema.object({
       }),
     }),
   },
-  optionalProperties: [
-    "profileFacts",
-    "preferences",
-    "people",
-  ],
+  optionalProperties: ["profileFacts", "preferences", "people"],
 });
 
 const instruction = `

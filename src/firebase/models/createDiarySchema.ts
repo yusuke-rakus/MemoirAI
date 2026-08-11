@@ -9,8 +9,7 @@ const diaryTitleSchema = Schema.object({
         "日記本文の具体的な内容を表す、先頭に絵文字を1つ付けた日本語の短いタイトル",
     }),
     tags: Schema.array({
-      description:
-        "日記を検索・振り返るための、再利用しやすい日本語の分類タグ",
+      description: "日記を検索・振り返るための、再利用しやすい日本語の分類タグ",
       maxItems: 3,
       items: Schema.object({
         properties: {

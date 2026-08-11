@@ -130,7 +130,8 @@ const resizeImage = async (
 
     context.drawImage(image, 0, 0, width, height);
 
-    const contentType = file.type === "image/webp" ? "image/webp" : "image/jpeg";
+    const contentType =
+      file.type === "image/webp" ? "image/webp" : "image/jpeg";
     const blob = await canvasToBlob(canvas, contentType);
 
     return {

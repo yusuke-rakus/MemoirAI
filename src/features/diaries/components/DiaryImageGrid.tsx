@@ -85,7 +85,7 @@ export const DiaryImageGrid = ({ images }: DiaryImageGridProps) => {
                 type="button"
                 variant="secondary"
                 size="icon"
-                className="absolute left-2 top-1/2 h-8 w-8 -translate-y-1/2 rounded-full bg-background/80 shadow-sm hover:bg-background"
+                className="absolute top-1/2 left-2 h-8 w-8 -translate-y-1/2 rounded-full bg-background/80 shadow-sm hover:bg-background"
                 aria-label="前の画像を表示"
                 onClick={() => emblaApi?.scrollPrev()}
               >
@@ -95,13 +95,13 @@ export const DiaryImageGrid = ({ images }: DiaryImageGridProps) => {
                 type="button"
                 variant="secondary"
                 size="icon"
-                className="absolute right-2 top-1/2 h-8 w-8 -translate-y-1/2 rounded-full bg-background/80 shadow-sm hover:bg-background"
+                className="absolute top-1/2 right-2 h-8 w-8 -translate-y-1/2 rounded-full bg-background/80 shadow-sm hover:bg-background"
                 aria-label="次の画像を表示"
                 onClick={() => emblaApi?.scrollNext()}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
-              <div className="absolute bottom-2 right-2 rounded-md bg-background/80 px-2 py-1 text-xs text-muted-foreground shadow-sm">
+              <div className="absolute right-2 bottom-2 rounded-md bg-background/80 px-2 py-1 text-xs text-muted-foreground shadow-sm">
                 {selectedIndex + 1}/{images.length}
               </div>
             </>
