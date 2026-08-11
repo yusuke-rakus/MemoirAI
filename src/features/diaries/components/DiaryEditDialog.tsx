@@ -170,7 +170,7 @@ export const DiaryEditDialog = ({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>日付</FormLabel>
-                    <Popover>
+                    <Popover modal>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
