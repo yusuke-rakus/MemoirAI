@@ -22,7 +22,11 @@ export const useDiaryList = () => {
         return;
       }
 
-      const sorted = data.sort((a, b) => b.date.toMillis() - a.date.toMillis());
+      const sorted = data.sort(
+        (a, b) =>
+          b.date.toMillis() - a.date.toMillis() ||
+          b.createdAt.toMillis() - a.createdAt.toMillis(),
+      );
 
       const uniqueByDay: Diary[] = sorted.map((diary) => ({
         id: diary.id,

@@ -170,7 +170,7 @@ export const DiaryEditDialog = ({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>日付</FormLabel>
-                    <Popover>
+                    <Popover modal>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -366,10 +366,11 @@ export const DiaryEditDialog = ({
               保存していない編集内容は元に戻せません。
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <DialogFooter className="flex-row gap-2 sm:gap-0">
             <Button
               type="button"
               variant="outline"
+              className="flex-1 sm:flex-none"
               onClick={() => setIsDiscardDialogOpen(false)}
             >
               編集を続ける
@@ -377,6 +378,7 @@ export const DiaryEditDialog = ({
             <Button
               type="button"
               variant="destructive"
+              className="flex-1 sm:flex-none"
               onClick={() => {
                 setIsDiscardDialogOpen(false);
                 form.reset();

@@ -38,10 +38,11 @@ export const DiaryDeleteDialog = ({
             「{title}」を削除します。この操作は取り消せません。
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter>
+        <DialogFooter className="flex-row gap-2 sm:gap-0">
           <Button
             type="button"
             variant="outline"
+            className="flex-1 sm:flex-none"
             onClick={() => handleOpenChange(false)}
             disabled={isDeleting}
           >
@@ -50,6 +51,7 @@ export const DiaryDeleteDialog = ({
           <Button
             type="button"
             variant="destructive"
+            className="flex-1 sm:flex-none"
             onClick={onDelete}
             disabled={isDeleting}
           >
