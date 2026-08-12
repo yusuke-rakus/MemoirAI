@@ -34,7 +34,7 @@ export const DiaryItem = (props: DiaryItemProps) => {
 
   return (
     <CardContent onClick={handleSearch} className="cursor-pointer px-0">
-      <div className="flex rounded-sm p-2 transition-all hover:bg-ring/20">
+      <div className="flex rounded-sm p-2 transition-all hover:bg-ring/10">
         <DayIcon date={diary.date.toDate()} />
         <div className="mx-2 flex-1">
           <CardHeader className="mb-2 w-full p-0">

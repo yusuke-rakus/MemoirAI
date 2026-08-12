@@ -17,7 +17,7 @@ export const Diaries = ({ dialies, date }: DiariesProps) => {
           {dialies.map((diary, index) => (
             <div key={index}>
               <DiaryItem key={index} diary={diary} />
-              {index < dialies.length - 1 && <Separator className="my-4" />}
+              {index < dialies.length - 1 && <Separator className="my-2" />}
             </div>
           ))}
         </Card>
