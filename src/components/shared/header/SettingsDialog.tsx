@@ -540,45 +540,47 @@ export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
               </TabsContent>
             </section>
           </Tabs>
-        </DialogContent>
-      </Dialog>
-      <MemoryEditDialog
-        item={editingItem}
-        isSubmitting={isSubmitting}
-        onOpenChange={(next) => !next && setEditingItem(null)}
-        onSubmit={saveItem}
-      />
-      <Dialog
-        open={deletingItem !== null}
-        onOpenChange={(next) => !next && !isSubmitting && setDeletingItem(null)}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>メモリを削除しますか？</DialogTitle>
-            <DialogDescription>
-              {`「${deletingItem?.label ?? ""}」を削除します。今後の日記から同じ内容を再学習する場合があります。`}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex-row gap-2 sm:gap-0">
-            <Button
-              type="button"
-              variant="outline"
-              className="flex-1 sm:flex-none"
-              disabled={isSubmitting}
-              onClick={() => setDeletingItem(null)}
-            >
-              キャンセル
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              className="flex-1 sm:flex-none"
-              disabled={isSubmitting}
-              onClick={() => void deleteItem()}
-            >
-              {isSubmitting ? "削除中…" : "削除する"}
-            </Button>
-          </DialogFooter>
+          <MemoryEditDialog
+            item={editingItem}
+            isSubmitting={isSubmitting}
+            onOpenChange={(next) => !next && setEditingItem(null)}
+            onSubmit={saveItem}
+          />
+          <Dialog
+            open={deletingItem !== null}
+            onOpenChange={(next) =>
+              !next && !isSubmitting && setDeletingItem(null)
+            }
+          >
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>メモリを削除しますか？</DialogTitle>
+                <DialogDescription>
+                  {`「${deletingItem?.label ?? ""}」を削除します。今後の日記から同じ内容を再学習する場合があります。`}
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="flex-row gap-2 sm:gap-0">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1 sm:flex-none"
+                  disabled={isSubmitting}
+                  onClick={() => setDeletingItem(null)}
+                >
+                  キャンセル
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  className="flex-1 sm:flex-none"
+                  disabled={isSubmitting}
+                  onClick={() => void deleteItem()}
+                >
+                  {isSubmitting ? "削除中…" : "削除する"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </DialogContent>
       </Dialog>
     </>
