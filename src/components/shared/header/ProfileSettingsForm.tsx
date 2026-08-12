@@ -86,10 +86,6 @@ export const ProfileSettingsForm = ({ uid }: Props) => {
                   maxLength={DISPLAY_NAME_MAX_LENGTH}
                 />
               </FormControl>
-              <FormDescription>
-                共有した日記に表示される名前です。
-              </FormDescription>
-              <FormMessage />
             </FormItem>
           )}
         />

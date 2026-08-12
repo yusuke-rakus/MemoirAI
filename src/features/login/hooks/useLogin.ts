@@ -1,4 +1,5 @@
 import { auth, provider, signInWithPopup } from "@/firebase/firebase";
+import { UserProfileClient } from "@/lib/service/userProfileClient";
 import { runNewUserSettingsMigrations } from "@/lib/service/userSettingsMigration";
 import { getAdditionalUserInfo } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
@@ -20,9 +21,12 @@ export const useLogin = () => {
         await runNewUserSettingsMigrations(user.uid, user.displayName);
       }
 
+      const profile = await UserProfileClient.getByUid(user.uid);
+      const displayName = profile?.displayName ?? user.displayName;
+
       navigate("/");
-      if (user.displayName) {
-        toast(`${user.displayName}さん、ようこそ🎉`);
+      if (displayName) {
+        toast(`${displayName}さん、ようこそ🎉`);
       }
     } catch (error) {
       console.error("Error signing in with Google:", error);
