@@ -15,10 +15,12 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { PATHS } from "@/constants/path";
+import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Tag } from "lucide-react";
 import { Link } from "react-router-dom";
 import { DiaryTag } from "../../createDiary/components/DiaryTag";
+import { DiaryImageGrid } from "../../diaries/components/DiaryImageGrid";
 import { useSharedDiary } from "../hooks/useSharedDiary";
 
 export const SharedDiaryView = () => {
@@ -56,7 +58,17 @@ export const SharedDiaryView = () => {
           {format(diary.date.toDate(), "M月d日")}
         </h2>
       </div>
-      <Card className="py-3">
+      <Card
+        className={cn(
+          "overflow-hidden",
+          diary.images && diary.images.length > 0 ? "pt-0 pb-3" : "py-3",
+        )}
+      >
+        {diary.images && diary.images.length > 0 && (
+          <CardContent className="px-0 pb-0">
+            <DiaryImageGrid images={diary.images} />
+          </CardContent>
+        )}
         <CardContent className="flex flex-col gap-3">
           <CardHeader className="px-0">
             <CardTitle>{diary.title}</CardTitle>
