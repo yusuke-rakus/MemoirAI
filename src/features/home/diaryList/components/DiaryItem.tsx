@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/card";
 import { PATHS } from "@/constants/path";
 import type { DiaryDetailNavigationState } from "@/features/diaries/types";
+import { getDiaryImageAspectRatio } from "@/lib/getDiaryImageAspectRatio";
 import type { Diary } from "@/types/diary/diary";
 import { format } from "date-fns";
 import { Tag } from "lucide-react";
@@ -45,11 +46,11 @@ export const DiaryItem = (props: DiaryItemProps) => {
               {diary.content}
             </p>
             {diary.images && diary.images.length > 0 && (
-              <div className="grid grid-cols-3 gap-2 pt-3 sm:grid-cols-4">
+              <div className="grid grid-cols-3 items-start gap-2 pt-3 sm:grid-cols-4">
                 {diary.images.map((image, index) => (
                   <AspectRatio
                     key={image.id}
-                    ratio={1 / 1}
+                    ratio={getDiaryImageAspectRatio(image)}
                     className="overflow-hidden rounded-md bg-muted"
                   >
                     <img

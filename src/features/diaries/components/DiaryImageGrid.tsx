@@ -1,4 +1,6 @@
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
+import { getDiaryImageAspectRatio } from "@/lib/getDiaryImageAspectRatio";
 import { cn } from "@/lib/utils";
 import type { DiaryImage } from "@/types/diary/diary";
 import useEmblaCarousel from "embla-carousel-react";
@@ -42,6 +44,7 @@ export const DiaryImageGrid = ({ images }: DiaryImageGridProps) => {
   if (!images || images.length === 0) return null;
 
   const hasMultipleImages = images.length > 1;
+  const selectedImage = images[selectedIndex] ?? images[0];
 
   const handleImageClick = (index: number) => {
     setPreviewImageIndex(index);
@@ -57,27 +60,35 @@ export const DiaryImageGrid = ({ images }: DiaryImageGridProps) => {
     <>
       <section className="space-y-2" aria-label="日記の画像">
         <div className="relative">
-          <div ref={emblaRef} className="overflow-hidden bg-muted">
-            <div className="flex">
-              {images.map((image, index) => (
-                <div key={image.id} className="min-w-0 flex-[0_0_100%]">
-                  <button
-                    type="button"
-                    className="block w-full cursor-zoom-in bg-muted text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    aria-label={`${index + 1}枚目の画像を拡大表示`}
-                    onClick={() => handleImageClick(index)}
+          <AspectRatio
+            ratio={getDiaryImageAspectRatio(selectedImage)}
+            className="bg-muted"
+          >
+            <div ref={emblaRef} className="h-full overflow-hidden">
+              <div className="flex h-full">
+                {images.map((image, index) => (
+                  <div
+                    key={image.id}
+                    className="h-full min-w-0 flex-[0_0_100%]"
                   >
-                    <img
-                      src={image.downloadURL}
-                      alt={`日記の画像 ${index + 1}`}
-                      loading="lazy"
-                      className="aspect-video w-full object-cover transition-transform hover:scale-[1.01]"
-                    />
-                  </button>
-                </div>
-              ))}
+                    <button
+                      type="button"
+                      className="block h-full w-full cursor-zoom-in bg-muted text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      aria-label={`${index + 1}枚目の画像を拡大表示`}
+                      onClick={() => handleImageClick(index)}
+                    >
+                      <img
+                        src={image.downloadURL}
+                        alt={`日記の画像 ${index + 1}`}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform hover:scale-[1.01]"
+                      />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          </AspectRatio>
 
           {hasMultipleImages && (
             <>
