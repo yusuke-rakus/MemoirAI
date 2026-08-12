@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+.fc {
+  --fc-border-color: var(--border);
+}
+
 .fc-col-header-cell-cushion {
   color: hsl(var(--muted-foreground));
   font-weight: 500;

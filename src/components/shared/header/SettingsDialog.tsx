@@ -33,6 +33,7 @@ import {
   Sun,
   SunMoon,
   Trash2,
+  UserRound,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -41,6 +42,7 @@ import {
   type EditableMemory,
   type MemoryEditValues,
 } from "./MemoryEditDialog";
+import { ProfileSettingsForm } from "./ProfileSettingsForm";
 
 type Props = {
   uid?: string;
@@ -48,7 +50,7 @@ type Props = {
   onOpenChange: (open: boolean) => void;
 };
 
-type SettingsSection = "general" | "memory";
+type SettingsSection = "profile" | "general" | "memory";
 
 const themeIcons = {
   light: Sun,
@@ -78,7 +80,7 @@ const compactLines = (value: string) =>
 export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const [activeSection, setActiveSection] =
-    useState<SettingsSection>("general");
+    useState<SettingsSection>("profile");
   const [memory, setMemory] = useState<ActiveUserMemoryContext | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -114,7 +116,7 @@ export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
     }
     if (!open) {
       setMemory(null);
-      setActiveSection("general");
+      setActiveSection("profile");
     }
   }, [activeSection, fetchMemory, open]);
 
@@ -232,7 +234,11 @@ export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
   );
 
   const handleSectionChange = (section: string) => {
-    if (section === "general" || section === "memory") {
+    if (
+      section === "profile" ||
+      section === "general" ||
+      section === "memory"
+    ) {
       setActiveSection(section);
     }
   };
@@ -252,7 +258,7 @@ export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
               設定
             </DialogTitle>
             <DialogDescription className="sr-only">
-              表示とメモリに関する設定を変更できます。
+              プロフィール、表示、メモリに関する設定を変更できます。
             </DialogDescription>
           </DialogHeader>
           <Tabs
@@ -268,6 +274,13 @@ export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
                 className="h-auto min-w-max justify-start rounded-none bg-transparent px-3 py-0 sm:w-full sm:min-w-0 sm:flex-col sm:gap-1 sm:p-0"
                 aria-label="設定カテゴリー"
               >
+                <TabsTrigger
+                  value="profile"
+                  className="relative h-14 flex-none justify-start rounded-none px-3 text-muted-foreground shadow-none after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:rounded-full after:bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:after:bg-primary sm:h-10 sm:w-full sm:rounded-md sm:after:hidden sm:hover:bg-accent sm:hover:text-accent-foreground sm:data-[state=active]:bg-background sm:data-[state=active]:shadow-sm"
+                >
+                  <UserRound className="size-4" />
+                  プロフィール
+                </TabsTrigger>
                 <TabsTrigger
                   value="general"
                   className="relative h-14 flex-none justify-start rounded-none px-3 text-muted-foreground shadow-none after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:rounded-full after:bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:after:bg-primary sm:h-10 sm:w-full sm:rounded-md sm:after:hidden sm:hover:bg-accent sm:hover:text-accent-foreground sm:data-[state=active]:bg-background sm:data-[state=active]:shadow-sm"
@@ -285,6 +298,22 @@ export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
               </TabsList>
             </nav>
             <section className="flex min-h-0 min-w-0 flex-col">
+              <TabsContent
+                value="profile"
+                className="m-0 flex min-h-0 flex-1 flex-col"
+              >
+                <div className="shrink-0 border-b px-5 py-4 sm:px-6">
+                  <h2 className="text-lg font-semibold">プロフィール</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    公開されるプロフィール情報を変更できます。
+                  </p>
+                </div>
+                <ScrollArea className="min-h-0 flex-1">
+                  <div className="px-5 py-5 sm:px-6">
+                    <ProfileSettingsForm uid={uid} />
+                  </div>
+                </ScrollArea>
+              </TabsContent>
               <TabsContent
                 value="general"
                 className="m-0 flex min-h-0 flex-1 flex-col"

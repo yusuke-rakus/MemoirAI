@@ -1,4 +1,5 @@
 import { PATHS } from "@/constants/path";
+import { useLocalUser } from "@/contexts/LocalUserContext";
 import { SharedDiaryClient } from "@/lib/service/sharedDiaryClient";
 import type { Diary } from "@/types/diary/diary";
 import { useCallback, useState } from "react";
@@ -23,11 +24,15 @@ const buildLineShareUrl = (shareUrl: string) =>
 
 export const useShareDiary = (diary: Diary) => {
   const [isSharing, setIsSharing] = useState(false);
+  const { localUser } = useLocalUser();
 
   const publishShareUrl = useCallback(async () => {
-    const { shareId } = await SharedDiaryClient.publish(diary);
+    const { shareId } = await SharedDiaryClient.publish(
+      diary,
+      localUser.displayName,
+    );
     return buildShareUrl(shareId);
-  }, [diary]);
+  }, [diary, localUser.displayName]);
 
   const copyShareLink = useCallback(async () => {
     setIsSharing(true);
