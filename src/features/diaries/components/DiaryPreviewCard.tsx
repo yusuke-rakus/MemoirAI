@@ -1,4 +1,5 @@
 import LineIcon from "@/components/shared/Icons/LineIcon";
+import XIcon from "@/components/shared/Icons/XIcon";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -56,7 +57,8 @@ export const DiaryPreviewCard = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const { isSharing, copyShareLink, shareToLine } = useShareDiary(diary);
+  const { isSharing, copyShareLink, shareToLine, shareToX } =
+    useShareDiary(diary);
   const { isUpdating, isDeleting, updateDiary, deleteDiary } =
     useDiaryPreviewActions({
       diary,
@@ -164,6 +166,16 @@ export const DiaryPreviewCard = ({
                       >
                         <LineIcon />
                         LINEで送る
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="justify-start"
+                        disabled={isSharing}
+                        onSelect={() => {
+                          void shareToX();
+                        }}
+                      >
+                        <XIcon />
+                        Xで共有
                       </DropdownMenuItem>
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>

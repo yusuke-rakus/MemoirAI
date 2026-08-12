@@ -22,6 +22,11 @@ const buildLineShareUrl = (shareUrl: string) =>
     text: shareUrl,
   }).toString()}`;
 
+const buildXShareUrl = (shareUrl: string, title: string) =>
+  `https://x.com/intent/post?${new URLSearchParams({
+    text: `MemoirAIで「${title}」の日記を共有しました。\n${shareUrl}`,
+  }).toString()}`;
+
 export const useShareDiary = (diary: Diary) => {
   const [isSharing, setIsSharing] = useState(false);
   const { localUser } = useLocalUser();
@@ -79,9 +84,36 @@ export const useShareDiary = (diary: Diary) => {
     }
   }, [publishShareUrl]);
 
+  const shareToX = useCallback(async () => {
+    const xWindow = window.open("", "_blank");
+
+    if (xWindow) {
+      xWindow.opener = null;
+    }
+
+    setIsSharing(true);
+    try {
+      const shareUrl = await publishShareUrl();
+      const xShareUrl = buildXShareUrl(shareUrl, diary.title);
+
+      if (xWindow) {
+        xWindow.location.replace(xShareUrl);
+      } else {
+        window.location.assign(xShareUrl);
+      }
+    } catch (error) {
+      xWindow?.close();
+      console.error("Failed to share diary on X", error);
+      toast.error("X共有の開始に失敗しました");
+    } finally {
+      setIsSharing(false);
+    }
+  }, [diary.title, publishShareUrl]);
+
   return {
     isSharing,
     copyShareLink,
     shareToLine,
+    shareToX,
   };
 };
