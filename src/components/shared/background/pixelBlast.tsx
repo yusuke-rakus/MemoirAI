@@ -505,11 +505,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
           renderer.domElement.width,
           renderer.domElement.height,
         );
-        if (threeRef.current?.composer)
-          threeRef.current.composer.setSize(
-            renderer.domElement.width,
-            renderer.domElement.height,
-          );
+        if (threeRef.current?.composer) threeRef.current.composer.setSize(w, h);
         uniforms.uPixelSize.value = pixelSize * renderer.getPixelRatio();
       };
       setSize();
@@ -567,7 +563,10 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         composer.addPass(noisePass);
       }
       if (composer)
-        composer.setSize(renderer.domElement.width, renderer.domElement.height);
+        composer.setSize(
+          container.clientWidth || 1,
+          container.clientHeight || 1,
+        );
       const mapToPixels = (e: PointerEvent) => {
         const rect = renderer.domElement.getBoundingClientRect();
         const scaleX = renderer.domElement.width / rect.width;

@@ -4,14 +4,14 @@ import { useReducedMotion } from "motion/react";
 export const LoginView = () => {
   const shouldReduceMotion = useReducedMotion();
   return (
-    <div className="relative h-[500px] w-full overflow-hidden text-foreground">
+    <div className="relative h-full min-h-[500px] w-full overflow-hidden text-foreground">
       <div className="absolute inset-0 z-0">
         <PixelBlast
           variant="circle"
-          color="#1f2937"
           pixelSize={6}
           patternScale={3}
           patternDensity={1.2}
+          edgeFade={0.05}
           enableRipples={!shouldReduceMotion}
           liquid={!shouldReduceMotion}
           transparent
