@@ -41,7 +41,7 @@ export const DiaryItem = (props: DiaryItemProps) => {
             <CardTitle className="text-lg">{diary.title}</CardTitle>
           </CardHeader>
           <CardContent className="mb-4 p-0">
-            <p className="text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
+            <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground/80">
               {diary.content}
             </p>
             {diary.images && diary.images.length > 0 && (

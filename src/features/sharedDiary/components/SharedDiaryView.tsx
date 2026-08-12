@@ -78,7 +78,7 @@ export const SharedDiaryView = () => {
             <CardTitle>{diary.title}</CardTitle>
           </CardHeader>
           <CardContent className="px-2">
-            <p className="whitespace-pre-wrap text-muted-foreground">
+            <p className="whitespace-pre-wrap text-foreground/80">
               {diary.content}
             </p>
           </CardContent>
