@@ -99,7 +99,6 @@ export const DiaryPreviewCard = ({
 
   return (
     <>
-      {/* <Card className="pb-3 pt-0 overflow-hidden"> */}
       <Card
         id={`diary-${diary.id}`}
         tabIndex={-1}
