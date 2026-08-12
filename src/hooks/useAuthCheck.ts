@@ -1,6 +1,7 @@
 import { normalizePrimaryColorKey } from "@/constants/primaryColors";
 import { normalizeThemeKey } from "@/constants/themes";
 import { defaultLocalUser, useLocalUser } from "@/contexts/LocalUserContext";
+import { UserProfileClient } from "@/lib/service/userProfileClient";
 import { UserSettingsClient } from "@/lib/service/userSettingsClient";
 import { getAuth, onAuthStateChanged, type User } from "firebase/auth";
 import { useEffect, useState } from "react";
@@ -20,13 +21,16 @@ export const useAuthCheck = () => {
           return;
         }
 
-        const settings = await UserSettingsClient.getByUid<{
-          theme?: string;
-          primaryColor?: string;
-        }>(firebaseUser.uid);
+        const [settings, profile] = await Promise.all([
+          UserSettingsClient.getByUid<{
+            theme?: string;
+            primaryColor?: string;
+          }>(firebaseUser.uid),
+          UserProfileClient.getByUid(firebaseUser.uid),
+        ]);
         setLocalUser({
           uid: firebaseUser.uid,
-          displayName: firebaseUser.displayName ?? null,
+          displayName: profile?.displayName ?? firebaseUser.displayName ?? null,
           photoURL: firebaseUser.photoURL ?? null,
           theme: normalizeThemeKey(settings?.theme),
           primaryColor: normalizePrimaryColorKey(settings?.primaryColor),

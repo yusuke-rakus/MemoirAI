@@ -1,5 +1,6 @@
 import { DEFAULT_PRIMARY_COLOR_KEY } from "@/constants/primaryColors";
 import { DEFAULT_THEME_KEY } from "@/constants/themes";
+import { UserProfileClient } from "@/lib/service/userProfileClient";
 import { UserSettingsClient } from "@/lib/service/userSettingsClient";
 
 const initializeAppearanceSettings = async (uid: string) => {
@@ -25,7 +26,10 @@ const initializeAppearanceSettings = async (uid: string) => {
 
 const newUserSettingsMigrations = [initializeAppearanceSettings] as const;
 
-export const runNewUserSettingsMigrations = async (uid: string) => {
+export const runNewUserSettingsMigrations = async (
+  uid: string,
+  displayName?: string | null,
+) => {
   if (!uid) {
     throw new Error("uid is required to run user settings migrations.");
   }
@@ -33,4 +37,6 @@ export const runNewUserSettingsMigrations = async (uid: string) => {
   for (const migrate of newUserSettingsMigrations) {
     await migrate(uid);
   }
+
+  await UserProfileClient.initialize(uid, displayName);
 };

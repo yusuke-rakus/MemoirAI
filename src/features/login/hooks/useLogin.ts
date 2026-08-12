@@ -17,7 +17,7 @@ export const useLogin = () => {
 
       const isNewUser = getAdditionalUserInfo(result)?.isNewUser ?? false;
       if (isNewUser) {
-        await runNewUserSettingsMigrations(user.uid);
+        await runNewUserSettingsMigrations(user.uid, user.displayName);
       }
 
       navigate("/");

@@ -53,7 +53,11 @@ export const SharedDiaryView = () => {
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-4 pt-8 pb-10">
       <div className="flex flex-col gap-1">
-        <p className="text-sm text-muted-foreground">共有された日記</p>
+        <p className="text-sm text-muted-foreground">
+          {diary.displayName
+            ? `${diary.displayName}さんの日記`
+            : "共有された日記"}
+        </p>
         <h2 className="text-3xl font-bold">
           {format(diary.date.toDate(), "M月d日")}
         </h2>

@@ -1,4 +1,5 @@
 import { db } from "@/firebase/firebase";
+import { normalizeDisplayName } from "@/constants/userProfile";
 import type { Diary } from "@/types/diary/diary";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
@@ -7,7 +8,10 @@ type ShareResult = {
 };
 
 export class SharedDiaryClient {
-  static async publish(diary: Diary): Promise<ShareResult> {
+  static async publish(
+    diary: Diary,
+    displayName?: string | null,
+  ): Promise<ShareResult> {
     if (!diary.uid) {
       throw new Error("Diary must contain a 'uid' field to share.");
     }
@@ -19,6 +23,7 @@ export class SharedDiaryClient {
     const sharedDiaryRef = doc(db, "sharedDiaries", shareId);
     await setDoc(sharedDiaryRef, {
       ...diary,
+      displayName: normalizeDisplayName(displayName),
       sharedAt: new Date(),
     });
 
