@@ -8,6 +8,106 @@
         "theme": "system",
         "primaryColor": "default"
       },
+      "memory": {
+        "profileFacts": [
+          {
+            "id": "seed-memory-profile-display-name",
+            "key": "displayName",
+            "value": "ゆうき",
+            "confidence": 1
+          },
+          {
+            "id": "seed-memory-profile-age-range",
+            "key": "ageRange",
+            "value": "30代",
+            "confidence": 0.9
+          },
+          {
+            "id": "seed-memory-profile-gender",
+            "key": "gender",
+            "value": "男性",
+            "confidence": 0.8
+          },
+          {
+            "id": "seed-memory-profile-occupation",
+            "key": "occupation",
+            "value": "ソフトウェアエンジニア",
+            "confidence": 0.95
+          },
+          {
+            "id": "seed-memory-profile-location",
+            "key": "location",
+            "value": "東京都",
+            "confidence": 0.9
+          },
+          {
+            "id": "seed-memory-profile-family-status",
+            "key": "familyStatus",
+            "value": "妻と娘の3人暮らし",
+            "confidence": 0.85
+          }
+        ],
+        "preferences": [
+          {
+            "id": "seed-memory-preference-coffee",
+            "value": "朝は深煎りのコーヒーを飲むのが好き",
+            "confidence": 0.95
+          },
+          {
+            "id": "seed-memory-preference-spicy-food",
+            "value": "辛い料理が好き",
+            "confidence": 0.8
+          }
+        ],
+        "people": [
+          {
+            "id": "seed-memory-person-misaki",
+            "name": "美咲",
+            "aliases": ["みーちゃん"],
+            "relationshipToUser": {
+              "value": "娘",
+              "confidence": 1
+            },
+            "attributes": [
+              {
+                "value": "小学生",
+                "confidence": 0.9
+              },
+              {
+                "value": "絵を描くことが好き",
+                "confidence": 0.85
+              }
+            ],
+            "relationshipNotes": [
+              {
+                "value": "休日によく一緒に公園へ行く",
+                "confidence": 0.9
+              }
+            ]
+          },
+          {
+            "id": "seed-memory-person-sato",
+            "name": "佐藤さん",
+            "aliases": ["佐藤"],
+            "relationshipToUser": {
+              "value": "職場の同僚",
+              "confidence": 0.95
+            },
+            "attributes": [
+              {
+                "value": "フロントエンド開発に詳しい",
+                "confidence": 0.8
+              }
+            ],
+            "relationshipNotes": [
+              {
+                "value": "新機能の設計を一緒に進めている",
+                "confidence": 0.85
+              }
+            ]
+          }
+        ]
+      },
       "diaries": [
         {
           "id": "seed-diary-current-01",
