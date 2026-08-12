@@ -196,7 +196,7 @@ export const DiaryPreviewCard = ({
             </DropdownMenu>
           </CardHeader>
           <CardContent className="px-2">
-            <p className="max-w-[70ch] whitespace-pre-wrap text-muted-foreground">
+            <p className="max-w-[70ch] whitespace-pre-wrap text-foreground/80">
               {diary.content}
             </p>
           </CardContent>

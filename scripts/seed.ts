@@ -56,6 +56,42 @@ const diarySchema = z.object({
     .min(1, "タグを1件以上設定してください。"),
 });
 
+const memoryFactSchema = z.object({
+  value: z.string().min(1),
+  confidence: z.number().min(0).max(1),
+});
+
+const profileFactSchema = memoryFactSchema.extend({
+  id: z.string().min(1),
+  key: z.enum([
+    "displayName",
+    "ageRange",
+    "gender",
+    "occupation",
+    "location",
+    "familyStatus",
+  ]),
+});
+
+const preferenceSchema = memoryFactSchema.extend({
+  id: z.string().min(1),
+});
+
+const personSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  aliases: z.array(z.string().min(1)),
+  relationshipToUser: memoryFactSchema.optional(),
+  attributes: z.array(memoryFactSchema),
+  relationshipNotes: z.array(memoryFactSchema),
+});
+
+const memorySchema = z.object({
+  profileFacts: z.array(profileFactSchema).max(6),
+  preferences: z.array(preferenceSchema).max(100),
+  people: z.array(personSchema).max(100),
+});
+
 const userSeedSchema = z.object({
   uid: z.string().min(1).max(128),
   email: z.string().email(),
@@ -71,6 +107,7 @@ const userSeedSchema = z.object({
       "purple",
     ]),
   }),
+  memory: memorySchema,
   diaries: z.array(diarySchema).max(499),
 });
 
@@ -112,6 +149,53 @@ const seedDataSchema = z
         }
         diaryIds.add(diary.id);
       });
+
+      const profileKeys = new Set<string>();
+      user.memory.profileFacts.forEach((fact, factIndex) => {
+        if (profileKeys.has(fact.key)) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `プロフィールメモリのキーが重複しています: ${fact.key}`,
+            path: [
+              "users",
+              userIndex,
+              "memory",
+              "profileFacts",
+              factIndex,
+              "key",
+            ],
+          });
+        }
+        profileKeys.add(fact.key);
+      });
+
+      const validateMemoryIds = (
+        items: Array<{ id: string }>,
+        collectionName: "people" | "preferences" | "profileFacts",
+      ) => {
+        const ids = new Set<string>();
+        items.forEach((item, itemIndex) => {
+          if (ids.has(item.id)) {
+            context.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `メモリIDが重複しています: ${item.id}`,
+              path: [
+                "users",
+                userIndex,
+                "memory",
+                collectionName,
+                itemIndex,
+                "id",
+              ],
+            });
+          }
+          ids.add(item.id);
+        });
+      };
+
+      validateMemoryIds(user.memory.profileFacts, "profileFacts");
+      validateMemoryIds(user.memory.preferences, "preferences");
+      validateMemoryIds(user.memory.people, "people");
     });
   });
 
@@ -306,17 +390,49 @@ const main = async () => {
         });
 
         await batch.commit();
+
+        const memoryBatch = db.batch();
+        user.memory.profileFacts.forEach((fact) => {
+          memoryBatch.set(
+            db.doc(`users/${user.uid}/settings/memory/profileFacts/${fact.id}`),
+            fact,
+          );
+        });
+        user.memory.preferences.forEach((preference) => {
+          memoryBatch.set(
+            db.doc(
+              `users/${user.uid}/settings/memory/preferences/${preference.id}`,
+            ),
+            preference,
+          );
+        });
+        user.memory.people.forEach((person) => {
+          memoryBatch.set(
+            db.doc(`users/${user.uid}/settings/memory/people/${person.id}`),
+            person,
+          );
+        });
+        await memoryBatch.commit();
       }),
     );
 
     const verificationResults = await Promise.all(
       users.map(async (user) => {
-        const [createdUser, settingsSnapshot, diariesSnapshot] =
-          await Promise.all([
-            auth.getUser(user.uid),
-            db.doc(`users/${user.uid}/settings/appearance`).get(),
-            db.collection(`users/${user.uid}/diaries`).get(),
-          ]);
+        const [
+          createdUser,
+          settingsSnapshot,
+          diariesSnapshot,
+          profileFactsSnapshot,
+          preferencesSnapshot,
+          peopleSnapshot,
+        ] = await Promise.all([
+          auth.getUser(user.uid),
+          db.doc(`users/${user.uid}/settings/appearance`).get(),
+          db.collection(`users/${user.uid}/diaries`).get(),
+          db.collection(`users/${user.uid}/settings/memory/profileFacts`).get(),
+          db.collection(`users/${user.uid}/settings/memory/preferences`).get(),
+          db.collection(`users/${user.uid}/settings/memory/people`).get(),
+        ]);
         const googleProvider = createdUser.providerData.find(
           (provider) => provider.providerId === "google.com",
         );
@@ -326,21 +442,32 @@ const main = async () => {
           createdUser.passwordHash ||
           googleProvider?.uid !== getGoogleProviderUid(user.uid) ||
           !settingsSnapshot.exists ||
-          diariesSnapshot.size !== user.diaries.length
+          diariesSnapshot.size !== user.diaries.length ||
+          profileFactsSnapshot.size !== user.memory.profileFacts.length ||
+          preferencesSnapshot.size !== user.memory.preferences.length ||
+          peopleSnapshot.size !== user.memory.people.length
         ) {
           throw new Error(`投入後のデータ検証に失敗しました: ${user.uid}`);
         }
 
-        return { user, diaryCount: diariesSnapshot.size };
+        return {
+          user,
+          diaryCount: diariesSnapshot.size,
+          memoryCount:
+            profileFactsSnapshot.size +
+            preferencesSnapshot.size +
+            peopleSnapshot.size,
+        };
       }),
     );
 
     console.info("Firebase Emulator へのテストデータ投入が完了しました。");
-    verificationResults.forEach(({ user, diaryCount }) => {
+    verificationResults.forEach(({ user, diaryCount, memoryCount }) => {
       console.info(`表示名: ${user.displayName}`);
       console.info(`UID: ${user.uid}`);
       console.info(`メールアドレス: ${user.email}`);
       console.info(`日記件数: ${diaryCount}`);
+      console.info(`メモリ件数: ${memoryCount}`);
     });
   } finally {
     await deleteApp(app);
