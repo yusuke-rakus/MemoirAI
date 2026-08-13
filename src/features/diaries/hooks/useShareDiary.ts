@@ -18,8 +18,8 @@ const buildShareUrl = (shareId: string) =>
   `${window.location.origin}${PATHS.sharedDiary.path}/${shareId}`;
 
 const buildLineShareUrl = (shareUrl: string) =>
-  `https://liff.line.me//share?${new URLSearchParams({
-    text: shareUrl,
+  `https://social-plugins.line.me/lineit/share?${new URLSearchParams({
+    url: shareUrl,
   }).toString()}`;
 
 const buildXShareUrl = (shareUrl: string, title: string) =>

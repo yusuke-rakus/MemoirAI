@@ -12,6 +12,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuPortal,
   DropdownMenuSeparator,
   DropdownMenuSub,
@@ -147,6 +148,9 @@ export const DiaryPreviewCard = ({
                   </DropdownMenuSubTrigger>
                   <DropdownMenuPortal>
                     <DropdownMenuSubContent>
+                      <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                        リンクで共有
+                      </DropdownMenuLabel>
                       <DropdownMenuItem
                         className="justify-start"
                         disabled={isSharing}
@@ -157,6 +161,10 @@ export const DiaryPreviewCard = ({
                         <Link />
                         リンクをコピー
                       </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                        SNSで共有
+                      </DropdownMenuLabel>
                       <DropdownMenuItem
                         className="justify-start"
                         disabled={isSharing}
