@@ -102,7 +102,7 @@ describe("useShareDiary", () => {
     );
   });
 
-  it("LINEの共有画面を安全なpopupで開く", async () => {
+  it("LINEアプリの送信先選択画面を安全なpopupで開く", async () => {
     const { popup, replace } = createPopup();
     publishMock.mockResolvedValue({ shareId: "share-line" });
     vi.spyOn(window, "open").mockReturnValue(popup);
@@ -118,9 +118,9 @@ describe("useShareDiary", () => {
 
     const lineUrl = new URL(String(replace.mock.calls[0]?.[0]));
     expect(`${lineUrl.origin}${lineUrl.pathname}`).toBe(
-      "https://social-plugins.line.me/lineit/share",
+      "https://line.me/R/share",
     );
-    expect(lineUrl.searchParams.get("url")).toBe(
+    expect(lineUrl.searchParams.get("text")).toBe(
       "https://memoir.test/shared/share-line",
     );
   });
