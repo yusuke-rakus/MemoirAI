@@ -7,8 +7,16 @@ import { AppSidebar } from "./AppSidebar";
 
 vi.mock("@/components/ui/sidebar", () => ({
   Sidebar: ({ children }: { children: ReactNode }) => <aside>{children}</aside>,
-  SidebarContent: ({ children }: { children: ReactNode }) => (
-    <div>{children}</div>
+  SidebarContent: ({
+    children,
+    className,
+  }: {
+    children: ReactNode;
+    className?: string;
+  }) => (
+    <div data-testid="sidebar-content" className={className}>
+      {children}
+    </div>
   ),
   SidebarHeader: ({ children }: { children: ReactNode }) => (
     <header>{children}</header>
@@ -79,6 +87,14 @@ beforeEach(() => {
 });
 
 describe("AppSidebar", () => {
+  it("日記一覧以外のコンテンツ領域はスクロールしない", () => {
+    render(<AppSidebar />);
+
+    expect(screen.getByTestId("sidebar-content")).toHaveClass(
+      "overflow-hidden",
+    );
+  });
+
   it("アカウントメニューをサイドバーフッターに表示する", () => {
     render(<AppSidebar />);
 

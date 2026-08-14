@@ -26,9 +26,9 @@ export const SidebarDiaries = () => {
   };
 
   return (
-    <>
+    <div className="flex min-h-0 flex-1 flex-col">
       <SidebarGroupLabel>日記の一覧</SidebarGroupLabel>
-      <SidebarMenuSub>
+      <SidebarMenuSub className="min-h-0 flex-1 overflow-y-auto">
         {isLoading ? (
           <>
             {Array.from({ length: 5 }).map((_, index) => (
@@ -80,6 +80,6 @@ export const SidebarDiaries = () => {
           </div>
         )}
       </SidebarMenuSub>
-    </>
+    </div>
   );
 };
