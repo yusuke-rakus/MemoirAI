@@ -1,5 +1,5 @@
 import { useSidebar } from "@/components/ui/sidebar";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -13,7 +13,43 @@ vi.mock("@/components/ui/sidebar", () => ({
   SidebarHeader: ({ children }: { children: ReactNode }) => (
     <header>{children}</header>
   ),
+  SidebarFooter: ({ children }: { children: ReactNode }) => (
+    <footer data-testid="sidebar-footer">{children}</footer>
+  ),
   useSidebar: vi.fn(),
+}));
+
+vi.mock("@/components/shared/header/SettingsDialog", () => ({
+  SettingsDialog: () => null,
+}));
+
+vi.mock("@/contexts/LocalUserContext", () => ({
+  defaultLocalUser: {
+    uid: "",
+    displayName: null,
+    photoURL: null,
+  },
+  useLocalUser: () => ({
+    localUser: {
+      uid: "user-1",
+      displayName: "テスト ユーザー",
+      photoURL: null,
+    },
+    setLocalUser: vi.fn(),
+  }),
+}));
+
+vi.mock("@/hooks/usePrimaryColor", () => ({
+  clearPrimaryColorOverrides: vi.fn(),
+}));
+
+vi.mock("firebase/auth", () => ({
+  getAuth: vi.fn(() => ({})),
+  signOut: vi.fn(),
+}));
+
+vi.mock("react-router-dom", () => ({
+  useNavigate: () => vi.fn(),
 }));
 
 vi.mock("@/features/sidebar", () => ({
@@ -43,6 +79,16 @@ beforeEach(() => {
 });
 
 describe("AppSidebar", () => {
+  it("アカウントメニューをサイドバーフッターに表示する", () => {
+    render(<AppSidebar />);
+
+    expect(
+      within(screen.getByTestId("sidebar-footer")).getByRole("button", {
+        name: "アカウントメニューを開く",
+      }),
+    ).toBeInTheDocument();
+  });
+
   it("閉じるボタンへのフォーカスではツールチップを表示せず、ホバー時に表示する", async () => {
     vi.stubGlobal(
       "ResizeObserver",

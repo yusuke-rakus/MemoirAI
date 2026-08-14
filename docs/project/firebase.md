@@ -16,7 +16,7 @@ Firestore schema、query、Rulesは`firestore.md`を参照してください。
 
 | Service           | Current use                           | Main source               |
 | ----------------- | ------------------------------------- | ------------------------- |
-| Authentication    | Google login、auth state、logout      | auth hooks、`Header`      |
+| Authentication    | Google login、auth state、logout      | auth hooks、`AppSidebar`  |
 | Cloud Firestore   | diary、settings、memory、shared copy  | `src/lib/service/*Client` |
 | Cloud Storage     | diary images                          | `DiaryImageClient`        |
 | Firebase AI Logic | title / tag生成、long-term memory抽出 | `src/firebase/models`     |

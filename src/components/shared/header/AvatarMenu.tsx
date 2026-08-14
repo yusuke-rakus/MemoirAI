@@ -30,29 +30,27 @@ export const AvatarMenu = (props: AvatarMenuProps) => {
       .toUpperCase() || "ME";
 
   return (
-    <div className="absolute top-2 right-4 z-50">
-      <DropdownMenu open={open} onOpenChange={onOpenChange} modal={false}>
-        <DropdownMenuTrigger
-          aria-label="アカウントメニューを開く"
-          className="flex size-11 items-center justify-center rounded-full focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:size-9"
-        >
-          <Avatar>
-            <AvatarImage
-              src={user?.photoURL ?? undefined}
-              alt={user?.displayName ?? "ユーザー"}
-            />
-            <AvatarFallback>{fallbackText}</AvatarFallback>
-          </Avatar>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          {children}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout}>
-            <LogOut />
-            ログアウト
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+    <DropdownMenu open={open} onOpenChange={onOpenChange} modal={false}>
+      <DropdownMenuTrigger
+        aria-label="アカウントメニューを開く"
+        className="flex size-11 items-center justify-center rounded-full focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:size-9"
+      >
+        <Avatar>
+          <AvatarImage
+            src={user?.photoURL ?? undefined}
+            alt={user?.displayName ?? "ユーザー"}
+          />
+          <AvatarFallback>{fallbackText}</AvatarFallback>
+        </Avatar>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" side="top">
+        {children}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleLogout}>
+          <LogOut />
+          ログアウト
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };

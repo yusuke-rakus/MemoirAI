@@ -15,7 +15,7 @@
 - `DiarySearchDialog` → `DiaryClient`
 - `SettingsDialog` → `UserMemoryClient`
 - `ProfileSettingsForm` → `UserProfileClient`
-- `Header` → Auth SDK `getAuth` / `signOut`
+- `AppSidebar` → Auth SDK `getAuth` / `signOut`
 
 ## Other SDK coupling
 
