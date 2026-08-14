@@ -1,9 +1,18 @@
 import { SidebarPenButton } from "@/components/shared/sidebar/SidebarPenButton";
 import { useSidebar } from "@/components/ui/sidebar";
 import { PATHS } from "@/constants/path";
+import * as React from "react";
 import { useNavigate } from "react-router-dom";
 
-export const SidebarCreateDiaryButton = () => {
+type SidebarCreateDiaryButtonProps = Omit<
+  React.ComponentPropsWithoutRef<typeof SidebarPenButton>,
+  "onToggle"
+>;
+
+export const SidebarCreateDiaryButton = React.forwardRef<
+  HTMLButtonElement,
+  SidebarCreateDiaryButtonProps
+>((props, ref) => {
   const navigate = useNavigate();
   const { isMobile, setOpenMobile } = useSidebar();
 
@@ -14,5 +23,7 @@ export const SidebarCreateDiaryButton = () => {
     }
   };
 
-  return <SidebarPenButton onToggle={handleCreateDiary} />;
-};
+  return <SidebarPenButton ref={ref} {...props} onToggle={handleCreateDiary} />;
+});
+
+SidebarCreateDiaryButton.displayName = "SidebarCreateDiaryButton";

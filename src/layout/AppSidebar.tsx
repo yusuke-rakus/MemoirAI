@@ -23,7 +23,7 @@ export const AppSidebar = memo(function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="flex flex-row items-center justify-between">
         <div>
-          <AppTooltip description={"サイドバーを閉じる"}>
+          <AppTooltip description={"サイドバーを閉じる"} openOnFocus={false}>
             <SidebarToggleButton
               isOpen={isSidebarOpen}
               onToggle={toggleSidebar}
