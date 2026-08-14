@@ -8,6 +8,7 @@
 - 日記本文は`whitespace-pre-wrap text-foreground/80`をpreviewと共有表示で使います。
 - route contentの外枠は`MainLayout`の中央寄せ・最大幅・横paddingです。
 - responsiveは既存の`sm` / `md` breakpointと`useIsMobile`を参照します。
+- 認証済み画面は`md`未満で48px高のモバイルヘッダーを表示し、`md`以上はサイドバーへ操作を集約する。サイドバー閉鎖時は左上の小型操作群とコンテンツ用の左余白を表示する。
 - diary preview / 共有表示はCard、`DiaryImageGrid`、本文、tagを再利用しますが、app共通card layoutではありません。
 - spacing tokenと正式なtypography scaleは確立していません。
 - Login背景は一般UIとは別のbranding表現です。

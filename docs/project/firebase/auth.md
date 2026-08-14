@@ -4,7 +4,7 @@ snapshot metadataは`../firebase.md`、route境界は`../frontend/routing.md`を
 
 ## Login and restoration
 
-- main sourceは`useLogin.ts`、`useAuthCheck.ts`、`Header.tsx`です。
+- main sourceは`useLogin.ts`、`useAuthCheck.ts`、`AppSidebar.tsx`です。
 - providerは`GoogleAuthProvider`一つで、追加scopeやpersistence設定はありません。
 - Email / Passwordとanonymous authは使用しません。
 - loginは`signInWithPopup`、auth state監視は`onAuthStateChanged`です。
