@@ -401,8 +401,8 @@ export const NewDiaryView = () => {
           <DialogFooter className="flex-row gap-2 sm:gap-0">
             <Button
               type="button"
-              variant="destructive"
-              className="flex-1 sm:flex-none"
+              variant="outline"
+              className="border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive"
               onClick={() => void discardAndLeave()}
             >
               破棄
