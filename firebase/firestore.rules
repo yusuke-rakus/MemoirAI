@@ -12,11 +12,13 @@ service cloud.firestore {
       match /favorites/{favoriteId} {
         allow read, delete: if request.auth != null
                             && request.auth.uid == userId;
-        allow create, update: if request.auth != null
-                              && request.auth.uid == userId
-                              && request.resource.data.keys().hasOnly(['sharedDiaryId'])
-                              && request.resource.data.sharedDiaryId is string
-                              && request.resource.data.sharedDiaryId == favoriteId;
+        allow create: if request.auth != null
+                      && request.auth.uid == userId
+                      && request.resource.data.keys().hasOnly(['sharedDiaryId', 'createdAt'])
+                      && request.resource.data.sharedDiaryId is string
+                      && request.resource.data.sharedDiaryId == favoriteId
+                      && request.resource.data.createdAt is timestamp
+                      && request.resource.data.createdAt == request.time;
       }
 
       match /settings/appearance {

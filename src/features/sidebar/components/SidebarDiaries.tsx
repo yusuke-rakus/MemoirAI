@@ -13,6 +13,7 @@ import { ChevronDown, Loader2, MessageSquareDashed } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useFetchDiary } from "../hooks/useFetchDiary";
 import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
+import { SidebarFavorites } from "./SidebarFavorites";
 
 export const SidebarDiaries = () => {
   const { loadMore, hasMore, isLoadingMore } = useFetchDiary();
@@ -26,9 +27,10 @@ export const SidebarDiaries = () => {
   };
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="min-h-0 flex-1 overflow-y-auto">
+      <SidebarFavorites />
       <SidebarGroupLabel>日記の一覧</SidebarGroupLabel>
-      <SidebarMenuSub className="min-h-0 flex-1 overflow-y-auto">
+      <SidebarMenuSub>
         {isLoading ? (
           <>
             {Array.from({ length: 5 }).map((_, index) => (

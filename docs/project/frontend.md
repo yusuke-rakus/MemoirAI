@@ -22,15 +22,15 @@ React.StrictMode
 
 ## Active features
 
-| Feature       | Current role                                |
-| ------------- | ------------------------------------------- |
-| `home`        | 月選択、Calendar、月単位diary list          |
-| `createDiary` | diary作成、draft、AI、image upload          |
-| `diaries`     | preview、edit、delete、share、image preview |
-| `searchDiary` | app-wide search Dialogとbrowser内検索       |
-| `sharedDiary` | 公開共有diary、認証済みfavorite・標準shell  |
-| `login`       | Google popup login                          |
-| `sidebar`     | navigationとpaged diary list                |
+| Feature       | Current role                                      |
+| ------------- | ------------------------------------------------- |
+| `home`        | 月選択、Calendar、月単位diary list                |
+| `createDiary` | diary作成、draft、AI、image upload                |
+| `diaries`     | preview、edit、delete、share、image preview       |
+| `searchDiary` | app-wide search Dialogとbrowser内検索             |
+| `sharedDiary` | 公開共有diary、認証済みfavorite・標準shell        |
+| `login`       | Google popup login                                |
+| `sidebar`     | navigation、paged diary list、paged favorite list |
 
 ## Detailed snapshots
 

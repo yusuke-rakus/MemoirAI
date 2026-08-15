@@ -1,4 +1,5 @@
 import { FavoriteClient } from "@/lib/service/favoriteClient";
+import { requestFavoriteRefresh } from "@/stores/favoriteRefreshStore";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -82,6 +83,7 @@ export const useSharedDiaryFavorite = ({
         setIsFavorite(true);
         toast.success("お気に入りに追加しました");
       }
+      requestFavoriteRefresh();
     } catch (error) {
       console.error("Failed to update favorite", error);
       toast.error("お気に入りの更新に失敗しました");

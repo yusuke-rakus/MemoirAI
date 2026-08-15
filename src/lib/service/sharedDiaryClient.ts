@@ -1,10 +1,24 @@
 import { db } from "@/firebase/firebase";
 import { normalizeDisplayName } from "@/constants/userProfile";
 import type { Diary } from "@/types/diary/diary";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  documentId,
+  getDoc,
+  getDocs,
+  query,
+  setDoc,
+  where,
+} from "firebase/firestore";
 
 type ShareResult = {
   shareId: string;
+};
+
+export type SharedDiaryResult<T> = {
+  sharedDiaryId: string;
+  diary: T;
 };
 
 export class SharedDiaryClient {
@@ -41,5 +55,32 @@ export class SharedDiaryClient {
     }
 
     return snapshot.data() as T;
+  }
+
+  static async getByShareIds<T extends Record<string, unknown>>(
+    shareIds: string[],
+  ): Promise<SharedDiaryResult<T>[]> {
+    const uniqueShareIds = [...new Set(shareIds)];
+
+    if (uniqueShareIds.length === 0) {
+      return [];
+    }
+    if (uniqueShareIds.some((shareId) => !shareId)) {
+      throw new Error("shareIds must not contain an empty ID.");
+    }
+    if (uniqueShareIds.length > 10) {
+      throw new Error("A maximum of 10 shared diary IDs can be fetched.");
+    }
+
+    const sharedDiariesQuery = query(
+      collection(db, "sharedDiaries"),
+      where(documentId(), "in", uniqueShareIds),
+    );
+    const snapshot = await getDocs(sharedDiariesQuery);
+
+    return snapshot.docs.map((sharedDiaryDocument) => ({
+      sharedDiaryId: sharedDiaryDocument.id,
+      diary: sharedDiaryDocument.data() as T,
+    }));
   }
 }

@@ -21,6 +21,7 @@ versionは変動情報です。`package.json`、lockfile、各設定を現在状
 | Library                   | Current use                          |
 | ------------------------- | ------------------------------------ |
 | FullCalendar              | home月Calendar                       |
+| Radix Collapsible         | sidebarのfavorite section開閉        |
 | react-day-picker          | Dialog内の日付選択                   |
 | Embla Carousel            | diary画像carousel                    |
 | date-fns / uuid           | 日付処理 / ID生成                    |

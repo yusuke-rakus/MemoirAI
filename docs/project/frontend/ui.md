@@ -10,6 +10,7 @@
 - responsiveは既存の`sm` / `md` breakpointと`useIsMobile`を参照します。
 - 認証済み画面は`md`未満で48px高のモバイルヘッダーを表示し、`md`以上はサイドバーへ操作を集約する。サイドバー閉鎖時は左上の小型操作群とコンテンツ用の左余白を表示する。
 - diary preview / 共有表示はCard、`DiaryImageGrid`、本文、tagを再利用しますが、app共通card layoutではありません。
+- sidebarのお気に入り欄はshadcn / Radix `Collapsible`で初期閉鎖し、展開時に登録日の新しい順で10件ずつ表示します。favoriteと自分の日記は同じ一覧scroll領域を使います。
 - spacing tokenと正式なtypography scaleは確立していません。
 - Login背景は一般UIとは別のbranding表現です。
 
