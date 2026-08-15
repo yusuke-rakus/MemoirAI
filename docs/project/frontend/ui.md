@@ -4,7 +4,7 @@
 
 ## Theme and layout
 
-- 通常色は`bg-background`、`text-foreground`、`text-muted-foreground`、`border-border`、`bg-primary`、`text-destructive`などを使います。
+- 通常色は`bg-background`、`text-foreground`、`text-muted-foreground`、`border-border`、`bg-primary`、`text-destructive`などを使います。お気に入りのactive iconは`text-favorite` / `fill-favorite`を使います。
 - 日記本文は`whitespace-pre-wrap text-foreground/80`をpreviewと共有表示で使います。
 - route contentの外枠は`MainLayout`の中央寄せ・最大幅・横paddingです。
 - responsiveは既存の`sm` / `md` breakpointと`useIsMobile`を参照します。

@@ -8,6 +8,7 @@ snapshot metadataは`../firestore.md`、Rulesの正本は`firebase/firestore.rul
 | ------------------------------------------------ | -------------------- | --------------------------------------------- |
 | `users/{userId}`                                 | owner                | owner                                         |
 | `users/{userId}/diaries/{diaryId}`               | owner                | owner                                         |
+| `users/{userId}/favorites/{favoriteId}`          | owner                | owner、ID一致とfield shapeを検証              |
 | `users/{userId}/settings/appearance`             | owner                | owner                                         |
 | `users/{userId}/settings/profile`                | owner                | owner                                         |
 | `users/{userId}/settings/memory/{memoryPath=**}` | owner                | owner                                         |
@@ -37,6 +38,7 @@ snapshot metadataは`../firestore.md`、Rulesの正本は`firebase/firestore.rul
 作成しないdata:
 
 - `settings/profile`、`sharedDiaries`
+- `favorites`
 - Storage image metadata / object
 
 seed前に対象userの`users/{uid}`以下をrecursive deleteしますが、top-level `sharedDiaries`は削除しません。shapeはzodで検証し、write後にAuthとcollection件数を確認します。Rules unit testではありません。
