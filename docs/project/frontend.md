@@ -16,21 +16,21 @@ React.StrictMode
 
 - `src/main.tsx`がroot routerと最上位Providerを構成します。
 - `src/App.tsx`が実際のRoutesとfeature entryを宣言します。
-- 認証必須routeは`AuthenticatedLayout → MainLayout → Outlet`です。
-- loginとshared diaryは`MainLayout`を使いますが、custom Headerとsidebarなしです。
+- `AppShellLayout`が認証状態を確認し、認証済みのshared diaryと認証必須routeで同じ`MainLayout`を維持します。`AuthenticatedLayout`は未認証redirectだけを担当します。
+- loginはcustom Headerとsidebarなしの`MainLayout`です。shared diaryは未認証時に同じpublic shell、認証済みでは`AppShellLayout`の標準HeaderとSidebarを使います。
 - `MainLayout`は`mx-auto max-w-4xl px-2`の共通containerを提供します。
 
 ## Active features
 
-| Feature       | Current role                                |
-| ------------- | ------------------------------------------- |
-| `home`        | 月選択、Calendar、月単位diary list          |
-| `createDiary` | diary作成、draft、AI、image upload          |
-| `diaries`     | preview、edit、delete、share、image preview |
-| `searchDiary` | app-wide search Dialogとbrowser内検索       |
-| `sharedDiary` | 未認証で閲覧する共有diary                   |
-| `login`       | Google popup login                          |
-| `sidebar`     | navigationとpaged diary list                |
+| Feature       | Current role                                      |
+| ------------- | ------------------------------------------------- |
+| `home`        | 月選択、Calendar、月単位diary list                |
+| `createDiary` | diary作成、draft、AI、image upload                |
+| `diaries`     | preview、edit、delete、share、image preview       |
+| `searchDiary` | app-wide search Dialogとbrowser内検索             |
+| `sharedDiary` | 公開共有diary、認証済みfavorite・標準shell        |
+| `login`       | Google popup login                                |
+| `sidebar`     | navigation、paged diary list、paged favorite list |
 
 ## Detailed snapshots
 

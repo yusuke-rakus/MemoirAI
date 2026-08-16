@@ -9,6 +9,7 @@ code、types、Security Rules、seedから確認できる現在状態です。Fi
 ```text
 users/{uid}
 ├─ diaries/{diaryId}
+├─ favorites/{sharedDiaryId}
 └─ settings
    ├─ appearance
    ├─ profile
@@ -25,6 +26,7 @@ sharedDiaries/{shareId}
 ## Detailed snapshots
 
 - diary fields、query、writer: `firestore/diaries.md`
+- favorite fields、read / write: `firestore/favorites.md`
 - appearanceとprofile settings: `firestore/settings.md`
 - long-term memory: `firestore/memory.md`
 - shared diaryと同期境界: `firestore/sharing.md`

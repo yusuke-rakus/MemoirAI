@@ -72,7 +72,7 @@ export const AppSidebar = memo(function AppSidebar() {
           </AppTooltip>
         </div>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="overflow-hidden">
         <SidebarNavigation />
         <DiaryItems />
       </SidebarContent>

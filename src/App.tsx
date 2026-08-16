@@ -6,6 +6,7 @@ import { DiariesPage } from "./features/diaries";
 import { HomePage } from "./features/home";
 import { LoginPage } from "./features/login";
 import { SharedDiaryPage } from "./features/sharedDiary";
+import { AppShellLayout } from "./layout/AppShellLayout";
 import { AuthenticatedLayout } from "./layout/AuthenticatedLayout";
 import { useInitialDateStore } from "./stores/initialDateStore";
 
@@ -16,64 +17,66 @@ export const App = () => {
     <>
       <NotificationToaster />
       <Routes>
-        <Route element={<AuthenticatedLayout />}>
+        <Route element={<AppShellLayout />}>
+          <Route element={<AuthenticatedLayout />}>
+            <Route
+              path="/"
+              element={
+                <Navigate
+                  to={`${PATHS.calendar.path}/${yearMonth.year}/${yearMonth.month}`}
+                  replace
+                />
+              }
+            />
+            <Route
+              path={`${PATHS.calendar.path}/:year/:month`}
+              element={<HomePage />}
+            />
+            <Route
+              path={PATHS.calendar.path}
+              element={
+                <Navigate
+                  to={`${PATHS.calendar.path}/${yearMonth.year}/${yearMonth.month}`}
+                  replace
+                />
+              }
+            />
+            <Route
+              path={`${PATHS.diaries.path}/:year/:month`}
+              element={<HomePage />}
+            />
+            <Route
+              path={`${PATHS.diaries.path}/:dateParamString`}
+              element={<DiariesPage />}
+            />
+            <Route
+              path={PATHS.diaries.path}
+              element={
+                <Navigate
+                  to={`${PATHS.diaries.path}/${yearMonth.year}/${yearMonth.month}`}
+                  replace
+                />
+              }
+            />
+            <Route
+              path={PATHS.newDiary.path}
+              element={
+                <Navigate
+                  to={`${PATHS.newDiary.path}/${dateParamString}`}
+                  replace
+                />
+              }
+            />
+            <Route
+              path={`${PATHS.newDiary.path}/:date`}
+              element={<NewDiaryPage />}
+            />
+          </Route>
           <Route
-            path="/"
-            element={
-              <Navigate
-                to={`${PATHS.calendar.path}/${yearMonth.year}/${yearMonth.month}`}
-                replace
-              />
-            }
-          />
-          <Route
-            path={`${PATHS.calendar.path}/:year/:month`}
-            element={<HomePage />}
-          />
-          <Route
-            path={PATHS.calendar.path}
-            element={
-              <Navigate
-                to={`${PATHS.calendar.path}/${yearMonth.year}/${yearMonth.month}`}
-                replace
-              />
-            }
-          />
-          <Route
-            path={`${PATHS.diaries.path}/:year/:month`}
-            element={<HomePage />}
-          />
-          <Route
-            path={`${PATHS.diaries.path}/:dateParamString`}
-            element={<DiariesPage />}
-          />
-          <Route
-            path={PATHS.diaries.path}
-            element={
-              <Navigate
-                to={`${PATHS.diaries.path}/${yearMonth.year}/${yearMonth.month}`}
-                replace
-              />
-            }
-          />
-          <Route
-            path={PATHS.newDiary.path}
-            element={
-              <Navigate
-                to={`${PATHS.newDiary.path}/${dateParamString}`}
-                replace
-              />
-            }
-          />
-          <Route
-            path={`${PATHS.newDiary.path}/:date`}
-            element={<NewDiaryPage />}
+            path={`${PATHS.sharedDiary.path}/:diaryId`}
+            element={<SharedDiaryPage />}
           />
         </Route>
-        <Route
-          path={`${PATHS.sharedDiary.path}/:diaryId`}
-          element={<SharedDiaryPage />}
-        />
         <Route path={PATHS.login.path} element={<LoginPage />} />
       </Routes>
     </>

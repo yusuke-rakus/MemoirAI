@@ -8,7 +8,7 @@
 
 ### Authenticated routes
 
-auth確認中はfull-page loading、未認証は`/login`へredirectします。
+`AppShellLayout`がauth確認中のfull-page loadingと、認証済みroute間で維持される標準`MainLayout`を担当します。その内側の`AuthenticatedLayout`が未認証ユーザーを`/login`へredirectします。
 
 | Path                        | Result / fallback                       |
 | --------------------------- | --------------------------------------- |
@@ -28,10 +28,10 @@ auth確認中はfull-page loading、未認証は`/login`へredirectします。
 
 ### Public routes
 
-| Path               | Result            | Notes                               |
-| ------------------ | ----------------- | ----------------------------------- |
-| `/login`           | `LoginPage`       | `LoginHeader`、sidebarなし          |
-| `/shared/:diaryId` | `SharedDiaryPage` | 未認証で共有copyを取得、sidebarなし |
+| Path               | Result            | Notes                                                                               |
+| ------------------ | ----------------- | ----------------------------------------------------------------------------------- |
+| `/login`           | `LoginPage`       | `LoginHeader`、sidebarなし                                                          |
+| `/shared/:diaryId` | `SharedDiaryPage` | 公開共有copy。未認証はpage側のpublic shell、認証時は永続する標準shellとfavorite操作 |
 
 ### Navigation sources
 

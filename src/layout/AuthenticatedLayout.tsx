@@ -1,23 +1,13 @@
-import { LoadingScreen } from "@/components/shared/common/LoadingScreen";
 import { PATHS } from "@/constants/path";
-import { useAuthCheck } from "@/hooks/useAuthCheck";
-import { Navigate, Outlet } from "react-router-dom";
-import { MainLayout } from "./MainLayout";
+import { Navigate, Outlet, useOutletContext } from "react-router-dom";
+import type { AppShellOutletContext } from "./AppShellLayout";
 
 export const AuthenticatedLayout = () => {
-  const { loading, user } = useAuthCheck();
-
-  if (loading) {
-    return <LoadingScreen variant="page" />;
-  }
+  const { user } = useOutletContext<AppShellOutletContext>();
 
   if (!user) {
     return <Navigate to={PATHS.login.path} replace />;
   }
 
-  return (
-    <MainLayout>
-      <Outlet />
-    </MainLayout>
-  );
+  return <Outlet />;
 };

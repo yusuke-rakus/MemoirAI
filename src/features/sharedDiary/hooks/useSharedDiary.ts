@@ -34,5 +34,5 @@ export const useSharedDiary = () => {
     void fetchSharedDiary();
   }, [diaryId]);
 
-  return { diary, isLoading };
+  return { diary, sharedDiaryId: diaryId ?? null, isLoading };
 };

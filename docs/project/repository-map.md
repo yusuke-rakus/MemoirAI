@@ -35,7 +35,7 @@
 | `src/constants`              | path、theme、画像制約、共有固定値                       |
 | `src/index.css`              | global CSS、theme variable、Tailwind mapping            |
 
-active featureはhome、createDiary、diaries、searchDiary、sharedDiary、login、sidebarです。`src/features/editDiary`に追跡sourceはなく、編集UIはdiaries配下にあります。
+active featureはhome、createDiary、diaries、searchDiary、sharedDiary、login、sidebarです。sidebarは自分の日記とfavorite共有日記のpaged listを持ちます。`src/features/editDiary`に追跡sourceはなく、編集UIはdiaries配下にあります。
 
 ## Placement procedure
 
