@@ -8,7 +8,7 @@ snapshot metadataは`../firestore.md`、Rulesの正本は`firebase/firestore.rul
 | ------------------------------------------------ | -------------------- | ----------------------------------------------------------- |
 | `users/{userId}`                                 | owner                | owner                                                       |
 | `users/{userId}/diaries/{diaryId}`               | owner                | owner                                                       |
-| `users/{userId}/favorites/{favoriteId}`          | owner                | create/deleteのみ。owner、ID、field、server timestampを検証 |
+| `users/{userId}/favorites/{favoriteId}`          | owner                | owner                                                       |
 | `users/{userId}/settings/appearance`             | owner                | owner                                                       |
 | `users/{userId}/settings/profile`                | owner                | owner                                                       |
 | `users/{userId}/settings/memory/{memoryPath=**}` | owner                | owner                                                       |
@@ -16,7 +16,7 @@ snapshot metadataは`../firestore.md`、Rulesの正本は`firebase/firestore.rul
 
 - public readはsingle getだけでなくlist / queryも許可します。
 - private pathはpath owner UIDを確認します。
-- diary / settingsではrequired / allowed fieldとfield typeを検証しません。favorites createは検証します。
+- diary / favorites / settingsではrequired / allowed fieldとfield typeを検証しません。
 - diary / settings payloadの`uid`とpath ownerの一致は検証しません。
 - shared updateは既存`resource.data.uid`を確認しますが、新しい`request.resource.data.uid`の不変性を検証しません。
 - その他のpathは明示的allowがなくdenyされます。

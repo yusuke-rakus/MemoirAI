@@ -19,4 +19,4 @@ path: `users/{uid}/favorites/{sharedDiaryId}`、client: `src/lib/service/favorit
 - 共有日記ページは認証済みの場合だけID指定`getDoc`で登録状態を読みます。
 - 追加はtransactionで文書がない場合だけserver timestamp付きで作成し、解除は`deleteDoc`です。
 - sidebar一覧は`createdAt desc`で11件読み、10件とcursor、次pageの有無を返します。参照先の共有日記は最大10 IDの`in` queryで取得します。
-- Security Rulesはpath ownerだけにread / create / deleteを許可します。create時はfield、document ID、server timestampを検証し、updateは許可しません。
+- Security Rulesはpath ownerだけにread / writeを許可します。

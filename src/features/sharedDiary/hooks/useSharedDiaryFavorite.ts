@@ -8,6 +8,8 @@ type UseSharedDiaryFavoriteParams = {
   sharedDiaryId?: string | null;
 };
 
+export type FavoriteMutationResult = "added" | "removed" | null;
+
 export const useSharedDiaryFavorite = ({
   uid,
   sharedDiaryId,
@@ -59,7 +61,7 @@ export const useSharedDiaryFavorite = ({
     };
   }, [sharedDiaryId, uid]);
 
-  const toggleFavorite = async () => {
+  const toggleFavorite = async (): Promise<FavoriteMutationResult> => {
     if (
       !uid ||
       !sharedDiaryId ||
@@ -67,7 +69,7 @@ export const useSharedDiaryFavorite = ({
       !isAvailable ||
       mutationInFlightRef.current
     ) {
-      return;
+      return null;
     }
 
     mutationInFlightRef.current = true;
@@ -77,16 +79,18 @@ export const useSharedDiaryFavorite = ({
       if (isFavorite) {
         await FavoriteClient.delete(uid, sharedDiaryId);
         setIsFavorite(false);
-        toast.success("お気に入りから削除しました");
+        requestFavoriteRefresh();
+        return "removed";
       } else {
         await FavoriteClient.add(uid, sharedDiaryId);
         setIsFavorite(true);
-        toast.success("お気に入りに追加しました");
+        requestFavoriteRefresh();
+        return "added";
       }
-      requestFavoriteRefresh();
     } catch (error) {
       console.error("Failed to update favorite", error);
       toast.error("お気に入りの更新に失敗しました");
+      return null;
     } finally {
       mutationInFlightRef.current = false;
       setIsMutating(false);

@@ -16,7 +16,7 @@ vi.mock("../hooks/useSharedDiaryFavorite", () => ({
 
 const useSharedDiaryMock = vi.mocked(useSharedDiary);
 const useSharedDiaryFavoriteMock = vi.mocked(useSharedDiaryFavorite);
-const toggleFavoriteMock = vi.fn().mockResolvedValue(undefined);
+const toggleFavoriteMock = vi.fn().mockResolvedValue(null);
 
 const diary: SharedDiary = {
   id: "source-diary-1",
@@ -57,7 +57,7 @@ describe("SharedDiaryView favorite", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("カード右下にactive色のハートを表示し、ホバーでツールチップを開く", async () => {
+  it("カード右下にactive色のハートを通常サイズで表示し、ホバーでツールチップを開く", async () => {
     vi.stubGlobal(
       "ResizeObserver",
       class ResizeObserver {
@@ -86,7 +86,13 @@ describe("SharedDiaryView favorite", () => {
     expect(button.querySelector("svg")).toHaveClass(
       "fill-favorite",
       "text-favorite",
+      "transition-colors",
+      "duration-200",
+      "motion-reduce:transition-none",
     );
+    expect(button.querySelector("svg")?.parentElement).toHaveStyle({
+      transform: "none",
+    });
 
     await user.hover(button);
 
@@ -108,7 +114,9 @@ describe("SharedDiaryView favorite", () => {
     const icon = button.querySelector("svg");
 
     expect(icon).toHaveClass("text-muted-foreground");
+    expect(icon).toHaveClass("fill-transparent");
     expect(icon).not.toHaveClass("fill-favorite", "text-favorite");
+    expect(icon?.parentElement).toHaveStyle({ transform: "none" });
   });
 
   it("状態確認中と更新中はボタンを無効化する", () => {
@@ -127,7 +135,12 @@ describe("SharedDiaryView favorite", () => {
       screen
         .getByRole("button", { name: "お気に入りに追加" })
         .querySelector("svg"),
-    ).toHaveClass("animate-spin", "text-muted-foreground");
+    ).toHaveClass("text-muted-foreground");
+    expect(
+      screen
+        .getByRole("button", { name: "お気に入りに追加" })
+        .querySelector("svg"),
+    ).not.toHaveClass("animate-spin");
 
     useSharedDiaryFavoriteMock.mockReturnValue({
       ...favoriteState,
@@ -142,6 +155,11 @@ describe("SharedDiaryView favorite", () => {
       screen
         .getByRole("button", { name: "お気に入りに追加" })
         .querySelector("svg"),
-    ).toHaveClass("animate-spin", "text-muted-foreground");
+    ).toHaveClass("text-muted-foreground");
+    expect(
+      screen
+        .getByRole("button", { name: "お気に入りに追加" })
+        .querySelector("svg"),
+    ).not.toHaveClass("animate-spin");
   });
 });
