@@ -3,7 +3,10 @@ import { requestFavoriteRefresh } from "@/stores/favoriteRefreshStore";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { useSharedDiaryFavorite } from "./useSharedDiaryFavorite";
+import {
+  type FavoriteMutationResult,
+  useSharedDiaryFavorite,
+} from "./useSharedDiaryFavorite";
 
 vi.mock("@/lib/service/favoriteClient", () => ({
   FavoriteClient: {
@@ -43,14 +46,15 @@ beforeEach(() => {
 });
 
 describe("useSharedDiaryFavorite", () => {
-  it("未認証時はFirestoreへアクセスしない", () => {
-    renderHook(() =>
+  it("未認証時はFirestoreへアクセスせずnullを返す", async () => {
+    const { result } = renderHook(() =>
       useSharedDiaryFavorite({
         uid: null,
         sharedDiaryId: favoriteParams.sharedDiaryId,
       }),
     );
 
+    await expect(result.current.toggleFavorite()).resolves.toBeNull();
     expect(existsMock).not.toHaveBeenCalled();
     expect(addMock).not.toHaveBeenCalled();
     expect(deleteMock).not.toHaveBeenCalled();
@@ -71,13 +75,15 @@ describe("useSharedDiaryFavorite", () => {
     const { result } = renderHook(() => useSharedDiaryFavorite(favoriteParams));
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
+    let mutationResult: FavoriteMutationResult = null;
     await act(async () => {
-      await result.current.toggleFavorite();
+      mutationResult = await result.current.toggleFavorite();
     });
 
     expect(addMock).toHaveBeenCalledWith("user-1", "shared-diary-1");
+    expect(mutationResult).toBe("added");
     expect(result.current.isFavorite).toBe(true);
-    expect(toastSuccessMock).toHaveBeenCalledWith("お気に入りに追加しました");
+    expect(toastSuccessMock).not.toHaveBeenCalled();
     expect(requestFavoriteRefreshMock).toHaveBeenCalledOnce();
   });
 
@@ -86,13 +92,15 @@ describe("useSharedDiaryFavorite", () => {
     const { result } = renderHook(() => useSharedDiaryFavorite(favoriteParams));
     await waitFor(() => expect(result.current.isFavorite).toBe(true));
 
+    let mutationResult: FavoriteMutationResult = null;
     await act(async () => {
-      await result.current.toggleFavorite();
+      mutationResult = await result.current.toggleFavorite();
     });
 
     expect(deleteMock).toHaveBeenCalledWith("user-1", "shared-diary-1");
+    expect(mutationResult).toBe("removed");
     expect(result.current.isFavorite).toBe(false);
-    expect(toastSuccessMock).toHaveBeenCalledWith("お気に入りから削除しました");
+    expect(toastSuccessMock).not.toHaveBeenCalled();
     expect(requestFavoriteRefreshMock).toHaveBeenCalledOnce();
   });
 
@@ -103,10 +111,12 @@ describe("useSharedDiaryFavorite", () => {
     const { result } = renderHook(() => useSharedDiaryFavorite(favoriteParams));
     await waitFor(() => expect(result.current.isFavorite).toBe(true));
 
+    let mutationResult: FavoriteMutationResult = "removed";
     await act(async () => {
-      await result.current.toggleFavorite();
+      mutationResult = await result.current.toggleFavorite();
     });
 
+    expect(mutationResult).toBeNull();
     expect(result.current.isFavorite).toBe(true);
     expect(toastErrorMock).toHaveBeenCalledWith(
       "お気に入りの更新に失敗しました",
@@ -124,8 +134,8 @@ describe("useSharedDiaryFavorite", () => {
     const { result } = renderHook(() => useSharedDiaryFavorite(favoriteParams));
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    let firstUpdate: Promise<void> | undefined;
-    let secondUpdate: Promise<void> | undefined;
+    let firstUpdate: Promise<FavoriteMutationResult> | undefined;
+    let secondUpdate: Promise<FavoriteMutationResult> | undefined;
     act(() => {
       firstUpdate = result.current.toggleFavorite();
       secondUpdate = result.current.toggleFavorite();
@@ -136,7 +146,12 @@ describe("useSharedDiaryFavorite", () => {
 
     await act(async () => {
       resolveAdd?.();
-      await Promise.all([firstUpdate, secondUpdate]);
+      const [firstResult, secondResult] = await Promise.all([
+        firstUpdate,
+        secondUpdate,
+      ]);
+      expect(firstResult).toBe("added");
+      expect(secondResult).toBeNull();
     });
 
     expect(result.current.isMutating).toBe(false);

@@ -1,5 +1,4 @@
 import { LoadingScreen } from "@/components/shared/common/LoadingScreen";
-import { AppTooltip } from "@/components/shared/common/AppTooltip";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,12 +17,13 @@ import {
 import { PATHS } from "@/constants/path";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { Heart, LoaderCircle, Tag } from "lucide-react";
+import { Tag } from "lucide-react";
 import { Link } from "react-router-dom";
 import { DiaryTag } from "../../createDiary/components/DiaryTag";
 import { DiaryImageGrid } from "../../diaries/components/DiaryImageGrid";
 import { useSharedDiary } from "../hooks/useSharedDiary";
 import { useSharedDiaryFavorite } from "../hooks/useSharedDiaryFavorite";
+import { SharedDiaryFavoriteButton } from "./SharedDiaryFavoriteButton";
 
 type SharedDiaryViewProps = {
   authenticatedUserId?: string | null;
@@ -37,9 +37,6 @@ export const SharedDiaryView = ({
     uid: authenticatedUserId,
     sharedDiaryId: diary ? sharedDiaryId : null,
   });
-  const favoriteActionLabel = favorite.isFavorite
-    ? "お気に入りから削除"
-    : "お気に入りに追加";
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -108,35 +105,7 @@ export const SharedDiaryView = ({
                 </>
               )}
               {authenticatedUserId && (
-                <AppTooltip description={favoriteActionLabel}>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="ml-auto rounded-full"
-                    aria-label={favoriteActionLabel}
-                    aria-pressed={favorite.isFavorite}
-                    aria-busy={favorite.isLoading || favorite.isMutating}
-                    disabled={
-                      favorite.isLoading ||
-                      favorite.isMutating ||
-                      !favorite.isAvailable
-                    }
-                    onClick={() => void favorite.toggleFavorite()}
-                  >
-                    {favorite.isLoading || favorite.isMutating ? (
-                      <LoaderCircle className="animate-spin text-muted-foreground" />
-                    ) : (
-                      <Heart
-                        className={cn(
-                          favorite.isFavorite
-                            ? "fill-favorite text-favorite"
-                            : "text-muted-foreground",
-                        )}
-                      />
-                    )}
-                  </Button>
-                </AppTooltip>
+                <SharedDiaryFavoriteButton {...favorite} />
               )}
             </CardFooter>
           )}
