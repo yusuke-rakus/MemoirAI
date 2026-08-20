@@ -27,7 +27,9 @@ const diary: SharedDiary = {
   title: "夏の思い出",
   content: "海へ行きました。",
   tags: [],
-  createdAt: {} as SharedDiary["createdAt"],
+  createdAt: {
+    toDate: () => new Date(2020, 0, 1),
+  } as SharedDiary["createdAt"],
   sharedAt: {} as SharedDiary["sharedAt"],
 };
 
