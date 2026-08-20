@@ -23,4 +23,5 @@ export type Diary = {
   tags: Tag[];
   images?: DiaryImage[];
   createdAt: Timestamp;
+  updatedAt?: Timestamp;
 };

@@ -13,11 +13,12 @@ path: `users/{uid}/diaries/{diaryId}`、client: `src/lib/service/diaryClient.ts`
 | `content`   | `string`                            | 本文                                      |
 | `tags`      | `{ name: string; color: string }[]` | amber/lime/sky/indigo/violet/pink/default |
 | `images`    | `DiaryImage[]`、optional            | seedでは省略                              |
-| `createdAt` | `Timestamp` on read                 | editで維持、`updatedAt`なし               |
+| `createdAt` | `Timestamp` on read                 | 作成日時、editで維持                      |
+| `updatedAt` | `Timestamp` on read、optional       | 新規作成とeditで更新、legacy dataは未保持 |
 
 `DiaryImage`は`id`、`storagePath`、`downloadURL`、`width`、`height`、`contentType`です。型は`src/types/diary/diary.ts`を正本とします。
 
-現行edit flowは`createdAt`を渡さないため値を維持しますが、clientは渡された場合にmergeできます。
+現行edit flowは`createdAt`を渡さず値を維持し、`updatedAt`だけを更新します。日記カードはlegacy dataで`updatedAt`がない場合に`createdAt`を最終更新日時として表示します。
 
 ## Reads
 
