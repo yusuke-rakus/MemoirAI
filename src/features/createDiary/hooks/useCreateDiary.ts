@@ -205,6 +205,7 @@ export const useCreateDiary = () => {
             diaryId,
             diary.images,
           );
+          const now = new Date();
           const payload = {
             id: diaryId,
             uid: localUser.uid,
@@ -213,7 +214,8 @@ export const useCreateDiary = () => {
             content: diary.content,
             tags: mergedTags,
             images: uploadedImages,
-            createdAt: new Date(),
+            createdAt: now,
+            updatedAt: now,
           };
 
           try {

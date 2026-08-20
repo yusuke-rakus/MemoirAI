@@ -386,6 +386,7 @@ const main = async () => {
             content: diary.content,
             tags: diary.tags.map((tag) => ({ ...tag })),
             createdAt: date,
+            updatedAt: date,
           });
         });
 

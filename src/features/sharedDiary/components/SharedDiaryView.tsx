@@ -15,6 +15,10 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { PATHS } from "@/constants/path";
+import {
+  formatDiaryUpdatedAt,
+  getDiaryUpdatedAt,
+} from "@/lib/formatDiaryUpdatedAt";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Tag } from "lucide-react";
@@ -62,6 +66,8 @@ export const SharedDiaryView = ({
     );
   }
 
+  const updatedAt = getDiaryUpdatedAt(diary);
+
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-4 pt-8 pb-10">
       <div className="flex flex-col gap-1">
@@ -94,21 +100,27 @@ export const SharedDiaryView = ({
               {diary.content}
             </p>
           </CardContent>
-          {(diary.tags.length >= 1 || authenticatedUserId) && (
-            <CardFooter className="flex flex-wrap gap-2 p-0">
-              {diary.tags.length >= 1 && (
-                <>
-                  <Tag className="h-4 w-4 text-ring" />
-                  {diary.tags.map((tag, i) => (
-                    <DiaryTag key={i} tag={tag} />
-                  ))}
-                </>
-              )}
+          <CardFooter className="flex items-end gap-3 p-0">
+            {diary.tags.length >= 1 && (
+              <div className="flex flex-wrap items-center gap-2">
+                <Tag className="h-4 w-4 text-ring" />
+                {diary.tags.map((tag, i) => (
+                  <DiaryTag key={i} tag={tag} />
+                ))}
+              </div>
+            )}
+            <div className="ml-auto flex shrink-0 items-center gap-2">
+              <time
+                dateTime={updatedAt.toISOString()}
+                className="text-xs text-muted-foreground/60"
+              >
+                {formatDiaryUpdatedAt(diary)}
+              </time>
               {authenticatedUserId && (
                 <SharedDiaryFavoriteButton {...favorite} />
               )}
-            </CardFooter>
-          )}
+            </div>
+          </CardFooter>
         </CardContent>
       </Card>
     </div>

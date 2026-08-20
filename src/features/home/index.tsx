@@ -2,7 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Views } from "./constants/views";
-import { useInitialDiaryDate } from "./hooks/useInitialDate";
+import { useInitialDiaryDate } from "./hooks/useInitialDiaryDate";
 import { MonthSelector } from "./monthSelector/MonthSelector";
 import { CurrentDateProvider } from "./provider/CurrentDateProvider";
 

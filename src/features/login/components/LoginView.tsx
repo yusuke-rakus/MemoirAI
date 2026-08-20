@@ -1,4 +1,4 @@
-import PixelBlast from "@/components/shared/background/pixelBlast";
+import PixelBlast from "@/components/shared/background/PixelBlast";
 import { useReducedMotion } from "motion/react";
 
 export const LoginView = () => {

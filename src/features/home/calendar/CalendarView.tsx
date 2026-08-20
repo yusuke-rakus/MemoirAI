@@ -3,7 +3,7 @@ import { isSameDay } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Diaries } from "../diaryList/Diaries";
 import { useDiaryList } from "../hooks/useDiaryList";
-import { Calendar } from "./calendar";
+import { Calendar } from "./Calendar";
 
 export const CalendarView = () => {
   const { dialies } = useDiaryList();

@@ -7,6 +7,10 @@ import {
 } from "@/components/ui/card";
 import { PATHS } from "@/constants/path";
 import type { DiaryDetailNavigationState } from "@/features/diaries/types";
+import {
+  formatDiaryUpdatedAt,
+  getDiaryUpdatedAt,
+} from "@/lib/formatDiaryUpdatedAt";
 import { getDiaryImageAspectRatio } from "@/lib/getDiaryImageAspectRatio";
 import type { Diary } from "@/types/diary/diary";
 import { format } from "date-fns";
@@ -23,6 +27,7 @@ export const DiaryItem = (props: DiaryItemProps) => {
   const { diary } = props;
   const location = useLocation();
   const navigate = useNavigate();
+  const updatedAt = getDiaryUpdatedAt(diary);
 
   const handleSearch = () => {
     const dateStr = format(diary.date.toDate(), "yyyy-MM-dd");
@@ -64,14 +69,22 @@ export const DiaryItem = (props: DiaryItemProps) => {
               </div>
             )}
           </CardContent>
-          {diary.tags && diary.tags.length > 0 && (
-            <CardFooter className="flex flex-wrap gap-2 p-0">
-              <Tag className="h-4 w-4 text-ring" />
-              {diary.tags.map((tag, i) => (
-                <DiaryTag key={i} tag={tag} />
-              ))}
-            </CardFooter>
-          )}
+          <CardFooter className="flex items-end gap-3 p-0">
+            {diary.tags && diary.tags.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2">
+                <Tag className="h-4 w-4 text-ring" />
+                {diary.tags.map((tag, i) => (
+                  <DiaryTag key={i} tag={tag} />
+                ))}
+              </div>
+            )}
+            <time
+              dateTime={updatedAt.toISOString()}
+              className="ml-auto shrink-0 text-xs text-muted-foreground/60"
+            >
+              {formatDiaryUpdatedAt(diary)}
+            </time>
+          </CardFooter>
         </div>
       </div>
     </CardContent>

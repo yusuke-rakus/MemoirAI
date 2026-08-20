@@ -21,6 +21,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { PATHS } from "@/constants/path";
+import {
+  formatDiaryUpdatedAt,
+  getDiaryUpdatedAt,
+} from "@/lib/formatDiaryUpdatedAt";
 import { cn } from "@/lib/utils";
 import type { Diary } from "@/types/diary/diary";
 import { format, isSameDay } from "date-fns";
@@ -65,6 +69,7 @@ export const DiaryPreviewCard = ({
       diary,
       onCompleted,
     });
+  const updatedAt = getDiaryUpdatedAt(diary);
 
   const handleUpdate = async (values: DiaryPreviewMutationValues) => {
     const isUpdated = await updateDiary(values);
@@ -220,14 +225,22 @@ export const DiaryPreviewCard = ({
               {diary.content}
             </p>
           </CardContent>
-          {diary.tags.length >= 1 && (
-            <CardFooter className="flex flex-wrap gap-2 p-0">
-              <Tag className="h-4 w-4 text-ring" />
-              {diary.tags.map((tag, i) => (
-                <DiaryTag key={`${tag.name}-${i}`} tag={tag} />
-              ))}
-            </CardFooter>
-          )}
+          <CardFooter className="flex items-end gap-3 p-0">
+            {diary.tags.length >= 1 && (
+              <div className="flex flex-wrap items-center gap-2">
+                <Tag className="h-4 w-4 text-ring" />
+                {diary.tags.map((tag, i) => (
+                  <DiaryTag key={`${tag.name}-${i}`} tag={tag} />
+                ))}
+              </div>
+            )}
+            <time
+              dateTime={updatedAt.toISOString()}
+              className="ml-auto shrink-0 text-xs text-muted-foreground/60"
+            >
+              {formatDiaryUpdatedAt(diary)}
+            </time>
+          </CardFooter>
         </CardContent>
       </Card>
       <DiaryEditDialog

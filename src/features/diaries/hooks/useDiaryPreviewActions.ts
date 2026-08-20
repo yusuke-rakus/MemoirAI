@@ -52,6 +52,7 @@ export const useDiaryPreviewActions = ({
           content: values.content,
           tags: values.tags,
           images: [...values.retainedImages, ...uploadedImages],
+          updatedAt: Timestamp.now(),
         });
         invalidateDiarySearchCache();
         requestDiaryRefresh();
