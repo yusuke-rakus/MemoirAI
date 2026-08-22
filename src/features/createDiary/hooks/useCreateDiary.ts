@@ -1,9 +1,14 @@
 import type { TagColor } from "@/constants/tagColors";
+import { MAX_DIARY_IMAGE_COUNT } from "@/constants/diaryImages";
 import { useLocalUser } from "@/contexts/LocalUserContext";
 import { diaryTitleModel } from "@/firebase/models/createDiarySchema";
 import { memoryExtractionModel } from "@/firebase/models/memoryExtractionSchema";
 import { generateDiaryId } from "@/lib/generateId";
 import { DiaryClient } from "@/lib/service/diaryClient";
+import {
+  DiaryIllustrationClient,
+  DiaryIllustrationError,
+} from "@/lib/service/diaryIllustrationClient";
 import { DiaryImageClient } from "@/lib/service/diaryImageClient";
 import { UserMemoryClient } from "@/lib/service/userMemoryClient";
 import { invalidateDiarySearchCache } from "@/stores/diarySearchStore";
@@ -16,6 +21,7 @@ import type {
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { type DiaryCardImage, useDiaryCard } from "./useDiaryCard";
+import type { DiarySaveMode } from "../types";
 
 interface Tag {
   color: TagColor;
@@ -44,6 +50,12 @@ type DiaryPreparation = {
   diaryId: string;
   metaPromise: Promise<DiaryMeta>;
   memoryPromise: Promise<ExtractedUserMemory | null>;
+  illustrationPromise: Promise<File | null>;
+};
+
+type PreparedDiary = DiaryPreparation & {
+  diaryMeta: DiaryMeta;
+  illustrationFile: File | null;
 };
 
 type CreatedDiaryMemoryPayload = {
@@ -118,6 +130,7 @@ const getActiveMemoryContext = async (uid: string) => {
 const prepareDiary = (
   diary: Diary,
   memoryContextPromise: Promise<ActiveUserMemoryContext | null>,
+  saveMode: DiarySaveMode,
 ): DiaryPreparation => {
   const diaryId = generateDiaryId();
 
@@ -137,6 +150,28 @@ const prepareDiary = (
         console.error("Failed to extract diary memory", error);
         return null;
       }),
+    illustrationPromise:
+      saveMode === "illustrated"
+        ? DiaryIllustrationClient.generate({
+            content: diary.content,
+            tags: diary.tags.map((tag) => tag.name),
+          })
+        : Promise.resolve(null),
+  };
+};
+
+const completeDiaryPreparation = async (
+  preparation: DiaryPreparation,
+): Promise<PreparedDiary> => {
+  const [diaryMeta, illustrationFile] = await Promise.all([
+    preparation.metaPromise,
+    preparation.illustrationPromise,
+  ]);
+
+  return {
+    ...preparation,
+    diaryMeta,
+    illustrationFile,
   };
 };
 
@@ -156,16 +191,16 @@ const saveDiaryMemory = async ({
 const uploadDiaryImages = async (
   uid: string,
   diaryId: string,
-  images: DiaryCardImage[],
+  files: File[],
 ): Promise<DiaryImage[]> => {
   const uploadedImages: DiaryImage[] = [];
 
   try {
-    for (const image of images) {
+    for (const file of files) {
       const uploadedImage = await DiaryImageClient.upload({
         uid,
         diaryId,
-        file: image.file,
+        file,
       });
       uploadedImages.push(uploadedImage);
     }
@@ -180,30 +215,47 @@ const uploadDiaryImages = async (
 };
 
 export const useCreateDiary = () => {
-  const [isCreating, setIsCreating] = useState(false);
+  const [createPhase, setCreatePhase] = useState<
+    "idle" | "generating" | "saving"
+  >("idle");
   const { localUser } = useLocalUser();
   const { cards } = useDiaryCard();
 
   const createDiaries = useCallback(
-    async (diaries: Diary[]): Promise<void> => {
+    async (diaries: Diary[], saveMode: DiarySaveMode): Promise<void> => {
       if (!localUser?.uid) throw new Error("No authenticated user");
+      if (
+        saveMode === "illustrated" &&
+        diaries.some((diary) => diary.images.length >= MAX_DIARY_IMAGE_COUNT)
+      ) {
+        throw new Error("生成画像を追加するには画像を1枚削除してください");
+      }
 
-      setIsCreating(true);
+      setCreatePhase(saveMode === "illustrated" ? "generating" : "saving");
       try {
         const memoryContextPromise = getActiveMemoryContext(localUser.uid);
         const diaryPreparations = diaries.map((diary) =>
-          prepareDiary(diary, memoryContextPromise),
+          prepareDiary(diary, memoryContextPromise, saveMode),
+        );
+        const preparedDiaries = await Promise.all(
+          diaryPreparations.map(completeDiaryPreparation),
         );
 
+        setCreatePhase("saving");
+
         // 並列でカードの追加処理を実行
-        const addPromises = diaryPreparations.map(async (preparation) => {
-          const { diary, diaryId, memoryPromise, metaPromise } = preparation;
-          const diaryMeta = await metaPromise;
+        const addPromises = preparedDiaries.map(async (preparation) => {
+          const { diary, diaryId, diaryMeta, illustrationFile, memoryPromise } =
+            preparation;
           const mergedTags = mergeTags(diary.tags, diaryMeta.tags);
+          const files = [
+            ...(illustrationFile ? [illustrationFile] : []),
+            ...diary.images.map((image) => image.file),
+          ];
           const uploadedImages = await uploadDiaryImages(
             localUser.uid,
             diaryId,
-            diary.images,
+            files,
           );
           const now = new Date();
           const payload = {
@@ -249,7 +301,7 @@ export const useCreateDiary = () => {
         invalidateDiarySearchCache();
         requestDiaryRefresh();
       } finally {
-        setIsCreating(false);
+        setCreatePhase("idle");
       }
     },
     [localUser?.uid],
@@ -268,15 +320,26 @@ export const useCreateDiary = () => {
     [cards],
   );
 
-  const onSave = useCallback(async () => {
-    const promise = createDiaries(diariesToCreate);
-    toast.promise(promise, {
-      loading: "日記を作成中...",
-      success: () => "日記を作成しました🎊",
-      error: "日記の作成に失敗しました",
-    });
-    await promise;
-  }, [createDiaries, diariesToCreate]);
+  const onSave = useCallback(
+    async (saveMode: DiarySaveMode) => {
+      const promise = createDiaries(diariesToCreate, saveMode);
+      toast.promise(promise, {
+        loading:
+          saveMode === "illustrated" ? "絵日記を作成中..." : "日記を作成中...",
+        success: () => "日記を作成しました🎊",
+        error: (error) =>
+          error instanceof DiaryIllustrationError
+            ? "画像を生成できませんでした。再試行するか、通常保存に切り替えてください"
+            : "日記の作成に失敗しました",
+      });
+      await promise;
+    },
+    [createDiaries, diariesToCreate],
+  );
 
-  return { isCreating, onSave };
+  return {
+    createPhase,
+    isCreating: createPhase !== "idle",
+    onSave,
+  };
 };

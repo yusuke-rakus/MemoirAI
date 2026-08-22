@@ -18,6 +18,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
+import { MAX_DIARY_IMAGE_COUNT } from "@/constants/diaryImages";
 import { PATHS } from "@/constants/path";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -31,13 +32,15 @@ import { useDiaryDraft } from "../hooks/useDiaryDraft";
 import { useFetchDiary } from "../hooks/useFetchDiary";
 import { usePickMessages } from "../hooks/usePickMessages";
 import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
+import type { DiarySaveMode } from "../types";
 import { DiaryImagePicker } from "./DiaryImagePicker";
+import { DiarySaveButton } from "./DiarySaveButton";
 
 export const NewDiaryView = () => {
   const navigate = useNavigate();
   const { date, setDate } = useDiaryDetailStore();
   useFetchDiary();
-  const { isCreating, onSave } = useCreateDiary();
+  const { createPhase, isCreating, onSave } = useCreateDiary();
   const {
     cards,
     tagInputs,
@@ -66,6 +69,7 @@ export const NewDiaryView = () => {
   const { pickRandomMessages } = usePickMessages();
   const placeholderText = useRotatingText(pickRandomMessages);
   const [draggingCardId, setDraggingCardId] = useState<string | null>(null);
+  const [saveMode, setSaveMode] = useState<DiarySaveMode>("standard");
 
   const customSetDate = (date: Date) => {
     setDate(date);
@@ -75,6 +79,7 @@ export const NewDiaryView = () => {
 
   useEffect(() => {
     reset(date);
+    setSaveMode("standard");
   }, [date, reset]);
 
   const handleSave = async () => {
@@ -91,7 +96,20 @@ export const NewDiaryView = () => {
       return;
     }
 
-    await onSave();
+    if (saveMode === "illustrated") {
+      const fullImageCard = cards.find(
+        (card) =>
+          card.body.trim() && card.images.length >= MAX_DIARY_IMAGE_COUNT,
+      );
+
+      if (fullImageCard) {
+        toast.error("生成画像を追加するには画像を1枚削除してください");
+        document.getElementById(`diary-body-${fullImageCard.id}`)?.focus();
+        return;
+      }
+    }
+
+    await onSave(saveMode);
     await completeDraft();
     const dateString = format(date, "yyyy-MM-dd");
     navigate(`${PATHS.diaries.path}/${dateString}`);
@@ -194,13 +212,12 @@ export const NewDiaryView = () => {
           </div>
 
           <div className="flex items-center gap-3 self-end sm:self-auto">
-            <Button
-              onClick={handleSave}
-              disabled={isCreating}
-              className="h-10 rounded-md bg-primary px-6 font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary/90 active:scale-[0.98]"
-            >
-              {isCreating ? "保存中..." : "保存"}
-            </Button>
+            <DiarySaveButton
+              saveMode={saveMode}
+              createPhase={createPhase}
+              onSaveModeChange={setSaveMode}
+              onSave={() => void handleSave()}
+            />
           </div>
         </div>
 
