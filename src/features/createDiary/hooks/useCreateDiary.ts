@@ -152,10 +152,13 @@ const prepareDiary = (
       }),
     illustrationPromise:
       saveMode === "illustrated"
-        ? DiaryIllustrationClient.generate({
-            content: diary.content,
-            tags: diary.tags.map((tag) => tag.name),
-          })
+        ? memoryContextPromise.then((memoryContext) =>
+            DiaryIllustrationClient.generate({
+              content: diary.content,
+              tags: diary.tags.map((tag) => tag.name),
+              memoryContext,
+            }),
+          )
         : Promise.resolve(null),
   };
 };
