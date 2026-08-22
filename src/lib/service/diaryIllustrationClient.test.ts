@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { ActiveUserMemoryContext } from "@/types/memory";
 import {
   createGeneratedDiaryImageFile,
   DiaryIllustrationClient,
@@ -19,6 +20,34 @@ beforeEach(() => {
   generateContentMock.mockReset();
 });
 
+const memoryContext: ActiveUserMemoryContext = {
+  profileFacts: [
+    {
+      id: "profile-1",
+      key: "location",
+      value: "東京で暮らしている",
+      confidence: 0.95,
+    },
+  ],
+  preferences: [
+    {
+      id: "preference-1",
+      value: "青色が好き",
+      confidence: 0.9,
+    },
+  ],
+  people: [
+    {
+      id: "person-1",
+      name: "美咲",
+      aliases: ["みーちゃん"],
+      relationshipToUser: { value: "娘", confidence: 0.98 },
+      attributes: [],
+      relationshipNotes: [],
+    },
+  ],
+};
+
 describe("DiaryIllustrationClient", () => {
   it("最初のBase64画像をブラウザのFileへ変換する", async () => {
     generateContentMock.mockResolvedValue({
@@ -32,6 +61,7 @@ describe("DiaryIllustrationClient", () => {
     const file = await DiaryIllustrationClient.generate({
       content: "公園で桜を見ました。",
       tags: ["散歩", "春"],
+      memoryContext,
     });
 
     expect(file).toBeInstanceOf(File);
@@ -42,6 +72,7 @@ describe("DiaryIllustrationClient", () => {
       JSON.stringify({
         diaryContent: "公園で桜を見ました。",
         tags: ["散歩", "春"],
+        memoryContext,
       }),
     );
   });
@@ -52,7 +83,11 @@ describe("DiaryIllustrationClient", () => {
     });
 
     await expect(
-      DiaryIllustrationClient.generate({ content: "本文", tags: [] }),
+      DiaryIllustrationClient.generate({
+        content: "本文",
+        tags: [],
+        memoryContext: null,
+      }),
     ).rejects.toMatchObject({ code: "no-image" });
   });
 
@@ -65,7 +100,11 @@ describe("DiaryIllustrationClient", () => {
     });
 
     await expect(
-      DiaryIllustrationClient.generate({ content: "本文", tags: [] }),
+      DiaryIllustrationClient.generate({
+        content: "本文",
+        tags: [],
+        memoryContext: null,
+      }),
     ).rejects.toMatchObject({ code: "safety-blocked" });
   });
 
@@ -81,7 +120,11 @@ describe("DiaryIllustrationClient", () => {
     });
 
     await expect(
-      DiaryIllustrationClient.generate({ content: "本文", tags: [] }),
+      DiaryIllustrationClient.generate({
+        content: "本文",
+        tags: [],
+        memoryContext: null,
+      }),
     ).rejects.toMatchObject({ code: "safety-blocked" });
     expect(inlineDataParts).not.toHaveBeenCalled();
   });
@@ -105,7 +148,11 @@ describe("DiaryIllustrationClient", () => {
     generateContentMock.mockRejectedValue(new Error("network"));
 
     await expect(
-      DiaryIllustrationClient.generate({ content: "本文", tags: [] }),
+      DiaryIllustrationClient.generate({
+        content: "本文",
+        tags: [],
+        memoryContext: null,
+      }),
     ).rejects.toMatchObject({ code: "generation-failed" });
   });
 });

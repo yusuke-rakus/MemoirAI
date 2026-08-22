@@ -1,4 +1,5 @@
 import { diaryIllustrationModel } from "@/firebase/models/diaryIllustrationModel";
+import type { ActiveUserMemoryContext } from "@/types/memory";
 
 const GENERATED_IMAGE_MIME_TYPES = [
   "image/png",
@@ -22,6 +23,7 @@ type GeneratedImageMimeType = (typeof GENERATED_IMAGE_MIME_TYPES)[number];
 export type GenerateDiaryIllustrationParams = {
   content: string;
   tags: string[];
+  memoryContext: ActiveUserMemoryContext | null;
 };
 
 export type DiaryIllustrationErrorCode =
@@ -119,12 +121,14 @@ export class DiaryIllustrationClient {
   static async generate({
     content,
     tags,
+    memoryContext,
   }: GenerateDiaryIllustrationParams): Promise<File> {
     try {
       const result = await diaryIllustrationModel.generateContent(
         JSON.stringify({
           diaryContent: content,
           tags,
+          memoryContext,
         }),
       );
       const response = result.response;
