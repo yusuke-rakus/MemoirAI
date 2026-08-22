@@ -1,6 +1,6 @@
 # Repository responsibility map
 
-最終確認: 2026-08-14、検証対象のsource snapshot `da479d8`。
+最終確認: 2026-08-20、検証対象のsource snapshot `5f27069` + working tree。
 
 新規コードの配置先を判断するための現在の責務マップです。
 
@@ -36,6 +36,8 @@
 | `src/index.css`              | global CSS、theme variable、Tailwind mapping            |
 
 active featureはhome、createDiary、diaries、searchDiary、sharedDiary、login、sidebarです。sidebarは自分の日記とfavorite共有日記のpaged listを持ちます。`src/features/editDiary`に追跡sourceはなく、編集UIはdiaries配下にあります。
+
+createDiaryは通常保存と絵日記保存を持ちます。保存modeはfeature-local state、画像model設定は`src/firebase/models`、生成responseから`File`への変換は`src/lib/service/diaryIllustrationClient.ts`、永続化は既存`DiaryImageClient`の責務です。
 
 ## Placement procedure
 
