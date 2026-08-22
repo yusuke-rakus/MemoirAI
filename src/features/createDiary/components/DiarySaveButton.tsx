@@ -41,12 +41,12 @@ export const DiarySaveButton = ({
   const label = getSaveButtonLabel(saveMode, createPhase);
 
   return (
-    <div className="flex items-stretch shadow-sm">
+    <div className="flex items-stretch rounded-md shadow-sm">
       <Button
         type="button"
         onClick={onSave}
         disabled={isCreating}
-        className="h-10 rounded-r-none px-5 font-medium transition-all active:scale-[0.98]"
+        className="h-10 rounded-r-none px-5 font-medium shadow-none transition-all active:scale-[0.98]"
       >
         <span aria-live="polite">{label}</span>
       </Button>
@@ -57,7 +57,7 @@ export const DiarySaveButton = ({
             type="button"
             disabled={isCreating}
             aria-label="保存方法を選択"
-            className="h-10 w-10 rounded-l-none border-l border-primary-foreground/20 px-0"
+            className="h-10 w-10 rounded-l-none border-l border-primary-foreground/20 px-0 shadow-none"
           >
             <ChevronDown className="size-4" />
           </Button>
