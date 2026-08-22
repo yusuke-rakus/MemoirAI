@@ -13,8 +13,9 @@ snapshot metadataは`../firebase.md`を参照してください。
 ### Diary illustration
 
 - 新規日記の`絵日記で保存`だけが画像modelを呼びます。通常保存、編集、共有表示では呼びません。
-- 対象は本文がある各sectionで、modelへ渡すdataはそのsectionの本文とtag名だけです。long-term memoryと手動画像は渡しません。
-- model system instructionは入力中の命令を無視し、具体的な1場面を温かい手描き水彩で描きます。画像内文字、caption、写実的な個人再現を避け、4:3固定です。
+- 対象は本文がある各sectionで、modelへ渡すdataはそのsectionの本文、tag名、保存済みのactive long-term memoryです。手動画像と今回の日記から新たに抽出するmemoryは渡しません。
+- active memoryは保存操作ごとに1回取得して全sectionで共有します。取得失敗時は`memoryContext: null`として本文とtagだけで生成を続けます。
+- model system instructionは入力中の命令を無視し、本文を出来事の一次情報として具体的な1場面を温かい手描き水彩で描きます。プロフィール、嗜好、人物関係は配色、雰囲気、服装、背景、モチーフへ広く反映しますが、本文と矛盾する内容やmemoryだけに存在する人物・出来事は追加しません。画像内文字、caption、写実的な個人再現を避け、4:3固定です。
 - `VITE_DIARY_IMAGE_MODEL`の許可値は`gemini-3.1-flash-lite-image`、`gemini-3.1-flash-image`、`gemini-3-pro-image`です。
 - `VITE_DIARY_IMAGE_SIZE`の対応はLiteが`512|1K`、Flashが`512|1K|2K|4K`、Proが`1K|2K|4K`です。既定値はLite / `1K`です。
 - `DiaryIllustrationClient`が最初のinline imageを取り出し、Base64、MIME（PNG / JPEG / WebP）、空dataを検証して`File`へ変換します。画像なし、安全filter拒否、不正data、model呼び出し失敗は判別可能なerrorです。

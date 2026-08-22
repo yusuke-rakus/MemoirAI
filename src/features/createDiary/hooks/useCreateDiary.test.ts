@@ -1,5 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { ActiveUserMemoryContext } from "@/types/memory";
 import { useCreateDiary } from "./useCreateDiary";
 
 const mocks = vi.hoisted(() => ({
@@ -97,6 +98,25 @@ const createCard = (body: string, files: File[] = []) => ({
   isRemoving: false,
 });
 
+const memoryContext: ActiveUserMemoryContext = {
+  profileFacts: [
+    {
+      id: "profile-1",
+      key: "location",
+      value: "東京で暮らしている",
+      confidence: 0.95,
+    },
+  ],
+  preferences: [
+    {
+      id: "preference-1",
+      value: "青色が好き",
+      confidence: 0.9,
+    },
+  ],
+  people: [],
+};
+
 beforeEach(() => {
   mocks.cards = [];
   Object.values(mocks).forEach((value) => {
@@ -158,6 +178,52 @@ describe("useCreateDiary", () => {
 
     expect(mocks.generateIllustration).toHaveBeenCalledTimes(2);
     expect(mocks.add).toHaveBeenCalledTimes(2);
+  });
+
+  it("保存済みメモリを1回取得して各セクションの画像生成へ渡す", async () => {
+    mocks.cards = [createCard("桜を見ました"), createCard("本を読みました")];
+    mocks.getMemory.mockResolvedValue(memoryContext);
+    mocks.generateIllustration.mockResolvedValue(
+      new File(["generated"], "generated.png", { type: "image/png" }),
+    );
+    const { result } = renderHook(() => useCreateDiary());
+
+    await act(async () => {
+      await result.current.onSave("illustrated");
+    });
+
+    expect(mocks.getMemory).toHaveBeenCalledOnce();
+    expect(mocks.generateIllustration).toHaveBeenNthCalledWith(1, {
+      content: "桜を見ました",
+      tags: ["散歩"],
+      memoryContext,
+    });
+    expect(mocks.generateIllustration).toHaveBeenNthCalledWith(2, {
+      content: "本を読みました",
+      tags: ["散歩"],
+      memoryContext,
+    });
+  });
+
+  it("メモリ取得失敗時はnullを渡して絵日記保存を続行する", async () => {
+    mocks.cards = [createCard("桜を見ました")];
+    mocks.getMemory.mockRejectedValue(new Error("memory failed"));
+    mocks.generateIllustration.mockResolvedValue(
+      new File(["generated"], "generated.png", { type: "image/png" }),
+    );
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const { result } = renderHook(() => useCreateDiary());
+
+    await act(async () => {
+      await result.current.onSave("illustrated");
+    });
+
+    expect(mocks.generateIllustration).toHaveBeenCalledWith({
+      content: "桜を見ました",
+      tags: ["散歩"],
+      memoryContext: null,
+    });
+    expect(mocks.add).toHaveBeenCalledOnce();
   });
 
   it("生成画像を手動画像より先にアップロードする", async () => {
