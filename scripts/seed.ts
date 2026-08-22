@@ -208,7 +208,7 @@ const assertRequiredEnvironment = () => {
 
   if (!projectId || !storageBucket) {
     throw new Error(
-      ".env.development に VITE_PROJECT_ID と VITE_STORAGE_BUCKET を設定してください。",
+      ".env に VITE_PROJECT_ID と VITE_STORAGE_BUCKET を設定してください。",
     );
   }
 
