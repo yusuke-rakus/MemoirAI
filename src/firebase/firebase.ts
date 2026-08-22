@@ -8,6 +8,7 @@ import {
 } from "firebase/auth";
 import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
 import { connectStorageEmulator, getStorage } from "firebase/storage";
+import { initializeFirebaseAppCheck } from "./appCheck";
 
 const firebaseConfig = {
   apiKey: env.apiKey,
@@ -20,6 +21,12 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+
+const appCheck = initializeFirebaseAppCheck(app, {
+  isDev: env.isDev,
+  isTest: env.isTest,
+  siteKey: env.recaptchaEnterpriseSiteKey,
+});
 
 const auth = getAuth(app);
 
@@ -36,4 +43,4 @@ if (env.isDev) {
 
 const provider = new GoogleAuthProvider();
 
-export { app, auth, db, provider, signInWithPopup, storage };
+export { app, appCheck, auth, db, provider, signInWithPopup, storage };

@@ -12,6 +12,8 @@ snapshot metadataは`../firebase.md`を参照してください。
 | Storage   | 9199 |
 
 - `import.meta.env.DEV`時のWeb appは上記Auth / Firestore / Storageへ接続します。
+- Firebase AI LogicとreCAPTCHA EnterpriseのattestationはEmulator対象ではありません。developmentではApp Check debug token modeを使い、実AI確認はBlazeの開発projectへ到達します。
+- 初回development起動時にbrowser consoleへ表示されるApp Check debug tokenをFirebase ConsoleのWeb appへ登録します。debug tokenは`.env`、GitHub Actions、sourceへ保存しません。
 - `docker compose up -d`はNode 22 + Java 21 imageを使い、Firebase CLI versionは未固定です。
 - Emulator dataのimport / export永続化はありません。
 - `pnpm seed`は3 Emulatorの到達性を確認し、本番へfallbackしません。
@@ -27,5 +29,19 @@ snapshot metadataは`../firebase.md`を参照してください。
 - Firebase AI LogicはCloud Functionsではありません。
 - Hostingは`dist`を配信し、`**`を`/index.html`へrewriteします。
 - GitHub Actionsのdeploy scopeはHostingだけで、Firestore / Storage Rulesは対象外です。
+- GitHub Actionsのbuildには`VITE_DIARY_IMAGE_MODEL`、`VITE_DIARY_IMAGE_SIZE`、`VITE_RECAPTCHA_ENTERPRISE_SITE_KEY`をrepository secretsから渡します。model / sizeを未設定にするとapp既定値を使いますが、Enterprise site keyは必須です。
 - `.firebaserc`はtrackedされず、workflowがproject IDを指定します。
 - CIのtriggerとbuild checkは`../tech-stack/testing-and-ci.md`を参照します。
+
+## Console setup for diary illustration
+
+repository変更だけでは実AI生成を有効化できません。対象projectごとに次を設定します。
+
+1. Firebase projectをBlaze planにし、Firebase AI Logic APIを有効化する。
+2. reCAPTCHA EnterpriseでWeb keyを作成し、Firebase Hosting domainと利用するcustom domainを許可する。
+3. Firebase App Checkで対象Web appへreCAPTCHA Enterprise providerとsite keyを登録する。
+4. developmentで表示されたdebug tokenをApp Checkのdebug token一覧へ登録する。
+5. Firebase AI LogicのApp CheckをBaseline protectionでenforceする。
+6. GitHub Actionsへ3つのbuild環境変数を登録し、Hostingを再deployする。
+
+Replay protectionとauthenticated-users modeは今回有効化しません。実AI確認は課金が発生し得るため、登録済みdebug tokenを使うBlaze開発projectで明示的に実施します。

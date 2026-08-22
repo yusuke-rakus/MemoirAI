@@ -1,6 +1,6 @@
 # Current tech stack
 
-最終確認: 2026-08-14、検証対象のsource snapshot `da479d8`。このmetadataは`tech-stack/`配下にも適用します。
+最終確認: 2026-08-20、検証対象のsource snapshot `5f27069`。このmetadataは`tech-stack/`配下にも適用します。
 
 versionは変動情報です。`package.json`、lockfile、各設定を現在状態の一次情報とします。
 
@@ -14,7 +14,7 @@ versionは変動情報です。`package.json`、lockfile、各設定を現在状
 | Styling         | Tailwind CSS 4、global CSS variables                           |
 | UI primitives   | shadcn `new-york`、Radix、CVA、Lucide                          |
 | State / forms   | React、Context、Zustand 5、react-hook-form 7、zod 3、resolvers |
-| Backend         | Firebase Web SDK 11: Auth、Firestore、Storage、AI              |
+| Backend         | Firebase Web SDK 12: Auth、Firestore、Storage、AI              |
 
 ## Notable libraries
 
