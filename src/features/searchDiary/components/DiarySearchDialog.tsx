@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -7,8 +8,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { tagBgMap } from "@/constants/tagColors";
 import { useLocalUser } from "@/contexts/LocalUserContext";
+import { cn } from "@/lib/utils";
 import { DiaryClient } from "@/lib/service/diaryClient";
 import { useDiarySearchStore } from "@/stores/diarySearchStore";
 import type { Diary } from "@/types/diary/diary";
@@ -16,42 +20,11 @@ import { format } from "date-fns";
 import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const normalize = (value: string) =>
-  value.normalize("NFKC").toLocaleLowerCase().replace(/\s+/g, " ").trim();
-
-const searchDiaries = (diaries: Diary[], query: string) => {
-  const terms = normalize(query).split(" ").filter(Boolean);
-  if (terms.length === 0) return [];
-
-  return diaries
-    .map((diary) => {
-      const title = normalize(diary.title);
-      const tags = normalize(diary.tags.map((tag) => tag.name).join(" "));
-      const content = normalize(diary.content);
-      const matches = terms.every(
-        (term) =>
-          title.includes(term) || tags.includes(term) || content.includes(term),
-      );
-      if (!matches) return null;
-      const score = terms.reduce(
-        (total, term) =>
-          total +
-          (title.includes(term) ? 3 : 0) +
-          (tags.includes(term) ? 2 : 0) +
-          (content.includes(term) ? 1 : 0),
-        0,
-      );
-      return { diary, score };
-    })
-    .filter(
-      (result): result is { diary: Diary; score: number } => result !== null,
-    )
-    .sort(
-      (a, b) =>
-        b.score - a.score || b.diary.date.toMillis() - a.diary.date.toMillis(),
-    );
-};
+import {
+  appendSearchTerm,
+  getFrequentTags,
+  searchDiaries,
+} from "../lib/diarySearch";
 
 export const DiarySearchDialog = () => {
   const navigate = useNavigate();
@@ -74,14 +47,17 @@ export const DiarySearchDialog = () => {
     setHasError(false);
     void DiaryClient.getByUid<Diary>(localUser.uid)
       .then((result) => {
-        if (active) setCache(localUser.uid, result ?? []);
+        if (active) {
+          setIsLoading(false);
+          setCache(localUser.uid, result ?? []);
+        }
       })
       .catch((error) => {
         console.error("Failed to fetch diaries for search", error);
-        if (active) setHasError(true);
-      })
-      .finally(() => {
-        if (active) setIsLoading(false);
+        if (active) {
+          setHasError(true);
+          setIsLoading(false);
+        }
       });
     return () => {
       active = false;
@@ -99,9 +75,17 @@ export const DiarySearchDialog = () => {
     return () => window.removeEventListener("keydown", handleShortcut);
   }, [setOpen]);
 
+  const cachedDiaries = useMemo(
+    () => (cachedUid === localUser.uid ? diaries : []),
+    [cachedUid, diaries, localUser.uid],
+  );
+  const frequentTags = useMemo(
+    () => (open ? getFrequentTags(cachedDiaries) : []),
+    [cachedDiaries, open],
+  );
   const results = useMemo(
-    () => searchDiaries(diaries, debouncedQuery),
-    [debouncedQuery, diaries],
+    () => searchDiaries(cachedDiaries, debouncedQuery),
+    [cachedDiaries, debouncedQuery],
   );
   const visibleResults = results.slice(0, 50);
 
@@ -116,13 +100,13 @@ export const DiarySearchDialog = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-2xl">
-        <DialogHeader className="border-b px-5 py-4">
+        <DialogHeader className="border-b border-border/60 px-5 py-4">
           <DialogTitle>日記を検索</DialogTitle>
           <DialogDescription>
             タイトル、本文、タグからすべての日記を検索します。
           </DialogDescription>
         </DialogHeader>
-        <div className="flex items-center gap-3 border-b px-5 py-3">
+        <div className="flex items-center gap-3 border-b border-border/60 px-5 py-3">
           <Search className="size-5 text-muted-foreground" aria-hidden="true" />
           <Input
             autoFocus
@@ -136,6 +120,40 @@ export const DiarySearchDialog = () => {
             Esc
           </kbd>
         </div>
+        {frequentTags.length > 0 && (
+          <section
+            className="min-w-0 border-b border-border/60 px-5 py-3"
+            aria-label="よく使うタグ"
+          >
+            <ScrollArea className="w-full min-w-0 pb-2">
+              <div className="flex w-max gap-2">
+                {frequentTags.map((tag) => (
+                  <Badge
+                    key={tag.name}
+                    asChild
+                    className={cn(
+                      tagBgMap[tag.color] ?? "bg-muted-foreground",
+                      "cursor-pointer transition-opacity hover:opacity-80",
+                    )}
+                  >
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setQuery((currentQuery) =>
+                          appendSearchTerm(currentQuery, tag.name),
+                        )
+                      }
+                      aria-label={`「${tag.name}」を検索語に追加`}
+                    >
+                      {tag.name}
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
+          </section>
+        )}
         <ScrollArea className="h-[min(60vh,480px)]">
           <div className="p-3" role="list" aria-label="検索結果">
             {isLoading && !query && (
@@ -161,7 +179,7 @@ export const DiarySearchDialog = () => {
                   一致する日記はありません。
                 </p>
               )}
-            {visibleResults.map(({ diary }) => (
+            {visibleResults.map(({ diary }, index) => (
               <div key={diary.id} role="listitem">
                 <Button
                   type="button"
@@ -179,10 +197,13 @@ export const DiarySearchDialog = () => {
                     {diary.content}
                   </p>
                 </Button>
+                {index < visibleResults.length - 1 && (
+                  <Separator className="bg-border/60" />
+                )}
               </div>
             ))}
             {results.length > 50 && (
-              <p className="px-3 py-2 text-xs text-muted-foreground">
+              <p className="border-t border-border/60 px-3 py-2 text-xs text-muted-foreground">
                 {results.length}件中50件を表示しています。
               </p>
             )}
