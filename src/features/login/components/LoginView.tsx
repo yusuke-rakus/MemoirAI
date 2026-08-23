@@ -1,4 +1,5 @@
 import PixelBlast from "@/components/shared/background/PixelBlast";
+import { LegalLinks } from "@/features/legal/components/LegalLinks";
 import { useReducedMotion } from "motion/react";
 
 export const LoginView = () => {
@@ -37,6 +38,10 @@ export const LoginView = () => {
           </p>
         </div>
       </div>
+      <LegalLinks
+        className="absolute right-4 bottom-4 left-4 z-10 justify-center gap-x-4 gap-y-2"
+        linkClassName="text-xs text-muted-foreground"
+      />
     </div>
   );
 };

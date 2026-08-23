@@ -66,6 +66,9 @@ export class UserProfileClient {
       "settings",
       PROFILE_SETTINGS_DOC_ID,
     );
+    const currentProfile = await getDoc(profileRef);
+    if (currentProfile.exists()) return;
+
     await setDoc(
       profileRef,
       {
