@@ -29,6 +29,6 @@ path: `sharedDiaries/{shareId}`、client: `src/lib/service/sharedDiaryClient.ts`
 - source diaryの後続edit
 - source image delete後のshared document cleanup
 
-source diary削除時は、先にunpublishを完了してからprivate documentを削除します。unpublish失敗時はprivate documentの削除を中断します。favorite documentは別userのprivate dataであるため削除せず、参照先のないfavoriteは既存一覧で除外します。
+source diary削除時は、先にunpublishを完了してからprivate documentを削除します。unpublish失敗時はprivate documentの削除を中断します。共有者は別userのprivate favoriteを削除せず、favorite ownerがsidebar一覧を取得した際に参照先のない文書を自身の権限でbest-effort削除します。
 
 shared documentはsource diaryと継続同期されるviewではありません。

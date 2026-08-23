@@ -36,7 +36,7 @@ export const DiaryUnshareDialog = ({
           <DialogTitle>共有を停止しますか？</DialogTitle>
           <DialogDescription>
             「{title}
-            」の現在の共有リンクを無効にします。再共有すると新しいリンクが発行されます。
+            」の現在の共有リンクを無効にします。
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex-row gap-2 sm:gap-0">
