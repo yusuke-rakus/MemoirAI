@@ -37,6 +37,13 @@ describe("LegalPage", () => {
       screen.getByRole("heading", { name: "AIデータ利用方針" }),
     ).toBeVisible();
     expect(
+      screen.getByRole("heading", { name: /損害賠償責任の制限/ }),
+    ).toBeVisible();
+    expect(screen.getByText(/累計損害賠償額は、1万円を上限/)).toBeVisible();
+    expect(
+      screen.getByText(/法令により管轄を有する日本の裁判所/),
+    ).toBeVisible();
+    expect(
       screen.getByRole("navigation", { name: "リーガル文書の目次" }),
     ).toBeVisible();
   });
