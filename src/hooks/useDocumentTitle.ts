@@ -11,7 +11,7 @@ export const useDocumentTitle = (
     document.title = title + suffix;
 
     return () => {
-      document.title = previousTitle + suffix;
+      document.title = previousTitle;
     };
   }, [title, suffix]);
 };

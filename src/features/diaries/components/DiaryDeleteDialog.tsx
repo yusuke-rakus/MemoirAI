@@ -35,7 +35,8 @@ export const DiaryDeleteDialog = ({
         <DialogHeader>
           <DialogTitle>日記を削除しますか？</DialogTitle>
           <DialogDescription>
-            「{title}」を削除します。この操作は取り消せません。
+            「{title}
+            」を削除します。共有中の場合は共有も停止されます。この操作は取り消せません。
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex-row gap-2 sm:gap-0">

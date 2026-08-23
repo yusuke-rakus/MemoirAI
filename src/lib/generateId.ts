@@ -8,6 +8,10 @@ export function generateDiaryImageId() {
   return `diary-image-${uuidv4()}`;
 }
 
+export function generateShareId() {
+  return `share-${uuidv4()}`;
+}
+
 export function generateMemoryFactId() {
   return `memory-fact-${uuidv4()}`;
 }

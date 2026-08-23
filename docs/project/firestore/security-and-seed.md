@@ -4,15 +4,16 @@ snapshot metadataは`../firestore.md`、Rulesの正本は`firebase/firestore.rul
 
 ## Security Rules
 
-| Match                                            | Read                 | Write                                                       |
-| ------------------------------------------------ | -------------------- | ----------------------------------------------------------- |
-| `users/{userId}`                                 | owner                | owner                                                       |
-| `users/{userId}/diaries/{diaryId}`               | owner                | owner                                                       |
-| `users/{userId}/favorites/{favoriteId}`          | owner                | owner                                                       |
-| `users/{userId}/settings/appearance`             | owner                | owner                                                       |
-| `users/{userId}/settings/profile`                | owner                | owner                                                       |
-| `users/{userId}/settings/memory/{memoryPath=**}` | owner                | owner                                                       |
-| `sharedDiaries/{shareId}`                        | unconditional public | create: auth UID、update/delete: existing UID               |
+| Match                                            | Read                 | Write                                                   |
+| ------------------------------------------------ | -------------------- | ------------------------------------------------------- |
+| `users/{userId}`                                 | owner                | owner                                                   |
+| `users/{userId}/diaries/{diaryId}`               | owner                | owner                                                   |
+| `users/{userId}/favorites/{favoriteId}`          | owner                | owner                                                   |
+| `users/{userId}/settings/appearance`             | owner                | owner                                                   |
+| `users/{userId}/settings/profile`                | owner                | owner                                                   |
+| `users/{userId}/settings/memory/{memoryPath=**}` | owner                | owner                                                   |
+| `users/{userId}/legalAcceptances/{version}`      | owner get            | owner createと未同意から同意済みへの更新。payloadを検証 |
+| `sharedDiaries/{shareId}`                        | unconditional public | create: auth UID、update/delete: existing UID           |
 
 - public readはsingle getだけでなくlist / queryも許可します。
 - private pathはpath owner UIDを確認します。
@@ -20,6 +21,7 @@ snapshot metadataは`../firestore.md`、Rulesの正本は`firebase/firestore.rul
 - diary / settings payloadの`uid`とpath ownerの一致は検証しません。
 - shared updateは既存`resource.data.uid`を確認しますが、新しい`request.resource.data.uid`の不変性を検証しません。
 - その他のpathは明示的allowがなくdenyされます。
+- legal acceptanceは未同意を示す`confirmedAdult: false`の既存記録に限り、有効な同意済みpayloadへのupdateを許可します。list / deleteと同意済み記録のupdateはdenyし、過去の証跡を保持します。
 
 ## Indexes and Firestore features
 
@@ -39,6 +41,7 @@ snapshot metadataは`../firestore.md`、Rulesの正本は`firebase/firestore.rul
 
 - `settings/profile`、`sharedDiaries`
 - `favorites`
+- `legalAcceptances`
 - Storage image metadata / object
 
 seed前に対象userの`users/{uid}`以下をrecursive deleteしますが、top-level `sharedDiaries`は削除しません。shapeはzodで検証し、write後にAuthとcollection件数を確認します。Rules unit testではありません。

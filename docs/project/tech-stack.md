@@ -18,18 +18,20 @@ versionは変動情報です。`package.json`、lockfile、各設定を現在状
 
 ## Notable libraries
 
-| Library                   | Current use                          |
-| ------------------------- | ------------------------------------ |
-| FullCalendar              | home月Calendar                       |
-| Radix Collapsible         | sidebarのfavorite section開閉        |
-| react-day-picker          | Dialog内の日付選択                   |
-| Embla Carousel            | diary画像carousel                    |
-| date-fns / uuid           | 日付処理 / ID生成                    |
-| Sonner                    | toast                                |
-| Motion                    | text / login motion、reduced-motion  |
-| Three.js + postprocessing | Login背景                            |
-| next-themes               | Sonnerが`next-themes/useTheme`を参照 |
-| firebase-admin + tsx      | Emulator-only seed                   |
+| Library                     | Current use                           |
+| --------------------------- | ------------------------------------- |
+| FullCalendar                | home月Calendar                        |
+| Radix Collapsible           | sidebarのfavorite section開閉         |
+| react-day-picker            | Dialog内の日付選択                    |
+| Embla Carousel              | diary画像carousel                     |
+| date-fns / uuid             | 日付処理 / ID生成                     |
+| Sonner                      | toast                                 |
+| Motion                      | text / login motion、reduced-motion   |
+| Three.js + postprocessing   | Login背景                             |
+| next-themes                 | Sonnerが`next-themes/useTheme`を参照  |
+| react-markdown / remark-gfm | リーガルMarkdownの安全な描画とGFM対応 |
+| yaml                        | リーガル文書front matter解析          |
+| firebase-admin + tsx        | Emulator-only seed                    |
 
 app themeは独自`useTheme`がdocument classを操作し、rootにnext-themesの`ThemeProvider`はありません。CSSにはOKLCH、旧HSL、dark tokenが併存し、単一形式は確立していません。
 

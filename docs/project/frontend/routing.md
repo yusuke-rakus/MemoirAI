@@ -8,7 +8,7 @@
 
 ### Authenticated routes
 
-`AppShellLayout`がauth確認中のfull-page loadingと、認証済みroute間で維持される標準`MainLayout`を担当します。その内側の`AuthenticatedLayout`が未認証ユーザーを`/login`へredirectします。
+`AppShellLayout`がauth確認と必須同意versionの確認、認証済みroute間で維持される標準`MainLayout`を担当します。同意記録がない場合はapp contentを描画せずfull-page gateを表示します。その内側の`AuthenticatedLayout`が未認証ユーザーを`/login`へredirectします。
 
 | Path                        | Result / fallback                       |
 | --------------------------- | --------------------------------------- |
@@ -28,10 +28,16 @@
 
 ### Public routes
 
-| Path               | Result            | Notes                                                                               |
-| ------------------ | ----------------- | ----------------------------------------------------------------------------------- |
-| `/login`           | `LoginPage`       | `LoginHeader`、sidebarなし                                                          |
-| `/shared/:diaryId` | `SharedDiaryPage` | 公開共有copy。未認証はpage側のpublic shell、認証時は永続する標準shellとfavorite操作 |
+| Path               | Result                | Notes                                                                               |
+| ------------------ | --------------------- | ----------------------------------------------------------------------------------- |
+| `/login`           | `LoginPage`           | `LoginHeader`、sidebarなし                                                          |
+| `/shared/:diaryId` | `SharedDiaryPage`     | 公開共有copy。未認証はpage側のpublic shell、認証時は永続する標準shellとfavorite操作 |
+| `/legal`           | `LegalPage`           | Markdown管理の3文書を1ページで公開。認証・同意状態に関係なく閲覧可能                |
+| `/terms`           | `LegacyLegalRedirect` | `/legal#terms`へreplace                                                             |
+| `/privacy`         | `LegacyLegalRedirect` | `/legal#privacy`へreplace                                                           |
+| `/ai-data-use`     | `LegacyLegalRedirect` | `/legal#ai-data-use`へreplace                                                       |
+
+認証済みの`/shared/:diaryId`も必須同意gateの対象です。未認証での公開共有閲覧とlegal routeはgate対象外です。`/legal`の戻るlinkだけは軽量なAuth listenerで認証状態を判定し、認証済みでは`/`、未認証では`/login`へ戻します。
 
 ### Navigation sources
 

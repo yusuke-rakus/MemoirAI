@@ -25,6 +25,49 @@ service cloud.firestore {
         allow read, write: if request.auth != null
                            && request.auth.uid == userId;
       }
+
+      match /legalAcceptances/{consentVersion} {
+        function isOwner() {
+          return request.auth != null && request.auth.uid == userId;
+        }
+
+        function isValidAcceptance() {
+          return request.resource.data.keys().hasOnly([
+                   'uid',
+                   'requiredConsentVersion',
+                   'documentVersions',
+                   'confirmedAdult',
+                   'acceptanceMethod',
+                   'locale',
+                   'acceptedAt'
+                 ])
+                 && request.resource.data.uid == userId
+                 && request.resource.data.requiredConsentVersion == consentVersion
+                 && request.resource.data.requiredConsentVersion is string
+                 && request.resource.data.documentVersions is map
+                 && request.resource.data.documentVersions.keys().hasOnly([
+                   'terms',
+                   'privacy',
+                   'aiDataUse'
+                 ])
+                 && request.resource.data.documentVersions.terms is string
+                 && request.resource.data.documentVersions.privacy is string
+                 && request.resource.data.documentVersions.aiDataUse is string
+                 && request.resource.data.confirmedAdult == true
+                 && request.resource.data.acceptanceMethod == 'single-checkbox'
+                 && request.resource.data.locale == 'ja-JP'
+                 && request.resource.data.acceptedAt == request.time;
+        }
+
+        allow get: if isOwner();
+        allow create: if isOwner() && isValidAcceptance();
+        allow update: if isOwner()
+                      && resource.data.uid == userId
+                      && resource.data.requiredConsentVersion == consentVersion
+                      && resource.data.confirmedAdult == false
+                      && isValidAcceptance();
+        allow list, delete: if false;
+      }
     }
 
     match /sharedDiaries/{shareId} {

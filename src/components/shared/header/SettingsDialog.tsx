@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { LegalLinks } from "@/features/legal/components/LegalLinks";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,7 @@ import type {
 } from "@/types/memory";
 import {
   Brain,
+  BookOpen,
   Check,
   Monitor,
   Moon,
@@ -411,6 +413,20 @@ export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
                           );
                         })}
                       </div>
+                    </section>
+                    <section className="border-t pt-6">
+                      <div className="flex items-center gap-2">
+                        <BookOpen className="size-4" />
+                        <h3 className="text-sm font-semibold">利用規約</h3>
+                      </div>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        プライバシーポリシーとAIデータ利用方針も確認できます。
+                      </p>
+                      <LegalLinks
+                        target="_blank"
+                        className="mt-3 flex-col gap-2"
+                        linkClassName="w-fit text-sm text-primary"
+                      />
                     </section>
                   </div>
                 </ScrollArea>

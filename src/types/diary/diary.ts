@@ -17,6 +17,7 @@ export type DiaryImage = {
 export type Diary = {
   id: string;
   uid: string;
+  shareId?: string;
   date: Timestamp;
   title: string;
   content: string;

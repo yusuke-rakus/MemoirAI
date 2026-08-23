@@ -18,6 +18,7 @@ vi.mock("@/contexts/LocalUserContext", () => ({
 
 vi.mock("@/lib/service/favoriteClient", () => ({
   FavoriteClient: {
+    delete: vi.fn(),
     getByUidPaged: vi.fn(),
   },
 }));
@@ -40,6 +41,7 @@ vi.mock("sonner", () => ({
 
 const useLocalUserMock = vi.mocked(useLocalUser);
 const getByUidPagedMock = vi.mocked(FavoriteClient.getByUidPaged);
+const deleteFavoriteMock = vi.mocked(FavoriteClient.delete);
 const getByShareIdsMock = vi.mocked(SharedDiaryClient.getByShareIds);
 const useFavoriteRefreshStoreMock = vi.mocked(useFavoriteRefreshStore);
 const toastErrorMock = vi.mocked(toast.error);
@@ -75,6 +77,7 @@ beforeEach(() => {
     selector({ revision: refreshRevision, requestRefresh: vi.fn() }),
   );
   getByUidPagedMock.mockResolvedValue(createPage([]));
+  deleteFavoriteMock.mockResolvedValue(undefined);
   getByShareIdsMock.mockResolvedValue([]);
 });
 
@@ -134,6 +137,26 @@ describe("useFetchFavoriteDiaries", () => {
       result.current.favoriteDiaries[result.current.favoriteDiaries.length - 1]
         ?.sharedDiaryId,
     ).toBe("shared-10");
+    expect(deleteFavoriteMock).toHaveBeenCalledWith("user-1", "shared-9");
+  });
+
+  it("無効なお気に入りの削除に失敗しても有効な一覧を表示する", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    getByUidPagedMock.mockResolvedValue(
+      createPage(["shared-active", "shared-stale"]),
+    );
+    getByShareIdsMock.mockResolvedValue([createResolvedDiary("shared-active")]);
+    deleteFavoriteMock.mockRejectedValue(new Error("delete failed"));
+
+    const { result } = renderHook(() => useFetchFavoriteDiaries(true));
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(result.current.favoriteDiaries).toEqual([
+      { sharedDiaryId: "shared-active", title: "shared-active-title" },
+    ]);
+    expect(deleteFavoriteMock).toHaveBeenCalledWith("user-1", "shared-stale");
+    expect(toastErrorMock).not.toHaveBeenCalled();
   });
 
   it("さらに10件を既存一覧へ追加する", async () => {

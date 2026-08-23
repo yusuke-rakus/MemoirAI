@@ -16,7 +16,9 @@ vi.mock("@/contexts/LocalUserContext", () => ({
 
 vi.mock("@/lib/service/sharedDiaryClient", () => ({
   SharedDiaryClient: {
+    getActiveShareId: vi.fn(),
     publish: vi.fn(),
+    unpublish: vi.fn(),
   },
 }));
 
@@ -38,6 +40,8 @@ const diary: Diary = {
 };
 
 const publishMock = vi.mocked(SharedDiaryClient.publish);
+const getActiveShareIdMock = vi.mocked(SharedDiaryClient.getActiveShareId);
+const unpublishMock = vi.mocked(SharedDiaryClient.unpublish);
 const toastSuccessMock = vi.mocked(toast.success);
 const toastErrorMock = vi.mocked(toast.error);
 
@@ -54,6 +58,51 @@ const createPopup = () => {
 };
 
 describe("useShareDiary", () => {
+  it("共有メニューを開いたときに共有状態を取得する", async () => {
+    getActiveShareIdMock.mockResolvedValue("share-active");
+    const { result } = renderHook(() => useShareDiary(diary));
+
+    await act(async () => {
+      await result.current.checkShareStatus();
+    });
+
+    expect(getActiveShareIdMock).toHaveBeenCalledWith(diary);
+    expect(result.current.isShared).toBe(true);
+    expect(result.current.isCheckingShareStatus).toBe(false);
+  });
+
+  it("共有停止後に状態を更新して成功を通知する", async () => {
+    getActiveShareIdMock.mockResolvedValue("share-active");
+    unpublishMock.mockResolvedValue({ wasShared: true });
+    const { result } = renderHook(() => useShareDiary(diary));
+
+    await act(async () => {
+      await result.current.checkShareStatus();
+      await result.current.unshareDiary();
+    });
+
+    expect(unpublishMock).toHaveBeenCalledWith(diary);
+    expect(result.current.isShared).toBe(false);
+    expect(toastSuccessMock).toHaveBeenCalledWith("共有を停止しました");
+  });
+
+  it("共有停止に失敗した場合は共有中の状態を維持する", async () => {
+    getActiveShareIdMock.mockResolvedValue("share-active");
+    unpublishMock.mockRejectedValue(new Error("unpublish failed"));
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const { result } = renderHook(() => useShareDiary(diary));
+
+    await act(async () => {
+      await result.current.checkShareStatus();
+    });
+    await act(async () => {
+      await result.current.unshareDiary();
+    });
+
+    expect(result.current.isShared).toBe(true);
+    expect(toastErrorMock).toHaveBeenCalledWith("共有の停止に失敗しました");
+  });
+
   it("公開した共有URLをclipboardへコピーし、処理中状態を更新する", async () => {
     let resolvePublish: ((value: { shareId: string }) => void) | undefined;
     const publishPromise = new Promise<{ shareId: string }>((resolve) => {
