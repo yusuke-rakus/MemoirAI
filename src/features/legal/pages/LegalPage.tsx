@@ -12,7 +12,13 @@ export const LegalPage = () => {
     const frame = window.requestAnimationFrame(() => {
       document
         .getElementById(decodeURIComponent(hash.slice(1)))
-        ?.scrollIntoView({ block: "start" });
+        ?.scrollIntoView({
+          behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)")
+            .matches
+            ? "auto"
+            : "smooth",
+          block: "start",
+        });
     });
 
     return () => window.cancelAnimationFrame(frame);

@@ -34,7 +34,7 @@ beforeEach(() => {
 });
 
 describe("LegalDocumentLayout", () => {
-  it("Markdownを安全に描画し、versionは日付部分だけを表示する", () => {
+  it("Markdownを安全に描画し、規約の日付を簡潔に表示する", () => {
     const { container } = render(
       <MemoryRouter>
         <LegalDocumentLayout documents={[document]} />
@@ -44,8 +44,10 @@ describe("LegalDocumentLayout", () => {
     expect(
       screen.getByRole("heading", { name: "利用規約", level: 2 }),
     ).toBeVisible();
-    expect(screen.getByText("2026-08-22")).toBeVisible();
+    expect(screen.getByText("2026年8月22日版")).toBeVisible();
     expect(screen.queryByText("2026-08-22.12345678")).not.toBeInTheDocument();
+    expect(screen.queryByText("制定・施行日")).not.toBeInTheDocument();
+    expect(screen.queryByText("文書バージョン")).not.toBeInTheDocument();
     expect(container.querySelector("script")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "外部リンク" })).toHaveAttribute(
       "rel",

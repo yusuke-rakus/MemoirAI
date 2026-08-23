@@ -50,6 +50,7 @@ describe("LegalPage", () => {
 
     await waitFor(() =>
       expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
+        behavior: "smooth",
         block: "start",
       }),
     );
