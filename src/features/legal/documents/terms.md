@@ -1,7 +1,7 @@
 ---
 id: terms
 title: 利用規約
-version: "2026-08-23.696d2c73"
+version: "2026-08-23.c1b10f26"
 effectiveDate: "2026-08-23"
 introduction: 本規約は、MemoirAIが提供するAI日記サービスの利用条件を定めるものです。
 ---
