@@ -27,10 +27,26 @@ describe("LegalConsentGate", () => {
   it("統合された利用規約を別タブで開く", () => {
     renderGate();
 
-    const link = screen.getByRole("link", { name: "利用規約" });
+    const link = screen.getByRole("link", {
+      name: "利用規約を確認（別タブ）",
+    });
     expect(link).toHaveAttribute("href", "/legal");
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noopener noreferrer");
+  });
+
+  it("簡潔な案内と同意内容を表示する", () => {
+    renderGate();
+
+    expect(
+      screen.getByRole("heading", { name: "ご利用前にご確認ください" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("初回のみご確認ください"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/記載された目的での情報の取り扱い/),
+    ).toBeInTheDocument();
   });
 
   it("確認前は同意できず、check後に1回だけ保存する", async () => {
@@ -41,7 +57,9 @@ describe("LegalConsentGate", () => {
 
     expect(submitButton).toBeDisabled();
 
-    await user.click(screen.getByRole("checkbox"));
+    await user.click(
+      screen.getByText(/私は18歳以上です。利用規約、プライバシーポリシー/),
+    );
     expect(submitButton).toBeEnabled();
 
     await user.click(submitButton);

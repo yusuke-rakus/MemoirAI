@@ -127,7 +127,7 @@ describe("AppShellLayout", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "MemoirAIを安心してお使いいただくために",
+        name: "ご利用前にご確認ください",
       }),
     ).toBeInTheDocument();
     expect(screen.queryByTestId("main-layout")).not.toBeInTheDocument();
