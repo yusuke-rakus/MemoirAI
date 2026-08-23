@@ -10,6 +10,7 @@ code、types、Security Rules、seedから確認できる現在状態です。Fi
 users/{uid}
 ├─ diaries/{diaryId}
 ├─ favorites/{sharedDiaryId}
+├─ legalAcceptances/{requiredConsentVersion}
 └─ settings
    ├─ appearance
    ├─ profile
@@ -30,4 +31,5 @@ sharedDiaries/{shareId}
 - appearanceとprofile settings: `firestore/settings.md`
 - long-term memory: `firestore/memory.md`
 - shared diaryと同期境界: `firestore/sharing.md`
+- 利用規約等の同意証跡: `firestore/legal-consent.md`
 - Security Rules、index、seed: `firestore/security-and-seed.md`

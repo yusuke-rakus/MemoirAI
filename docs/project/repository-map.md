@@ -13,7 +13,7 @@
 | ESLint / Prettier config            | repository-wide lint / format           |
 | `firebase.json`、`firebase/*.rules` | Hosting、Emulator、Security Rules       |
 | `compose.yaml`、`docker/`           | local Emulator runtime                  |
-| `scripts/`                          | local運用scriptとseed                   |
+| `scripts/`                          | local運用script、seed、リーガル文書検証 |
 | `.github/workflows/`                | CI/CD                                   |
 | `docs/`                             | rules、architecture、snapshot、workflow |
 
@@ -35,7 +35,7 @@
 | `src/constants`              | path、theme、画像制約、共有固定値                       |
 | `src/index.css`              | global CSS、theme variable、Tailwind mapping            |
 
-active featureはhome、createDiary、diaries、searchDiary、sharedDiary、login、sidebarです。sidebarは自分の日記とfavorite共有日記のpaged listを持ちます。`src/features/editDiary`に追跡sourceはなく、編集UIはdiaries配下にあります。
+active featureはhome、createDiary、diaries、searchDiary、sharedDiary、login、legal、sidebarです。legalは`documents/*.md`を正本とする統合公開ページと初回ログイン後の同意gateを持ちます。sidebarは自分の日記とfavorite共有日記のpaged listを持ちます。`src/features/editDiary`に追跡sourceはなく、編集UIはdiaries配下にあります。
 
 createDiaryは通常保存と絵日記保存を持ちます。保存modeはfeature-local state、画像model設定は`src/firebase/models`、生成responseから`File`への変換は`src/lib/service/diaryIllustrationClient.ts`、永続化は既存`DiaryImageClient`の責務です。
 
