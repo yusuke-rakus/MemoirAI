@@ -27,7 +27,7 @@ snapshot metadataは`../firebase.md`を参照してください。
 - diary作成はStorage upload後にFirestoreへsetし、失敗時はupload済み画像の削除を試みます。AI生成画像も同じrollback対象です。
 - 編集は新画像upload → Firestore merge → 旧画像deleteです。Firestore失敗時は新画像をrollbackします。
 - 編集成功後の旧画像delete失敗はwarningとなり、孤児objectが残り得ます。
-- 削除はStorage → Firestoreの順で、後段失敗時はdocumentが削除済み画像を参照し得ます。
+- 削除は共有停止 → private Firestore document削除 → Storage画像整理の順です。共有停止失敗時は削除を中断し、Firestore削除後の画像整理失敗はwarningとして孤児objectを許容します。
 - diary作成後のmemory保存失敗は、作成済みdiaryの成功を取り消しません。
 - display nameとshared document更新はFirestore batchです。詳細は`../firestore/sharing.md`を参照します。
 - Storage、Firestore、AIを跨ぐtransactionはありません。

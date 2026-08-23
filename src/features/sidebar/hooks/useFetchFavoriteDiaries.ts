@@ -50,6 +50,24 @@ const fetchResolvedFavoritePage = async (
       resolvedDiaries.map(({ sharedDiaryId, diary }) => [sharedDiaryId, diary]),
     );
 
+    const staleFavoriteIds = page.favorites
+      .map((favorite) => favorite.sharedDiaryId)
+      .filter((sharedDiaryId) => !diaryById.has(sharedDiaryId));
+    const cleanupResults = await Promise.allSettled(
+      staleFavoriteIds.map((sharedDiaryId) =>
+        FavoriteClient.delete(uid, sharedDiaryId),
+      ),
+    );
+
+    cleanupResults.forEach((result, index) => {
+      if (result.status === "rejected") {
+        console.error(
+          `Failed to delete stale favorite: ${staleFavoriteIds[index]}`,
+          result.reason,
+        );
+      }
+    });
+
     page.favorites.forEach(({ sharedDiaryId }) => {
       const diary = diaryById.get(sharedDiaryId);
       if (diary) {

@@ -3,6 +3,7 @@ import { toast } from "sonner";
 
 import { DiaryClient } from "@/lib/service/diaryClient";
 import { DiaryImageClient } from "@/lib/service/diaryImageClient";
+import { SharedDiaryClient } from "@/lib/service/sharedDiaryClient";
 import type { Diary, DiaryImage } from "@/types/diary/diary";
 import { Timestamp } from "firebase/firestore";
 import { invalidateDiarySearchCache } from "@/stores/diarySearchStore";
@@ -95,22 +96,38 @@ export const useDiaryPreviewActions = ({
 
   const deleteDiary = useCallback(async () => {
     setIsDeleting(true);
+    let wasShared = false;
+
     try {
-      await DiaryImageClient.deleteMany(diary.images ?? []);
+      const unshareResult = await SharedDiaryClient.unpublish(diary);
+      wasShared = unshareResult.wasShared;
       await DiaryClient.delete(diary.uid, diary.id);
       invalidateDiarySearchCache();
       requestDiaryRefresh();
       await onCompleted();
-      toast.success("日記を削除しました");
-      return true;
     } catch (error) {
       console.error("Failed to delete diary", error);
-      toast.error("日記の削除に失敗しました");
+      toast.error(
+        wasShared
+          ? "共有は停止しましたが、日記の削除に失敗しました"
+          : "日記の削除に失敗しました",
+      );
+      setIsDeleting(false);
       return false;
+    }
+
+    try {
+      await DiaryImageClient.deleteMany(diary.images ?? []);
+      toast.success("日記を削除しました");
+    } catch (error) {
+      console.error("Failed to delete diary images", error);
+      toast.warning("日記を削除しましたが、画像の整理に失敗しました");
     } finally {
       setIsDeleting(false);
     }
-  }, [diary.id, diary.images, diary.uid, onCompleted]);
+
+    return true;
+  }, [diary, onCompleted]);
 
   return {
     isUpdating,

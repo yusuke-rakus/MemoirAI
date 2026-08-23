@@ -5,6 +5,8 @@ import type { Diary } from "@/types/diary/diary";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
+type ShareStatus = "idle" | "loading" | "shared" | "not-shared" | "error";
+
 const copyToClipboard = async (text: string) => {
   if (!navigator.clipboard?.writeText) {
     return false;
@@ -29,15 +31,50 @@ const buildXShareUrl = (shareUrl: string, title: string) =>
 
 export const useShareDiary = (diary: Diary) => {
   const [isSharing, setIsSharing] = useState(false);
+  const [isUnsharing, setIsUnsharing] = useState(false);
+  const [shareStatus, setShareStatus] = useState<ShareStatus>("idle");
   const { localUser } = useLocalUser();
+
+  const checkShareStatus = useCallback(async () => {
+    if (shareStatus !== "idle" && shareStatus !== "error") {
+      return;
+    }
+
+    setShareStatus("loading");
+    try {
+      const shareId = await SharedDiaryClient.getActiveShareId(diary);
+      setShareStatus(shareId ? "shared" : "not-shared");
+    } catch (error) {
+      console.error("Failed to check diary share status", error);
+      setShareStatus("error");
+      toast.error("共有状態の確認に失敗しました");
+    }
+  }, [diary, shareStatus]);
 
   const publishShareUrl = useCallback(async () => {
     const { shareId } = await SharedDiaryClient.publish(
       diary,
       localUser.displayName,
     );
+    setShareStatus("shared");
     return buildShareUrl(shareId);
   }, [diary, localUser.displayName]);
+
+  const unshareDiary = useCallback(async () => {
+    setIsUnsharing(true);
+    try {
+      await SharedDiaryClient.unpublish(diary);
+      setShareStatus("not-shared");
+      toast.success("共有を停止しました");
+      return true;
+    } catch (error) {
+      console.error("Failed to unshare diary", error);
+      toast.error("共有の停止に失敗しました");
+      return false;
+    } finally {
+      setIsUnsharing(false);
+    }
+  }, [diary]);
 
   const copyShareLink = useCallback(async () => {
     setIsSharing(true);
@@ -112,6 +149,12 @@ export const useShareDiary = (diary: Diary) => {
 
   return {
     isSharing,
+    isUnsharing,
+    isShared: shareStatus === "shared",
+    isCheckingShareStatus: shareStatus === "loading",
+    hasShareStatusError: shareStatus === "error",
+    checkShareStatus,
+    unshareDiary,
     copyShareLink,
     shareToLine,
     shareToX,
