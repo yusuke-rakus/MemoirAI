@@ -8,23 +8,23 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-type DiaryDeleteDialogProps = {
+type DiaryUnshareDialogProps = {
   title: string;
   isOpen: boolean;
-  isDeleting: boolean;
+  isUnsharing: boolean;
   onOpenChange: (open: boolean) => void;
-  onDelete: () => Promise<void>;
+  onUnshare: () => Promise<void>;
 };
 
-export const DiaryDeleteDialog = ({
+export const DiaryUnshareDialog = ({
   title,
   isOpen,
-  isDeleting,
+  isUnsharing,
   onOpenChange,
-  onDelete,
-}: DiaryDeleteDialogProps) => {
+  onUnshare,
+}: DiaryUnshareDialogProps) => {
   const handleOpenChange = (open: boolean) => {
-    if (isDeleting) return;
+    if (isUnsharing) return;
 
     onOpenChange(open);
   };
@@ -33,10 +33,10 @@ export const DiaryDeleteDialog = ({
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>日記を削除しますか？</DialogTitle>
+          <DialogTitle>共有を停止しますか？</DialogTitle>
           <DialogDescription>
             「{title}
-            」を削除します。共有中の場合は共有も停止されます。この操作は取り消せません。
+            」の現在の共有リンクを無効にします。再共有すると新しいリンクが発行されます。
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex-row gap-2 sm:gap-0">
@@ -45,7 +45,7 @@ export const DiaryDeleteDialog = ({
             variant="outline"
             className="flex-1 sm:flex-none"
             onClick={() => handleOpenChange(false)}
-            disabled={isDeleting}
+            disabled={isUnsharing}
           >
             キャンセル
           </Button>
@@ -53,10 +53,10 @@ export const DiaryDeleteDialog = ({
             type="button"
             variant="destructive"
             className="flex-1 sm:flex-none"
-            onClick={onDelete}
-            disabled={isDeleting}
+            onClick={onUnshare}
+            disabled={isUnsharing}
           >
-            {isDeleting ? "削除中..." : "削除する"}
+            {isUnsharing ? "停止中..." : "共有を停止する"}
           </Button>
         </DialogFooter>
       </DialogContent>

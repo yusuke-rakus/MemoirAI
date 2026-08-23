@@ -36,6 +36,7 @@ import {
   Share2,
   Tag,
   Trash2,
+  Unlink,
 } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -48,6 +49,7 @@ import { useShareDiary } from "../hooks/useShareDiary";
 import { DiaryDeleteDialog } from "./DiaryDeleteDialog";
 import { DiaryEditDialog } from "./DiaryEditDialog";
 import { DiaryImageGrid } from "./DiaryImageGrid";
+import { DiaryUnshareDialog } from "./DiaryUnshareDialog";
 
 type DiaryPreviewCardProps = {
   diary: Diary;
@@ -62,8 +64,19 @@ export const DiaryPreviewCard = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const { isSharing, copyShareLink, shareToLine, shareToX } =
-    useShareDiary(diary);
+  const [isUnshareDialogOpen, setIsUnshareDialogOpen] = useState(false);
+  const {
+    isSharing,
+    isUnsharing,
+    isShared,
+    isCheckingShareStatus,
+    hasShareStatusError,
+    checkShareStatus,
+    unshareDiary,
+    copyShareLink,
+    shareToLine,
+    shareToX,
+  } = useShareDiary(diary);
   const { isUpdating, isDeleting, updateDiary, deleteDiary } =
     useDiaryPreviewActions({
       diary,
@@ -95,6 +108,14 @@ export const DiaryPreviewCard = ({
     }
   };
 
+  const handleUnshare = async () => {
+    const isUnshared = await unshareDiary();
+
+    if (isUnshared) {
+      setIsUnshareDialogOpen(false);
+    }
+  };
+
   const handleEditSelect = useCallback(() => {
     setIsMenuOpen(false);
     requestAnimationFrame(() => setIsEditDialogOpen(true));
@@ -103,6 +124,11 @@ export const DiaryPreviewCard = ({
   const handleDeleteSelect = useCallback(() => {
     setIsMenuOpen(false);
     requestAnimationFrame(() => setIsDeleteDialogOpen(true));
+  }, []);
+
+  const handleUnshareSelect = useCallback(() => {
+    setIsMenuOpen(false);
+    requestAnimationFrame(() => setIsUnshareDialogOpen(true));
   }, []);
 
   return (
@@ -139,7 +165,13 @@ export const DiaryPreviewCard = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-fit p-2">
-                <DropdownMenuSub>
+                <DropdownMenuSub
+                  onOpenChange={(open) => {
+                    if (open) {
+                      void checkShareStatus();
+                    }
+                  }}
+                >
                   <DropdownMenuSubTrigger
                     className="justify-start"
                     disabled={isSharing}
@@ -190,6 +222,39 @@ export const DiaryPreviewCard = ({
                         <XIcon />
                         Xで共有
                       </DropdownMenuItem>
+                      {isCheckingShareStatus && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem disabled>
+                            <Loader2 className="animate-spin" />
+                            共有状態を確認中...
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                      {hasShareStatusError && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem disabled>
+                            共有状態を確認できません
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                      {isShared && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="justify-start"
+                            variant="destructive"
+                            onSelect={(event) => {
+                              event.preventDefault();
+                              handleUnshareSelect();
+                            }}
+                          >
+                            <Unlink />
+                            共有を停止
+                          </DropdownMenuItem>
+                        </>
+                      )}
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
@@ -256,6 +321,13 @@ export const DiaryPreviewCard = ({
         isDeleting={isDeleting}
         onOpenChange={setIsDeleteDialogOpen}
         onDelete={handleDelete}
+      />
+      <DiaryUnshareDialog
+        title={diary.title}
+        isOpen={isUnshareDialogOpen}
+        isUnsharing={isUnsharing}
+        onOpenChange={setIsUnshareDialogOpen}
+        onUnshare={handleUnshare}
       />
     </>
   );

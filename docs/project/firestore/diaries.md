@@ -8,6 +8,7 @@ path: `users/{uid}/diaries/{diaryId}`、client: `src/lib/service/diaryClient.ts`
 | ----------- | ----------------------------------- | ----------------------------------------- |
 | `id`        | `string`                            | document IDと同値                         |
 | `uid`       | `string`                            | owner UID                                 |
+| `shareId`   | `string`、optional                  | 現在有効な共有document ID                 |
 | `date`      | `Timestamp` on read                 | `Date`または`Timestamp`を書く             |
 | `title`     | `string`                            | AI生成、edit可能                          |
 | `content`   | `string`                            | 本文                                      |
@@ -18,7 +19,7 @@ path: `users/{uid}/diaries/{diaryId}`、client: `src/lib/service/diaryClient.ts`
 
 `DiaryImage`は`id`、`storagePath`、`downloadURL`、`width`、`height`、`contentType`です。型は`src/types/diary/diary.ts`を正本とします。
 
-現行edit flowは`createdAt`を渡さず値を維持し、`updatedAt`だけを更新します。日記カードはlegacy dataで`updatedAt`がない場合に`createdAt`を最終更新日時として表示します。
+現行edit flowは`createdAt`と`shareId`を渡さず値を維持し、`updatedAt`だけを更新します。日記カードはlegacy dataで`updatedAt`がない場合に`createdAt`を最終更新日時として表示します。
 
 ## Reads
 
@@ -35,6 +36,7 @@ path: `users/{uid}/diaries/{diaryId}`、client: `src/lib/service/diaryClient.ts`
 
 - add: `setDoc(users/{uid}/diaries/{id}, data)`。
 - update: `setDoc(..., { merge: true })`、delete: document `delete`。
+- 共有開始 / 停止は`SharedDiaryClient`がtransactionで`shareId`を設定 / 除去し、公開copyと同期します。
 - Storageとの順序と失敗挙動は`../firebase/ai-and-operations.md`を参照します。
 - callerはcreateDiaryの作成、homeの月取得、diariesの日取得・編集・削除です。
 - sidebarがpaging、`DiarySearchDialog`が全件取得を呼びます。

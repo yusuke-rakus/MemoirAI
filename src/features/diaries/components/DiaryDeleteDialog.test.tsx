@@ -31,7 +31,7 @@ describe("DiaryDeleteDialog", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        "「夏の思い出」を削除します。この操作は取り消せません。",
+        "「夏の思い出」を削除します。共有中の場合は共有も停止されます。この操作は取り消せません。",
       ),
     ).toBeInTheDocument();
   });
