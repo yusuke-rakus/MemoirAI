@@ -1,4 +1,6 @@
+import { useLegalAcceptance } from "@/features/legal/hooks/useLegalAcceptance";
 import { useAuthCheck } from "@/hooks/useAuthCheck";
+import { useUserInitialization } from "@/hooks/useUserInitialization";
 import { fireEvent, render, screen } from "@testing-library/react";
 import type { User } from "firebase/auth";
 import type { ReactNode } from "react";
@@ -16,6 +18,14 @@ vi.mock("@/hooks/useAuthCheck", () => ({
   useAuthCheck: vi.fn(),
 }));
 
+vi.mock("@/features/legal/hooks/useLegalAcceptance", () => ({
+  useLegalAcceptance: vi.fn(),
+}));
+
+vi.mock("@/hooks/useUserInitialization", () => ({
+  useUserInitialization: vi.fn(),
+}));
+
 vi.mock("./MainLayout", () => ({
   MainLayout: ({ children }: { children: ReactNode }) => (
     <div data-testid="main-layout">{children}</div>
@@ -23,6 +33,16 @@ vi.mock("./MainLayout", () => ({
 }));
 
 const useAuthCheckMock = vi.mocked(useAuthCheck);
+const useLegalAcceptanceMock = vi.mocked(useLegalAcceptance);
+const useUserInitializationMock = vi.mocked(useUserInitialization);
+
+const acceptedLegalState = {
+  status: "accepted",
+  isSubmitting: false,
+  submitError: false,
+  accept: vi.fn(),
+  retry: vi.fn(),
+} satisfies ReturnType<typeof useLegalAcceptance>;
 
 const ContextView = () => {
   const { user } = useOutletContext<AppShellOutletContext>();
@@ -43,6 +63,11 @@ const renderShell = () =>
 
 beforeEach(() => {
   useAuthCheckMock.mockReturnValue({ loading: false, user: null });
+  useLegalAcceptanceMock.mockReturnValue(acceptedLegalState);
+  useUserInitializationMock.mockReturnValue({
+    status: "ready",
+    retry: vi.fn(),
+  });
 });
 
 describe("AppShellLayout", () => {
@@ -70,6 +95,59 @@ describe("AppShellLayout", () => {
       screen.getByTestId("outlet-user"),
     );
     expect(screen.getByTestId("outlet-user")).toHaveTextContent("user-1");
+  });
+
+  it("認証済みでも同意確認中はOutletを描画しない", () => {
+    useAuthCheckMock.mockReturnValue({
+      loading: false,
+      user: { uid: "user-1" } as User,
+    });
+    useLegalAcceptanceMock.mockReturnValue({
+      ...acceptedLegalState,
+      status: "loading",
+    });
+
+    renderShell();
+
+    expect(screen.getByText("同意状況を確認中...")).toBeInTheDocument();
+    expect(screen.queryByTestId("outlet-user")).not.toBeInTheDocument();
+  });
+
+  it("未同意ユーザーにはapp contentより先に同意gateを表示する", () => {
+    useAuthCheckMock.mockReturnValue({
+      loading: false,
+      user: { uid: "user-1" } as User,
+    });
+    useLegalAcceptanceMock.mockReturnValue({
+      ...acceptedLegalState,
+      status: "required",
+    });
+
+    renderShell();
+
+    expect(
+      screen.getByRole("heading", {
+        name: "ご利用前にご確認ください",
+      }),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("main-layout")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("outlet-user")).not.toBeInTheDocument();
+  });
+
+  it("同意済みでも利用準備中はapp contentを描画しない", () => {
+    useAuthCheckMock.mockReturnValue({
+      loading: false,
+      user: { uid: "user-1" } as User,
+    });
+    useUserInitializationMock.mockReturnValue({
+      status: "loading",
+      retry: vi.fn(),
+    });
+
+    renderShell();
+
+    expect(screen.getByText("利用準備中...")).toBeInTheDocument();
+    expect(screen.queryByTestId("outlet-user")).not.toBeInTheDocument();
   });
 
   it("未認証では標準shellを描画せず公開Outletを表示する", () => {

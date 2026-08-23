@@ -1,5 +1,14 @@
 import type { LucideIcon } from "lucide-react";
-import { CalendarDays, Link2, LogIn, Notebook, PenSquare } from "lucide-react";
+import {
+  Bot,
+  CalendarDays,
+  FileText,
+  Link2,
+  LogIn,
+  Notebook,
+  PenSquare,
+  ShieldCheck,
+} from "lucide-react";
 
 type PagePath = {
   path: string;
@@ -8,7 +17,15 @@ type PagePath = {
 };
 
 export const PATHS: Record<
-  "calendar" | "diaries" | "newDiary" | "login" | "sharedDiary",
+  | "calendar"
+  | "diaries"
+  | "newDiary"
+  | "login"
+  | "sharedDiary"
+  | "legal"
+  | "terms"
+  | "privacy"
+  | "aiDataUse",
   PagePath
 > = {
   calendar: {
@@ -35,6 +52,26 @@ export const PATHS: Record<
     path: "/shared",
     name: "共有日記",
     icon: Link2,
+  },
+  legal: {
+    path: "/legal",
+    name: "利用規約",
+    icon: FileText,
+  },
+  terms: {
+    path: "/terms",
+    name: "利用規約",
+    icon: FileText,
+  },
+  privacy: {
+    path: "/privacy",
+    name: "プライバシーポリシー",
+    icon: ShieldCheck,
+  },
+  aiDataUse: {
+    path: "/ai-data-use",
+    name: "AIデータ利用方針",
+    icon: Bot,
   },
 };
 

@@ -5,6 +5,7 @@ import { NewDiaryPage } from "./features/createDiary";
 import { DiariesPage } from "./features/diaries";
 import { HomePage } from "./features/home";
 import { LoginPage } from "./features/login";
+import { LegacyLegalRedirect, LegalPage } from "./features/legal";
 import { SharedDiaryPage } from "./features/sharedDiary";
 import { AppShellLayout } from "./layout/AppShellLayout";
 import { AuthenticatedLayout } from "./layout/AuthenticatedLayout";
@@ -78,6 +79,19 @@ export const App = () => {
           />
         </Route>
         <Route path={PATHS.login.path} element={<LoginPage />} />
+        <Route path={PATHS.legal.path} element={<LegalPage />} />
+        <Route
+          path={PATHS.terms.path}
+          element={<LegacyLegalRedirect documentId="terms" />}
+        />
+        <Route
+          path={PATHS.privacy.path}
+          element={<LegacyLegalRedirect documentId="privacy" />}
+        />
+        <Route
+          path={PATHS.aiDataUse.path}
+          element={<LegacyLegalRedirect documentId="ai-data-use" />}
+        />
       </Routes>
     </>
   );

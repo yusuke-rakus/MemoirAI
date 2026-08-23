@@ -9,6 +9,14 @@ const initializeAppearanceSettings = async (uid: string) => {
     theme?: string;
     createdAt?: unknown;
   }>(uid);
+  if (
+    currentSettings?.primaryColor &&
+    currentSettings.theme &&
+    currentSettings.createdAt
+  ) {
+    return;
+  }
+
   const now = new Date();
 
   const updateData: Record<string, unknown> = {
@@ -24,9 +32,9 @@ const initializeAppearanceSettings = async (uid: string) => {
   await UserSettingsClient.update(uid, updateData);
 };
 
-const newUserSettingsMigrations = [initializeAppearanceSettings] as const;
+const userSettingsMigrations = [initializeAppearanceSettings] as const;
 
-export const runNewUserSettingsMigrations = async (
+export const runUserSettingsMigrations = async (
   uid: string,
   displayName?: string | null,
 ) => {
@@ -34,7 +42,7 @@ export const runNewUserSettingsMigrations = async (
     throw new Error("uid is required to run user settings migrations.");
   }
 
-  for (const migrate of newUserSettingsMigrations) {
+  for (const migrate of userSettingsMigrations) {
     await migrate(uid);
   }
 

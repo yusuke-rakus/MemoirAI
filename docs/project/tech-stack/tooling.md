@@ -16,15 +16,17 @@ snapshot metadataは`../tech-stack.md`を参照してください。
 
 ## Package scripts
 
-| Command           | Behavior                          |
-| ----------------- | --------------------------------- |
-| `pnpm dev`        | Vite、port 3000、`strictPort`なし |
-| `pnpm build`      | `tsc -b`後にproduction build      |
-| `pnpm lint`       | repository全体へESLint            |
-| `pnpm format`     | repository全体をPrettierで書換    |
-| `pnpm preview`    | build成果物をpreview              |
-| `pnpm seed`       | `.env`でEmulatorへseed            |
-| `pnpm test`       | Vitest run mode                   |
-| `pnpm test:watch` | Vitest watch mode                 |
+| Command            | Behavior                                      |
+| ------------------ | --------------------------------------------- |
+| `pnpm dev`         | Vite、port 3000、`strictPort`なし             |
+| `pnpm build`       | `legal:check`、`tsc -b`、production build     |
+| `pnpm legal:check` | Markdown front matterと本文version hashを検証 |
+| `pnpm legal:sync`  | Markdown本文hashをfront matterのversionへ同期 |
+| `pnpm lint`        | repository全体へESLint                        |
+| `pnpm format`      | repository全体をPrettierで書換                |
+| `pnpm preview`     | build成果物をpreview                          |
+| `pnpm seed`        | `.env`でEmulatorへseed                        |
+| `pnpm test`        | Vitest run mode                               |
+| `pnpm test:watch`  | Vitest watch mode                             |
 
 seedの削除・再作成範囲は`../firebase/emulator-and-deployment.md`を参照してください。
