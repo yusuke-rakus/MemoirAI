@@ -110,22 +110,14 @@ describe("AppSidebar", () => {
     ).toBeInTheDocument();
   });
 
-  it("アバターメニューと同じ行の右端に小さな利用規約リンクを表示する", () => {
+  it("サイドバーフッターに利用規約リンクを表示しない", () => {
     render(<AppSidebar />);
 
     const footer = screen.getByTestId("sidebar-footer");
-    const accountButton = within(footer).getByRole("button", {
-      name: "アカウントメニューを開く",
-    });
-    const legalLink = within(footer).getByRole("link", { name: "利用規約" });
-    const legalNavigation = legalLink.closest("nav");
 
-    expect(legalLink).toHaveAttribute("href", "/legal");
-    expect(legalLink).toHaveClass("text-[10px]");
-    expect(legalNavigation).toHaveClass("ml-auto", "justify-end");
-    expect(accountButton.parentElement?.parentElement?.parentElement).toBe(
-      legalNavigation?.parentElement,
-    );
+    expect(
+      within(footer).queryByRole("link", { name: "利用規約" }),
+    ).not.toBeInTheDocument();
   });
 
   it("閉じるボタンへのフォーカスではツールチップを表示せず、ホバー時に表示する", async () => {
