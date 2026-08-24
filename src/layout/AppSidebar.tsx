@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/sidebar";
 import { PATHS } from "@/constants/path";
 import { defaultLocalUser, useLocalUser } from "@/contexts/LocalUserContext";
-import { LegalLinks } from "@/features/legal/components/LegalLinks";
 import { DiaryItems } from "@/features/sidebar";
 import { SidebarCreateDiaryButton } from "@/features/sidebar/components/SidebarCreateDiaryButton";
 import { SidebarNavigation } from "@/features/sidebar/components/SidebarNavigation";
@@ -93,10 +92,6 @@ export const AppSidebar = memo(function AppSidebar() {
               />
             </AvatarMenu>
           </div>
-          <LegalLinks
-            className="ml-auto shrink-0 justify-end px-1"
-            linkClassName="text-[10px] leading-4 text-sidebar-foreground/60"
-          />
         </div>
         <SettingsDialog
           uid={localUser.uid}
