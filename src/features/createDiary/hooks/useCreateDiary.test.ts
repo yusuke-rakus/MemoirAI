@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ActiveUserMemoryContext } from "@/types/memory";
 import { useCreateDiary } from "./useCreateDiary";
@@ -25,7 +25,8 @@ const mocks = vi.hoisted(() => ({
   invalidateSearch: vi.fn(),
   requestRefresh: vi.fn(),
   generateId: vi.fn(),
-  toastPromise: vi.fn(),
+  toastSuccess: vi.fn(),
+  toastError: vi.fn(),
 }));
 
 vi.mock("@/contexts/LocalUserContext", () => ({
@@ -80,7 +81,10 @@ vi.mock("@/stores/diaryRefreshStore", () => ({
 }));
 
 vi.mock("sonner", () => ({
-  toast: { promise: mocks.toastPromise },
+  toast: {
+    success: mocks.toastSuccess,
+    error: mocks.toastError,
+  },
 }));
 
 const createCard = (body: string, files: File[] = []) => ({
@@ -97,6 +101,17 @@ const createCard = (body: string, files: File[] = []) => ({
   isCollapsed: false,
   isRemoving: false,
 });
+
+const createDeferred = <T>() => {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((promiseResolve, promiseReject) => {
+    resolve = promiseResolve;
+    reject = promiseReject;
+  });
+
+  return { promise, resolve, reject };
+};
 
 const memoryContext: ActiveUserMemoryContext = {
   profileFacts: [
@@ -149,6 +164,96 @@ beforeEach(() => {
 });
 
 describe("useCreateDiary", () => {
+  it("通常保存の生成と保存の進行状態を公開する", async () => {
+    mocks.cards = [createCard("桜を見ました")];
+    const title = createDeferred<{
+      response: { text: () => string };
+    }>();
+    const add = createDeferred<void>();
+    mocks.generateTitle.mockReturnValue(title.promise);
+    mocks.add.mockReturnValue(add.promise);
+    const { result } = renderHook(() => useCreateDiary());
+    let savePromise!: Promise<void>;
+
+    await act(async () => {
+      savePromise = result.current.onSave("standard");
+      await Promise.resolve();
+    });
+
+    expect(result.current.creationProgress).toEqual({
+      saveMode: "standard",
+      metadata: "active",
+      illustration: null,
+      persistence: "pending",
+    });
+
+    title.resolve({
+      response: { text: () => JSON.stringify({ title: "🌸 春の散歩" }) },
+    });
+
+    await waitFor(() => {
+      expect(result.current.creationProgress).toEqual({
+        saveMode: "standard",
+        metadata: "complete",
+        illustration: null,
+        persistence: "active",
+      });
+    });
+
+    add.resolve();
+    await act(async () => savePromise);
+
+    expect(result.current.creationProgress).toBeNull();
+  });
+
+  it("絵日記の画像が先に完成した場合も工程ごとに完了を反映する", async () => {
+    mocks.cards = [createCard("桜を見ました")];
+    const title = createDeferred<{
+      response: { text: () => string };
+    }>();
+    const illustration = createDeferred<File>();
+    const add = createDeferred<void>();
+    mocks.generateTitle.mockReturnValue(title.promise);
+    mocks.generateIllustration.mockReturnValue(illustration.promise);
+    mocks.add.mockReturnValue(add.promise);
+    const { result } = renderHook(() => useCreateDiary());
+    let savePromise!: Promise<void>;
+
+    await act(async () => {
+      savePromise = result.current.onSave("illustrated");
+      await Promise.resolve();
+    });
+
+    illustration.resolve(
+      new File(["generated"], "generated.png", { type: "image/png" }),
+    );
+
+    await waitFor(() => {
+      expect(result.current.creationProgress).toMatchObject({
+        metadata: "active",
+        illustration: "complete",
+        persistence: "pending",
+      });
+    });
+
+    title.resolve({
+      response: { text: () => JSON.stringify({ title: "🌸 春の散歩" }) },
+    });
+
+    await waitFor(() => {
+      expect(result.current.creationProgress).toMatchObject({
+        metadata: "complete",
+        illustration: "complete",
+        persistence: "active",
+      });
+    });
+
+    add.resolve();
+    await act(async () => savePromise);
+
+    expect(result.current.creationProgress).toBeNull();
+  });
+
   it("通常保存では画像生成を呼ばない", async () => {
     mocks.cards = [createCard("桜を見ました"), createCard("本を読みました")];
     const { result } = renderHook(() => useCreateDiary());
@@ -159,6 +264,7 @@ describe("useCreateDiary", () => {
 
     expect(mocks.generateIllustration).not.toHaveBeenCalled();
     expect(mocks.add).toHaveBeenCalledTimes(2);
+    expect(mocks.toastSuccess).toHaveBeenCalledWith("日記を作成しました🎊");
   });
 
   it("本文のある各セクションに1枚生成する", async () => {
@@ -284,6 +390,8 @@ describe("useCreateDiary", () => {
     expect(mocks.add).not.toHaveBeenCalled();
     expect(mocks.invalidateSearch).not.toHaveBeenCalled();
     expect(mocks.requestRefresh).not.toHaveBeenCalled();
+    expect(mocks.toastError).toHaveBeenCalledWith("日記の作成に失敗しました");
+    expect(result.current.creationProgress).toBeNull();
   });
 
   it("タイトル生成失敗時もStorage・Firestoreを実行しない", async () => {
@@ -302,6 +410,23 @@ describe("useCreateDiary", () => {
 
     expect(mocks.upload).not.toHaveBeenCalled();
     expect(mocks.add).not.toHaveBeenCalled();
+    expect(result.current.creationProgress).toBeNull();
+  });
+
+  it("画像アップロード失敗時は保存工程を閉じてFirestoreを実行しない", async () => {
+    const manual = new File(["manual"], "manual.jpg", { type: "image/jpeg" });
+    mocks.cards = [createCard("桜を見ました", [manual])];
+    mocks.upload.mockRejectedValue(new Error("upload failed"));
+    const { result } = renderHook(() => useCreateDiary());
+
+    await expect(
+      act(async () => {
+        await result.current.onSave("standard");
+      }),
+    ).rejects.toThrow("upload failed");
+
+    expect(mocks.add).not.toHaveBeenCalled();
+    expect(result.current.creationProgress).toBeNull();
   });
 
   it("Firestore保存失敗時は生成画像を含むアップロード済み画像を削除する", async () => {
@@ -323,5 +448,6 @@ describe("useCreateDiary", () => {
       expect.objectContaining({ id: "generated.png" }),
       expect.objectContaining({ id: "manual.jpg" }),
     ]);
+    expect(result.current.creationProgress).toBeNull();
   });
 });

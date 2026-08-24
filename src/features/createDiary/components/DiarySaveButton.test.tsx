@@ -70,6 +70,21 @@ describe("DiarySaveButton", () => {
     ).toBeDisabled();
   });
 
+  it("通常保存の生成中はタイトル生成を案内する", () => {
+    render(
+      <DiarySaveButton
+        saveMode="standard"
+        createPhase="generating"
+        onSaveModeChange={vi.fn()}
+        onSave={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "タイトルを生成中..." }),
+    ).toBeDisabled();
+  });
+
   it("再マウント時は通常保存へ戻る", async () => {
     const user = userEvent.setup();
     const { unmount } = render(<SaveButtonHarness />);
