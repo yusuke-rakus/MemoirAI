@@ -33,6 +33,7 @@ import { useFetchDiary } from "../hooks/useFetchDiary";
 import { usePickMessages } from "../hooks/usePickMessages";
 import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
 import type { DiarySaveMode } from "../types";
+import { DiaryCreationProgressDialog } from "./DiaryCreationProgressDialog";
 import { DiaryImagePicker } from "./DiaryImagePicker";
 import { DiarySaveButton } from "./DiarySaveButton";
 
@@ -40,7 +41,8 @@ export const NewDiaryView = () => {
   const navigate = useNavigate();
   const { date, setDate } = useDiaryDetailStore();
   useFetchDiary();
-  const { createPhase, isCreating, onSave } = useCreateDiary();
+  const { createPhase, creationProgress, isCreating, onSave } =
+    useCreateDiary();
   const {
     cards,
     tagInputs,
@@ -109,7 +111,11 @@ export const NewDiaryView = () => {
       }
     }
 
-    await onSave(saveMode);
+    try {
+      await onSave(saveMode);
+    } catch {
+      return;
+    }
     await completeDraft();
     const dateString = format(date, "yyyy-MM-dd");
     navigate(`${PATHS.diaries.path}/${dateString}`);
@@ -434,6 +440,8 @@ export const NewDiaryView = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <DiaryCreationProgressDialog progress={creationProgress} />
     </div>
   );
 };

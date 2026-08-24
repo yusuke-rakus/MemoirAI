@@ -21,7 +21,11 @@ import type {
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { type DiaryCardImage, useDiaryCard } from "./useDiaryCard";
-import type { DiarySaveMode } from "../types";
+import type {
+  DiaryCreationProgress,
+  DiaryCreationStepStatus,
+  DiarySaveMode,
+} from "../types";
 
 interface Tag {
   color: TagColor;
@@ -218,9 +222,8 @@ const uploadDiaryImages = async (
 };
 
 export const useCreateDiary = () => {
-  const [createPhase, setCreatePhase] = useState<
-    "idle" | "generating" | "saving"
-  >("idle");
+  const [creationProgress, setCreationProgress] =
+    useState<DiaryCreationProgress | null>(null);
   const { localUser } = useLocalUser();
   const { cards } = useDiaryCard();
 
@@ -234,17 +237,52 @@ export const useCreateDiary = () => {
         throw new Error("生成画像を追加するには画像を1枚削除してください");
       }
 
-      setCreatePhase(saveMode === "illustrated" ? "generating" : "saving");
+      setCreationProgress({
+        saveMode,
+        metadata: "active",
+        illustration: saveMode === "illustrated" ? "active" : null,
+        persistence: "pending",
+      });
+
+      const completeStep = (
+        step: "metadata" | "illustration",
+        status: DiaryCreationStepStatus = "complete",
+      ) => {
+        setCreationProgress((progress) =>
+          progress ? { ...progress, [step]: status } : progress,
+        );
+      };
+
       try {
         const memoryContextPromise = getActiveMemoryContext(localUser.uid);
         const diaryPreparations = diaries.map((diary) =>
           prepareDiary(diary, memoryContextPromise, saveMode),
         );
-        const preparedDiaries = await Promise.all(
-          diaryPreparations.map(completeDiaryPreparation),
-        );
+        const metadataProgressPromise = Promise.all(
+          diaryPreparations.map((preparation) => preparation.metaPromise),
+        ).then(() => completeStep("metadata"));
+        const illustrationProgressPromise =
+          saveMode === "illustrated"
+            ? Promise.all(
+                diaryPreparations.map(
+                  (preparation) => preparation.illustrationPromise,
+                ),
+              ).then(() => completeStep("illustration"))
+            : Promise.resolve();
+        const [preparedDiaries] = await Promise.all([
+          Promise.all(diaryPreparations.map(completeDiaryPreparation)),
+          metadataProgressPromise,
+          illustrationProgressPromise,
+        ]);
 
-        setCreatePhase("saving");
+        setCreationProgress((progress) =>
+          progress
+            ? {
+                ...progress,
+                persistence: "active",
+              }
+            : progress,
+        );
 
         // 並列でカードの追加処理を実行
         const addPromises = preparedDiaries.map(async (preparation) => {
@@ -304,7 +342,7 @@ export const useCreateDiary = () => {
         invalidateDiarySearchCache();
         requestDiaryRefresh();
       } finally {
-        setCreatePhase("idle");
+        setCreationProgress(null);
       }
     },
     [localUser?.uid],
@@ -325,24 +363,30 @@ export const useCreateDiary = () => {
 
   const onSave = useCallback(
     async (saveMode: DiarySaveMode) => {
-      const promise = createDiaries(diariesToCreate, saveMode);
-      toast.promise(promise, {
-        loading:
-          saveMode === "illustrated" ? "絵日記を作成中..." : "日記を作成中...",
-        success: () => "日記を作成しました🎊",
-        error: (error) =>
+      try {
+        await createDiaries(diariesToCreate, saveMode);
+        toast.success("日記を作成しました🎊");
+      } catch (error) {
+        toast.error(
           error instanceof DiaryIllustrationError
             ? "画像を生成できませんでした。再試行するか、通常保存に切り替えてください"
             : "日記の作成に失敗しました",
-      });
-      await promise;
+        );
+        throw error;
+      }
     },
     [createDiaries, diariesToCreate],
   );
 
   return {
-    createPhase,
-    isCreating: createPhase !== "idle",
+    createPhase:
+      creationProgress === null
+        ? ("idle" as const)
+        : creationProgress.persistence === "active"
+          ? ("saving" as const)
+          : ("generating" as const),
+    creationProgress,
+    isCreating: creationProgress !== null,
     onSave,
   };
 };

@@ -25,7 +25,11 @@ const getSaveButtonLabel = (
   saveMode: DiarySaveMode,
   createPhase: CreatePhase,
 ) => {
-  if (createPhase === "generating") return "画像を生成中...";
+  if (createPhase === "generating") {
+    return saveMode === "illustrated"
+      ? "画像を生成中..."
+      : "タイトルを生成中...";
+  }
   if (createPhase === "saving") return "保存中...";
 
   return saveMode === "illustrated" ? "絵日記で保存" : "保存";
