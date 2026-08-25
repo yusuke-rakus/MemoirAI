@@ -14,14 +14,15 @@ export const AccountSettingsSection = ({
     <p className="mt-1 text-sm text-muted-foreground">
       アカウントと保存データを削除します。
     </p>
-    <Button
-      type="button"
-      variant="destructive"
-      className="mt-3"
-      disabled={disabled}
-      onClick={onDelete}
-    >
-      アカウントを削除
-    </Button>
+    <div className="mt-3 flex justify-end">
+      <Button
+        type="button"
+        variant="destructive"
+        disabled={disabled}
+        onClick={onDelete}
+      >
+        アカウントを削除
+      </Button>
+    </div>
   </section>
 );
