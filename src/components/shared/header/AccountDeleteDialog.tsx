@@ -27,18 +27,35 @@ export const AccountDeleteDialog = ({
       onEscapeKeyDown={(event) => isDeleting && event.preventDefault()}
       onInteractOutside={(event) => isDeleting && event.preventDefault()}
     >
-      <DialogHeader>
+      <DialogHeader className="text-left">
         <DialogTitle>アカウントを削除しますか？</DialogTitle>
-        <DialogDescription className="space-y-3">
-          <span className="block">
-            ユーザー情報、日記、画像、プロフィール、設定、AIメモリ、共有コピーをすべて削除します。この操作は取り消せず、データは復元できません。
-          </span>
-          <span className="block">
-            契約同意記録のみ5年間保持します。また、他のユーザーのお気に入りには、表示できない共有日記の参照が一時的に残る場合があります。
-          </span>
-          <span className="block font-medium text-foreground">
-            続行すると、Googleによる本人確認が表示されます。
-          </span>
+        <DialogDescription asChild>
+          <div className="space-y-4 text-left text-sm text-muted-foreground">
+            <div className="space-y-1">
+              <p className="font-medium text-foreground">削除されるデータ</p>
+              <p>
+                ユーザー情報、日記、画像、プロフィール、設定、AIメモリ、共有コピーをすべて削除します。
+              </p>
+              <p className="font-medium text-destructive">
+                削除後はデータを復元できません。
+              </p>
+            </div>
+            <div className="space-y-1">
+              <p className="font-medium text-foreground">保持される情報</p>
+              <p>
+                契約・紛争対応のため、必要最小限の契約同意記録のみ5年間保持します。
+              </p>
+            </div>
+            <div className="space-y-1">
+              <p className="font-medium text-foreground">
+                他のユーザーのお気に入り
+              </p>
+              <p>表示できない共有日記の参照が一時的に残る場合があります。</p>
+            </div>
+            <p className="border-t pt-3 font-medium text-foreground">
+              「削除する」を押すと、Googleによる本人確認が表示されます。
+            </p>
+          </div>
         </DialogDescription>
       </DialogHeader>
       <DialogFooter className="flex-row gap-2 sm:gap-0">

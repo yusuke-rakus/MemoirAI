@@ -4,11 +4,17 @@ import { describe, expect, it, vi } from "vitest";
 import { AccountSettingsSection } from "./AccountSettingsSection";
 
 describe("AccountSettingsSection", () => {
-  it("不可逆な削除と契約同意記録の保持を説明する", () => {
+  it("簡潔な説明だけを表示し、削除の詳細は表示しない", () => {
     render(<AccountSettingsSection disabled={false} onDelete={vi.fn()} />);
 
-    expect(screen.getByText(/この操作は取り消せません/)).toBeInTheDocument();
-    expect(screen.getByText(/アカウント削除後5年間保持/)).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "アカウントの削除" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("アカウントと保存データを削除します。"),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/日記、画像、プロフィール/)).toBeNull();
+    expect(screen.queryByText(/5年間保持/)).toBeNull();
   });
 
   it("削除操作を通知する", async () => {
