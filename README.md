@@ -21,6 +21,9 @@ docker compose up -d
 # 開発用ユーザーと日記データの投入
 pnpm seed
 
+# アカウント削除用 Firestore / Storage Rules の検証
+pnpm test:rules
+
 # 開発サーバーの起動
 pnpm dev
 
