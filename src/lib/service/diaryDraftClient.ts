@@ -95,6 +95,28 @@ const getImage = (key: string) =>
 const deleteImage = (key: string) =>
   runImageTransaction("readwrite", (store) => store.delete(key));
 
+const deleteImagesByUid = async (uid: string): Promise<void> => {
+  const database = await openDatabase();
+
+  await new Promise<void>((resolve, reject) => {
+    const transaction = database.transaction(IMAGE_STORE, "readwrite");
+    const store = transaction.objectStore(IMAGE_STORE);
+    const range = IDBKeyRange.bound(`${uid}:`, `${uid}:\uffff`);
+    const request = store.openCursor(range);
+
+    request.onsuccess = () => {
+      const cursor = request.result;
+      if (!cursor) return;
+      cursor.delete();
+      cursor.continue();
+    };
+    request.onerror = () => reject(request.error);
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+    transaction.onabort = () => reject(transaction.error);
+  }).finally(() => database.close());
+};
+
 export class DiaryDraftClient {
   static hasContent(cards: DiaryCard[]) {
     return cards.some(
@@ -202,5 +224,21 @@ export class DiaryDraftClient {
     );
     await Promise.all(Array.from(imageKeys, (key) => deleteImage(key)));
     localStorage.removeItem(getDraftKey(uid, date));
+  }
+
+  static async clearAllByUid(uid: string): Promise<void> {
+    if (!uid) {
+      throw new Error("uid is required to clear diary drafts.");
+    }
+
+    const draftKeyPrefix = `${DRAFT_PREFIX}:${uid}:`;
+    const draftKeys = Array.from({ length: localStorage.length }, (_, index) =>
+      localStorage.key(index),
+    ).filter(
+      (key): key is string => key !== null && key.startsWith(draftKeyPrefix),
+    );
+
+    await deleteImagesByUid(uid);
+    draftKeys.forEach((key) => localStorage.removeItem(key));
   }
 }

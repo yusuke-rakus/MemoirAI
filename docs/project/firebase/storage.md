@@ -2,7 +2,7 @@
 
 snapshot metadataは`../firebase.md`を参照してください。
 
-clientは`src/lib/service/diaryImageClient.ts`です。
+通常の画像操作clientは`src/lib/service/diaryImageClient.ts`、account削除時のprefix全削除は`src/lib/service/userStorageClient.ts`です。
 
 ## Object and Firestore fields
 
@@ -28,7 +28,9 @@ users/{uid}/diaries/{diaryId}/images/{imageId}.{extension}
 
 ## Storage Rules and public images
 
-`firebase/storage.rules`はownerだけにread / deleteを許可します。create / updateはowner、10MiB未満、JPEG / PNG / WebPに限定します。
+`firebase/storage.rules`はownerだけにreadを許可します。account削除で孤立objectも発見できるよう、`users/{uid}/`配下のlist / deleteもownerだけに許可します。create / updateはowner、10MiB未満、JPEG / PNG / WebPに限定します。
+
+`UserStorageClient.deleteAllByUid`は`users/{uid}`を1000件ずつlistし、子prefixを再帰的にたどって全objectを削除します。Firestoreの画像fieldに存在しない孤立objectも対象です。
 
 HEIC / HEIFは容量や解像度にかかわらずWebPへ変換してからuploadします。browserが入力画像をdecodeできない場合のuploadは失敗します。
 

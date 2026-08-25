@@ -20,6 +20,7 @@ snapshot metadataは`../firebase.md`を参照してください。
 - seedはAdmin SDKとStorage Emulator JSON APIを使い、Web clientとRulesを経由しません。
 - 対象userのAuth accountと`users/{uid}`を再作成し、Storage `users/{uid}/`は削除します。
 - seedするFirestore dataと未作成dataは`../firestore/security-and-seed.md`を参照します。
+- `pnpm test:rules`は起動済みFirestore / Storage Emulatorへ接続し、account削除用Rulesを検証します。
 
 ## Functions and deployment
 
@@ -32,6 +33,16 @@ snapshot metadataは`../firebase.md`を参照してください。
 - GitHub Actionsのbuildには`VITE_DIARY_IMAGE_MODEL`、`VITE_DIARY_IMAGE_SIZE`、`VITE_RECAPTCHA_ENTERPRISE_SITE_KEY`をrepository secretsから渡します。model / sizeを未設定にするとapp既定値を使いますが、Enterprise site keyは必須です。
 - `.firebaserc`はtrackedされず、workflowがproject IDを指定します。
 - CIのtriggerとbuild checkは`../tech-stack/testing-and-ci.md`を参照します。
+
+## Account deletion configuration deployment
+
+account削除機能はCloud Functionsを使用しません。repository変更だけではRulesとTTLは本番へ反映されないため、対象projectを明示して別途deployします。
+
+```bash
+firebase deploy --only firestore:rules,firestore:indexes,storage --project <project-id>
+```
+
+`firestore:indexes`には`legalAcceptances.retentionExpiresAt`のTTL policyが含まれます。現在のHosting workflowはこのdeployを実行しません。
 
 ## Console setup for diary illustration
 

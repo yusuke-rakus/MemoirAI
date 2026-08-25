@@ -18,6 +18,7 @@ React.StrictMode
 - `src/App.tsx`が実際のRoutesとfeature entryを宣言します。
 - `AppShellLayout`が認証状態と必須同意versionを確認し、同意済みのshared diaryと認証必須routeで同じ`MainLayout`を維持します。未同意または確認失敗時はapp内容より先にfull-page gateを表示します。`AuthenticatedLayout`は未認証redirectだけを担当します。
 - user settingsの初期化は同意確認後に冪等に実行し、完了するまでapp contentを描画しません。
+- Settings Dialogはプロフィール、一般、メモリ、アカウントの4 tabです。account削除はGoogle再認証後にclient-side gatewayでapp dataを削除し、契約同意記録へ5年TTLを設定してからAuth accountを削除します。
 - loginはcustom Headerとsidebarなしの`MainLayout`です。shared diaryは未認証時に同じpublic shell、認証済みでは`AppShellLayout`の標準HeaderとSidebarを使います。
 - `MainLayout`は`mx-auto max-w-4xl px-2`の共通containerを提供します。
 

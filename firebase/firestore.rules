@@ -59,14 +59,35 @@ service cloud.firestore {
                  && request.resource.data.acceptedAt == request.time;
         }
 
-        allow get: if isOwner();
+        function isValidRetentionUpdate() {
+          return resource.data.uid == userId
+                 && resource.data.requiredConsentVersion == consentVersion
+                 && resource.data.confirmedAdult == true
+                 && !resource.data.keys().hasAny([
+                   'accountDeletedAt',
+                   'retentionExpiresAt'
+                 ])
+                 && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                   'accountDeletedAt',
+                   'retentionExpiresAt'
+                 ])
+                 && request.resource.data.accountDeletedAt == request.time
+                 && request.resource.data.retentionExpiresAt is timestamp
+                 && request.resource.data.retentionExpiresAt
+                    >= request.time + duration.value(1825, 'd')
+                 && request.resource.data.retentionExpiresAt
+                    <= request.time + duration.value(1827, 'd');
+        }
+
+        allow get, list: if isOwner();
         allow create: if isOwner() && isValidAcceptance();
         allow update: if isOwner()
-                      && resource.data.uid == userId
-                      && resource.data.requiredConsentVersion == consentVersion
-                      && resource.data.confirmedAdult == false
-                      && isValidAcceptance();
-        allow list, delete: if false;
+                      && ((resource.data.uid == userId
+                           && resource.data.requiredConsentVersion == consentVersion
+                           && resource.data.confirmedAdult == false
+                           && isValidAcceptance())
+                          || isValidRetentionUpdate());
+        allow delete: if false;
       }
     }
 
