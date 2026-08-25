@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { DiaryMarkdownEditor } from "@/components/shared/diary/DiaryMarkdownEditor";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
@@ -229,14 +230,20 @@ export const DiaryEditDialog = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>本文</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        disabled={isSubmitting}
-                        className="min-h-48 resize-y"
-                        placeholder="本文を入力"
-                      />
-                    </FormControl>
+                    <DiaryMarkdownEditor
+                      content={field.value}
+                      disabled={isSubmitting}
+                      resetKey={`${diary.id}:${String(isOpen)}`}
+                    >
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          disabled={isSubmitting}
+                          className="min-h-48 resize-y"
+                          placeholder="本文を入力"
+                        />
+                      </FormControl>
+                    </DiaryMarkdownEditor>
                     <FormMessage />
                   </FormItem>
                 )}

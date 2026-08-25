@@ -242,6 +242,28 @@
           ]
         },
         {
+          "id": "seed-diary-current-markdown",
+          "monthOffset": 0,
+          "day": 16,
+          "hour": 20,
+          "title": "📝 Markdownで残す一日",
+          "content": "## 今日のハイライト\n\n**Markdownで振り返りを書けるようになった。** 入力した内容を `プレビュー` で確かめながら、出来事を整理できた。\n\n### 今日できたこと\n\n- [x] 朝の散歩をする\n- [x] 読みかけの本を20ページ読む\n- [ ] 週末の写真を整理する\n\n> 書き方が少し変わるだけで、いつもの一日も見返しやすくなる。\n\n詳しい記法は[Markdown Guide](https://www.markdownguide.org/basic-syntax/)も参考になった。\n\n---\n\n| 時間 | 出来事 | 気分 |\n| --- | --- | --- |\n| 朝 | 公園を散歩 | すっきり |\n| 昼 | 新しい表示を確認 | 集中 |\n| 夜 | 一日を振り返る | 穏やか |",
+          "tags": [
+            {
+              "name": "Markdown",
+              "color": "indigo"
+            },
+            {
+              "name": "振り返り",
+              "color": "violet"
+            },
+            {
+              "name": "UI確認",
+              "color": "sky"
+            }
+          ]
+        },
+        {
           "id": "seed-diary-current-07",
           "monthOffset": 0,
           "day": 20,

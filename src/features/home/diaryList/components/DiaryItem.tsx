@@ -1,4 +1,5 @@
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { DiaryMarkdown } from "@/components/shared/diary/DiaryMarkdown";
 import {
   CardContent,
   CardFooter,
@@ -47,8 +48,8 @@ export const DiaryItem = (props: DiaryItemProps) => {
             <CardTitle className="text-lg">{diary.title}</CardTitle>
           </CardHeader>
           <CardContent className="mb-4 p-0">
-            <p className="line-clamp-4 text-sm leading-relaxed whitespace-pre-wrap text-foreground/80">
-              {diary.content}
+            <p className="line-clamp-4 text-sm leading-relaxed text-foreground/80">
+              <DiaryMarkdown variant="excerpt">{diary.content}</DiaryMarkdown>
             </p>
             {diary.images && diary.images.length > 0 && (
               <div className="grid grid-cols-3 items-start gap-2 pt-3 sm:grid-cols-4">

@@ -5,7 +5,7 @@
 ## Theme and layout
 
 - 通常色は`bg-background`、`text-foreground`、`text-muted-foreground`、`border-border`、`bg-primary`、`text-destructive`などを使います。お気に入りのactive iconは`text-favorite` / `fill-favorite`を使います。
-- 日記本文は`whitespace-pre-wrap text-foreground/80`をpreviewと共有表示で使います。
+- 日記本文は`react-markdown`と`remark-gfm`で安全に描画します。詳細・共有では見出し、強調、list、引用、code、tableなどを組版し、月一覧・検索結果ではMarkdown記法を除いたplain text相当の抜粋を表示します。HTMLとMarkdown画像は描画せず、通常textの単一改行は維持します。
 - route contentの外枠は`MainLayout`の中央寄せ・最大幅・横paddingです。
 - responsiveは既存の`sm` / `md` breakpointと`useIsMobile`を参照します。
 - 認証済み画面は`md`未満で48px高のモバイルヘッダーを表示し、`md`以上はサイドバーへ操作を集約する。サイドバー閉鎖時は左上の小型操作群とコンテンツ用の左余白を表示する。
@@ -20,6 +20,7 @@
 - Dialogは`DialogContent`、`DialogHeader`、`DialogTitle`、必要に応じて`DialogDescription` / `DialogFooter`を組み合わせます。
 - cancelは`outline`、削除・破棄は`destructive`です。
 - 日付選択は`DiaryEditDialog`の`Popover modal`構成です。
+- 日記の作成・編集はshadcn / Radix `Tabs`で本文の入力とMarkdownプレビューを切り替えます。
 - DropdownからDialogを開く既存例は、menuを閉じて次frameでDialogを開きます。
 - page / section loadingは`LoadingScreen`、一覧・設定はSkeleton、compact操作はSpinnerまたは処理中labelです。
 - Settings Dialogはプロフィール、一般、メモリ、アカウントの4 tabです。アカウント削除はnested Dialogで説明・Google再認証を行い、処理中は外側を含めてcloseを抑止します。
