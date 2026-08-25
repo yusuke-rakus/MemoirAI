@@ -97,7 +97,7 @@ describe("AppShellLayout", () => {
     expect(screen.getByTestId("outlet-user")).toHaveTextContent("user-1");
   });
 
-  it("認証済みでも同意確認中はOutletを描画しない", () => {
+  it("認証済みでも同意確認中は共通のloadingだけを表示する", () => {
     useAuthCheckMock.mockReturnValue({
       loading: false,
       user: { uid: "user-1" } as User,
@@ -109,7 +109,7 @@ describe("AppShellLayout", () => {
 
     renderShell();
 
-    expect(screen.getByText("同意状況を確認中...")).toBeInTheDocument();
+    expect(screen.getByText("読み込み中...")).toBeInTheDocument();
     expect(screen.queryByTestId("outlet-user")).not.toBeInTheDocument();
   });
 
@@ -134,7 +134,7 @@ describe("AppShellLayout", () => {
     expect(screen.queryByTestId("outlet-user")).not.toBeInTheDocument();
   });
 
-  it("同意済みでも利用準備中はapp contentを描画しない", () => {
+  it("同意済みでも利用準備中は共通のloadingだけを表示する", () => {
     useAuthCheckMock.mockReturnValue({
       loading: false,
       user: { uid: "user-1" } as User,
@@ -146,7 +146,7 @@ describe("AppShellLayout", () => {
 
     renderShell();
 
-    expect(screen.getByText("利用準備中...")).toBeInTheDocument();
+    expect(screen.getByText("読み込み中...")).toBeInTheDocument();
     expect(screen.queryByTestId("outlet-user")).not.toBeInTheDocument();
   });
 

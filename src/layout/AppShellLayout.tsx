@@ -44,18 +44,7 @@ export const AppShellLayout = () => {
           (userInitialization.status === "idle" ||
             userInitialization.status === "loading"))))
   ) {
-    return (
-      <LoadingScreen
-        variant="page"
-        title={
-          loading
-            ? undefined
-            : legalAcceptance.status === "accepted"
-              ? "利用準備中..."
-              : "同意状況を確認中..."
-        }
-      />
-    );
+    return <LoadingScreen variant="page" />;
   }
 
   if (user && legalAcceptance.status === "error") {
