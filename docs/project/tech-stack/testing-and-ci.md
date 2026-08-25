@@ -8,7 +8,7 @@ snapshot metadataは`../tech-stack.md`を参照してください。
 - test設定は`vite.config.ts`に統合し、Vite pluginと`@/*` aliasを共有します。
 - setupは`src/test/setup.ts`、testは対象に隣接する`*.test.ts`または`*.test.tsx`です。
 - 代表testは`useShareDiary`と`DiaryDeleteDialog`を対象にします。
-- coverage、Playwright / Cypress、Firestore / Storage Rules unit testはありません。
+- coverage、Playwright / Cypressはありません。account削除用Firestore / Storage Rulesは`pnpm test:rules`で起動済みEmulatorに対して検証します。
 - `scripts/seed.ts`は件数を検証しますが、自動test suiteではありません。
 
 ## CI/CD

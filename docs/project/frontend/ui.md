@@ -22,6 +22,7 @@
 - 日付選択は`DiaryEditDialog`の`Popover modal`構成です。
 - DropdownからDialogを開く既存例は、menuを閉じて次frameでDialogを開きます。
 - page / section loadingは`LoadingScreen`、一覧・設定はSkeleton、compact操作はSpinnerまたは処理中labelです。
+- Settings Dialogはプロフィール、一般、メモリ、アカウントの4 tabです。アカウント削除はnested Dialogで説明・Google再認証を行い、処理中は外側を含めてcloseを抑止します。
 
 ## Reference implementations
 

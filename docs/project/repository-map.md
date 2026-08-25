@@ -39,6 +39,8 @@ active featureはhome、createDiary、diaries、searchDiary、sharedDiary、logi
 
 createDiaryは通常保存と絵日記保存を持ちます。保存modeはfeature-local state、画像model設定は`src/firebase/models`、生成responseから`File`への変換は`src/lib/service/diaryIllustrationClient.ts`、永続化は既存`DiaryImageClient`の責務です。
 
+account削除はSettings Dialogのアカウントtabから開始し、`useDeleteAccount`がAuth・browser draft・Firestore・Storageのgatewayを接続します。Firestoreの削除対象レジストリはdiaries、favorites、settings/profile、settings/appearance、settings/memory配下3 collection、user root、本人のshared diaryです。legal acceptanceだけは削除日時と5年後のTTLを付与して保持します。新しいuser-private collectionを追加する場合はaccount削除レジストリも同時に更新します。
+
 ## Placement procedure
 
 1. 既存featureの責務と現在のconsumer範囲を確認する。
