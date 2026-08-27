@@ -1,4 +1,5 @@
 import { useRotatingText } from "@/components/shared/common/useRotatingText";
+import { DiaryMarkdownEditor } from "@/components/shared/diary/DiaryMarkdownEditor";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -265,13 +266,21 @@ export const NewDiaryView = () => {
               </CardHeader>
 
               <CardContent>
-                <Textarea
-                  id={`diary-body-${card.id}`}
-                  placeholder={placeholderText}
-                  value={card.body}
-                  onChange={(e) => updateCardBody(card.id, e.target.value)}
-                  className="max-h-[500px] min-h-[300px] resize-none overflow-y-auto border-none leading-relaxed shadow placeholder:text-muted-foreground/30 focus-visible:ring-0"
-                />
+                <DiaryMarkdownEditor
+                  content={card.body}
+                  disabled={isCreating}
+                  resetKey={`${format(date, "yyyy-MM-dd")}:${card.id}`}
+                  previewClassName="max-h-[500px] min-h-[300px] border-none shadow"
+                >
+                  <Textarea
+                    id={`diary-body-${card.id}`}
+                    placeholder={placeholderText}
+                    value={card.body}
+                    disabled={isCreating}
+                    onChange={(e) => updateCardBody(card.id, e.target.value)}
+                    className="max-h-[500px] min-h-[300px] resize-none overflow-y-auto border-none leading-relaxed shadow placeholder:text-muted-foreground/30 focus-visible:ring-0"
+                  />
+                </DiaryMarkdownEditor>
 
                 <div className="h-px w-full bg-gradient-to-r from-transparent via-border to-transparent opacity-50" />
 
