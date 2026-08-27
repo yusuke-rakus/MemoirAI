@@ -1,4 +1,5 @@
 import { LoadingScreen } from "@/components/shared/common/LoadingScreen";
+import { DiaryMarkdown } from "@/components/shared/diary/DiaryMarkdown";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -96,9 +97,7 @@ export const SharedDiaryView = ({
             <CardTitle>{diary.title}</CardTitle>
           </CardHeader>
           <CardContent className="px-2">
-            <p className="whitespace-pre-wrap text-foreground/80">
-              {diary.content}
-            </p>
+            <DiaryMarkdown>{diary.content}</DiaryMarkdown>
           </CardContent>
           <CardFooter className="flex items-end gap-3 p-0">
             {diary.tags.length >= 1 && (

@@ -106,6 +106,36 @@ describe("DiarySearchDialog", () => {
     ).toHaveLength(1);
   });
 
+  it("検索結果ではMarkdown記法とリンク先を除いた本文を表示する", async () => {
+    const markdownDiary = createDiary(
+      "markdown-diary",
+      new Date(),
+      "Markdown日記",
+      [],
+    );
+    markdownDiary.content =
+      "## 朝の記録\n\n[公園](https://example.com/park)を散歩した。";
+    setCachedDiaries([markdownDiary]);
+    const user = userEvent.setup();
+
+    render(<DiarySearchDialog />);
+
+    await user.type(
+      screen.getByRole("textbox", { name: "日記の検索キーワード" }),
+      "公園",
+    );
+
+    const result = await screen.findByRole("button", {
+      name: /Markdown日記/,
+    });
+    expect(result).toHaveTextContent("朝の記録");
+    expect(result).toHaveTextContent("公園");
+    expect(result).not.toHaveTextContent("##");
+    expect(result).not.toHaveTextContent("https://example.com/park");
+    expect(result.querySelector("h2")).not.toBeInTheDocument();
+    expect(result.querySelector("a")).not.toBeInTheDocument();
+  });
+
   it("直近1年にタグがなければ頻出タグ欄を表示しない", () => {
     const olderThanOneYear = new Date();
     olderThanOneYear.setFullYear(olderThanOneYear.getFullYear() - 2);

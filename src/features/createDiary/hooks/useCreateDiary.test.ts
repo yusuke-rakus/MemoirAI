@@ -286,6 +286,20 @@ describe("useCreateDiary", () => {
     expect(mocks.add).toHaveBeenCalledTimes(2);
   });
 
+  it("Markdown本文を変更せずに保存する", async () => {
+    const markdown = "## 今日の記録\n\n**大切な出来事**を書いた。";
+    mocks.cards = [createCard(markdown)];
+    const { result } = renderHook(() => useCreateDiary());
+
+    await act(async () => {
+      await result.current.onSave("standard");
+    });
+
+    expect(mocks.add).toHaveBeenCalledWith(
+      expect.objectContaining({ content: markdown }),
+    );
+  });
+
   it("保存済みメモリを1回取得して各セクションの画像生成へ渡す", async () => {
     mocks.cards = [createCard("桜を見ました"), createCard("本を読みました")];
     mocks.getMemory.mockResolvedValue(memoryContext);

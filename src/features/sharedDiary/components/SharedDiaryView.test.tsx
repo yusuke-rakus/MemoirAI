@@ -51,6 +51,24 @@ beforeEach(() => {
 });
 
 describe("SharedDiaryView favorite", () => {
+  it("共有日記の本文をMarkdownで表示する", () => {
+    useSharedDiaryMock.mockReturnValue({
+      diary: {
+        ...diary,
+        content: "## 海辺の記録\n\n**忘れたくない景色**だった。",
+      },
+      sharedDiaryId: "shared-diary-1",
+      isLoading: false,
+    });
+
+    render(<SharedDiaryView authenticatedUserId={null} />);
+
+    expect(
+      screen.getByRole("heading", { level: 2, name: "海辺の記録" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("忘れたくない景色").tagName).toBe("STRONG");
+  });
+
   it("未認証時はお気に入りボタンを表示しない", () => {
     render(<SharedDiaryView authenticatedUserId={null} />);
 

@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { DiaryMarkdown } from "@/components/shared/diary/DiaryMarkdown";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -194,7 +195,9 @@ export const DiarySearchDialog = () => {
                     </time>
                   </div>
                   <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                    {diary.content}
+                    <DiaryMarkdown variant="excerpt">
+                      {diary.content}
+                    </DiaryMarkdown>
                   </p>
                 </Button>
                 {index < visibleResults.length - 1 && (
