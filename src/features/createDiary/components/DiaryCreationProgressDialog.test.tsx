@@ -18,7 +18,7 @@ describe("DiaryCreationProgressDialog", () => {
     expect(screen.getByRole("dialog", { name: "日記を作成中" })).toBeVisible();
     expect(screen.getByText("タイトルとタグを生成中")).toBeVisible();
     expect(screen.getByText("日記を保存予定")).toBeVisible();
-    expect(screen.queryByText(/水彩イラストを生成/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/イラストを生成/)).not.toBeInTheDocument();
   });
 
   it("処理中だけprimary、完了・待機中はsecondary textで表示する", () => {
@@ -36,10 +36,10 @@ describe("DiaryCreationProgressDialog", () => {
     expect(
       screen.getByText("タイトルとタグを生成しました").closest("li"),
     ).toHaveClass("text-muted-foreground");
-    expect(screen.getByText("水彩イラストを生成中").closest("li")).toHaveClass(
+    expect(screen.getByText("イラストを生成中").closest("li")).toHaveClass(
       "text-primary",
     );
-    expect(screen.getByText("水彩イラストを生成中")).toHaveClass(
+    expect(screen.getByText("イラストを生成中")).toHaveClass(
       "animate-loader-shimmer",
       "font-normal",
     );
