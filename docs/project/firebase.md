@@ -22,7 +22,7 @@ Firestore schema、query、Rulesは`firestore.md`を参照してください。
 | App Check         | reCAPTCHA Enterprise / development debug token   | `src/firebase/appCheck.ts` |
 | Cloud Firestore   | diary、settings、memory、shared copy             | `src/lib/service/*Client`  |
 | Cloud Storage     | manual / AI-generated diary images               | `DiaryImageClient`         |
-| Firebase AI Logic | title / tag、long-term memory、watercolor images | `src/firebase/models`      |
+| Firebase AI Logic | title / tag、long-term memory、flat-vector sticker images | `src/firebase/models`      |
 | Hosting           | `dist` SPA配信                                   | config、GitHub Actions     |
 
 ## Detailed snapshots

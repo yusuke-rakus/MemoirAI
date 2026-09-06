@@ -93,7 +93,7 @@ export const DiarySaveButton = ({
               <span className="space-y-0.5">
                 <span className="block font-medium">絵日記で保存</span>
                 <span className="block text-xs text-muted-foreground">
-                  本文から水彩イラストを生成
+                  本文からイラストを生成
                 </span>
               </span>
             </DropdownMenuRadioItem>
