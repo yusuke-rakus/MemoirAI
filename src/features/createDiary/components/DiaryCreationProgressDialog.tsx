@@ -70,9 +70,9 @@ export const DiaryCreationProgressDialog = ({
                   status={progress.illustration}
                   icon={Image}
                   labels={{
-                    pending: "水彩イラストを生成予定",
-                    active: "水彩イラストを生成中",
-                    complete: "水彩イラストを生成しました",
+                    pending: "イラストを生成予定",
+                    active: "イラストを生成中",
+                    complete: "イラストを生成しました",
                   }}
                 />
               )}
