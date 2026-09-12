@@ -25,6 +25,7 @@ export const useAuthCheck = () => {
           UserSettingsClient.getByUid<{
             theme?: string;
             primaryColor?: string;
+            markdownEditorEnabled?: unknown;
           }>(firebaseUser.uid),
           UserProfileClient.getByUid(firebaseUser.uid),
         ]);
@@ -34,6 +35,7 @@ export const useAuthCheck = () => {
           photoURL: firebaseUser.photoURL ?? null,
           theme: normalizeThemeKey(settings?.theme),
           primaryColor: normalizePrimaryColorKey(settings?.primaryColor),
+          markdownEditorEnabled: settings?.markdownEditorEnabled === true,
         });
         setUser(firebaseUser);
       } finally {

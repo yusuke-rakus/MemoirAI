@@ -7,11 +7,13 @@ const initializeAppearanceSettings = async (uid: string) => {
   const currentSettings = await UserSettingsClient.getByUid<{
     primaryColor?: string;
     theme?: string;
+    markdownEditorEnabled?: unknown;
     createdAt?: unknown;
   }>(uid);
   if (
     currentSettings?.primaryColor &&
     currentSettings.theme &&
+    typeof currentSettings.markdownEditorEnabled === "boolean" &&
     currentSettings.createdAt
   ) {
     return;
@@ -22,6 +24,7 @@ const initializeAppearanceSettings = async (uid: string) => {
   const updateData: Record<string, unknown> = {
     primaryColor: currentSettings?.primaryColor ?? DEFAULT_PRIMARY_COLOR_KEY,
     theme: currentSettings?.theme ?? DEFAULT_THEME_KEY,
+    markdownEditorEnabled: currentSettings?.markdownEditorEnabled === true,
     updatedAt: now,
   };
 

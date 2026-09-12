@@ -20,10 +20,10 @@
 - Dialogは`DialogContent`、`DialogHeader`、`DialogTitle`、必要に応じて`DialogDescription` / `DialogFooter`を組み合わせます。
 - cancelは`outline`、削除・破棄は`destructive`です。
 - 日付選択は`DiaryEditDialog`の`Popover modal`構成です。
-- 日記の作成・編集はshadcn / Radix `Tabs`で本文の入力とMarkdownプレビューを切り替えます。
+- 日記の作成・編集は、一般設定でMarkdownエディタを有効にした場合のみshadcn / Radix `Tabs`で本文の入力とMarkdownプレビューを切り替えます。既定では本文入力欄のみを表示します。
 - DropdownからDialogを開く既存例は、menuを閉じて次frameでDialogを開きます。
 - page / section loadingは`LoadingScreen`、一覧・設定はSkeleton、compact操作はSpinnerまたは処理中labelです。
-- Settings Dialogはプロフィール、一般、メモリ、アカウントの4 tabです。アカウント削除はnested Dialogで説明・Google再認証を行い、処理中は外側を含めてcloseを抑止します。
+- Settings Dialogはプロフィール、一般、メモリ、共有した日記、アカウントの5 tabです。共有した日記では公開中の共有コピーを一覧・解除し、0件時は`Empty`を表示します。アカウント削除はnested Dialogで説明・Google再認証を行い、処理中は外側を含めてcloseを抑止します。
 
 ## Reference implementations
 

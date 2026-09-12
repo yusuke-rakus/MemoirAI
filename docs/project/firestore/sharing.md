@@ -14,6 +14,7 @@ path: `sharedDiaries/{shareId}`、client: `src/lib/service/sharedDiaryClient.ts`
 - `shareId`を持たないlegacy diaryは`sharedDiaries/{diary.id}`の存在を確認し、既存URLを共有中として扱います。明示的な一括migrationはありません。
 - unpublishはtransactionで公開copyを削除し、source diaryの`shareId`を除去します。legacy公開copyも同じ操作で削除できます。
 - public pageはID指定`getDoc`で読みます。
+- 設定画面の共有一覧は、所有者本人のUIDで`sharedDiaries`をqueryして取得します。
 - profile更新は`where("uid", "==", uid)`で取得し、499件ずつbatch updateします。
 
 ## Synchronization boundary

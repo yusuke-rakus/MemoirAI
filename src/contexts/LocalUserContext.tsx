@@ -11,6 +11,7 @@ export type LocalUser = {
   photoURL?: string | null;
   theme?: THemeKey;
   primaryColor?: PrimaryColorKey;
+  markdownEditorEnabled: boolean;
 };
 
 type UserContextType = {
@@ -24,6 +25,7 @@ export const defaultLocalUser: LocalUser = {
   photoURL: null,
   theme: DEFAULT_THEME_KEY,
   primaryColor: DEFAULT_PRIMARY_COLOR_KEY,
+  markdownEditorEnabled: false,
 };
 
 const LocalUserContext = createContext<UserContextType | undefined>(undefined);

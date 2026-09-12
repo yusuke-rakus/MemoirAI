@@ -17,5 +17,5 @@ export const tagBgMap: Record<string, string> = {
   indigo: "bg-tag-indigo",
   violet: "bg-tag-violet",
   pink: "bg-tag-pink",
-  default: "bg-ring",
+  default: "bg-tag-default",
 };

@@ -6,17 +6,18 @@ clientsは`src/lib/service/userSettingsClient.ts`と`src/lib/service/userProfile
 
 ## `users/{uid}/settings/appearance`
 
-| Field          | Shape                                                 |
-| -------------- | ----------------------------------------------------- |
-| `uid`          | `string`                                              |
-| `theme`        | `light \| dark \| system`                             |
-| `primaryColor` | `default \| blue \| green \| yellow \| red \| purple` |
-| `createdAt`    | date / timestamp                                      |
-| `updatedAt`    | date / timestamp                                      |
+| Field                   | Shape                                                 |
+| ----------------------- | ----------------------------------------------------- |
+| `uid`                   | `string`                                              |
+| `theme`                 | `light \| dark \| system`                             |
+| `primaryColor`          | `default \| blue \| green \| yellow \| red \| purple` |
+| `markdownEditorEnabled` | `boolean`                                             |
+| `createdAt`             | date / timestamp                                      |
+| `updatedAt`             | date / timestamp                                      |
 
 `UserSettingsClient`はgeneric `Record<string, unknown>`をmergeし、`uid`を常に追加します。Rulesにfield / type制限はなく、存在しないdocumentへの部分updateで一部fieldだけのdocumentを作成できます。
 
-auth state復元でtheme / primary colorを読み、new-user migrationが欠損fieldをdefaultで補います。migration、`useTheme`、`usePrimaryColor`がwriteします。
+auth state復元でtheme / primary color / Markdown editor表示設定を読み、new-user migrationが欠損fieldをdefaultで補います。migration、`useTheme`、`usePrimaryColor`、`useMarkdownEditorSetting`がwriteします。`markdownEditorEnabled`の既定値は`false`です。
 
 ## `users/{uid}/settings/profile`
 
