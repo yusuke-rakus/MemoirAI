@@ -21,6 +21,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { MAX_DIARY_IMAGE_COUNT } from "@/constants/diaryImages";
 import { PATHS } from "@/constants/path";
+import { useLocalUser } from "@/contexts/LocalUserContext";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Plus, X } from "lucide-react";
@@ -39,6 +40,7 @@ import { DiaryImagePicker } from "./DiaryImagePicker";
 import { DiarySaveButton } from "./DiarySaveButton";
 
 export const NewDiaryView = () => {
+  const { localUser } = useLocalUser();
   const navigate = useNavigate();
   const { date, setDate } = useDiaryDetailStore();
   useFetchDiary();
@@ -269,6 +271,7 @@ export const NewDiaryView = () => {
                 <DiaryMarkdownEditor
                   content={card.body}
                   disabled={isCreating}
+                  enabled={localUser.markdownEditorEnabled}
                   resetKey={`${format(date, "yyyy-MM-dd")}:${card.id}`}
                   previewClassName="max-h-[500px] min-h-[300px] border-none shadow"
                 >

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { DiaryMarkdownEditor } from "@/components/shared/diary/DiaryMarkdownEditor";
+import { useLocalUser } from "@/contexts/LocalUserContext";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
@@ -85,6 +86,7 @@ export const DiaryEditDialog = ({
   onOpenChange,
   onSubmit,
 }: DiaryEditDialogProps) => {
+  const { localUser } = useLocalUser();
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState(false);
   const {
@@ -233,6 +235,7 @@ export const DiaryEditDialog = ({
                     <DiaryMarkdownEditor
                       content={field.value}
                       disabled={isSubmitting}
+                      enabled={localUser.markdownEditorEnabled}
                       resetKey={`${diary.id}:${String(isOpen)}`}
                     >
                       <FormControl>

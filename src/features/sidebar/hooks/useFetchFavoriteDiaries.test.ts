@@ -70,7 +70,7 @@ const createResolvedDiary = (sharedDiaryId: string) => ({
 beforeEach(() => {
   refreshRevision = 0;
   useLocalUserMock.mockReturnValue({
-    localUser: { uid: "user-1" },
+    localUser: { uid: "user-1", markdownEditorEnabled: false },
     setLocalUser: vi.fn(),
   });
   useFavoriteRefreshStoreMock.mockImplementation((selector) =>

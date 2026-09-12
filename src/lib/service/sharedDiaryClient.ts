@@ -214,4 +214,23 @@ export class SharedDiaryClient {
       diary: sharedDiaryDocument.data() as T,
     }));
   }
+
+  static async getByOwner<T extends Record<string, unknown>>(
+    uid: string,
+  ): Promise<SharedDiaryResult<T>[]> {
+    if (!uid) {
+      throw new Error("uid is required to fetch shared diaries.");
+    }
+
+    const sharedDiariesQuery = query(
+      collection(db, "sharedDiaries"),
+      where("uid", "==", uid),
+    );
+    const snapshot = await getDocs(sharedDiariesQuery);
+
+    return snapshot.docs.map((sharedDiaryDocument) => ({
+      sharedDiaryId: sharedDiaryDocument.id,
+      diary: sharedDiaryDocument.data() as T,
+    }));
+  }
 }

@@ -28,6 +28,7 @@ const MobileSidebarAvatarMenu = () => {
             uid: "user-1",
             displayName: "テスト ユーザー",
             photoURL: null,
+            markdownEditorEnabled: false,
           }}
           open={open}
           onOpenChange={setOpen}

@@ -36,6 +36,7 @@
 | `/terms`           | `LegacyLegalRedirect` | `/legal#terms`へreplace                                                             |
 | `/privacy`         | `LegacyLegalRedirect` | `/legal#privacy`へreplace                                                           |
 | `/ai-data-use`     | `LegacyLegalRedirect` | `/legal#ai-data-use`へreplace                                                       |
+| その他のpath       | `NotFoundPage`        | 認証・同意状態にかかわらず404画面を表示。ホームまたはログイン画面へ遷移できる       |
 
 認証済みの`/shared/:diaryId`も必須同意gateの対象です。未認証での公開共有閲覧とlegal routeはgate対象外です。`/legal`の戻るlinkだけは軽量なAuth listenerで認証状態を判定し、認証済みでは`/`、未認証では`/login`へ戻します。
 
@@ -46,4 +47,4 @@
 - home tab: `src/features/home/constants/views.tsx`
 - detail return state: `src/features/diaries/types.ts`
 
-catch-all 404、route-level `errorElement`、loader / action、lazy loading、共通URL schemaはありません。未知pathは専用404 UIを表示しません。
+catch-all 404は`NotFoundPage`で扱います。route-level `errorElement`、loader / action、lazy loading、共通URL schemaはありません。

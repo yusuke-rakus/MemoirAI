@@ -229,3 +229,23 @@ describe("SharedDiaryClient.getByShareIds", () => {
     ).rejects.toThrowError("A maximum of 10 shared diary IDs can be fetched.");
   });
 });
+
+describe("SharedDiaryClient.getByOwner", () => {
+  it("所有者UIDで共有日記を取得し、共有IDを含めて返す", async () => {
+    firestoreMocks.getDocs.mockResolvedValue({
+      docs: [{ id: "share-1", data: () => ({ title: "日記1" }) }],
+    });
+
+    await expect(SharedDiaryClient.getByOwner("user-1")).resolves.toEqual([
+      { sharedDiaryId: "share-1", diary: { title: "日記1" } },
+    ]);
+
+    expect(firestoreMocks.where).toHaveBeenCalledWith("uid", "==", "user-1");
+  });
+
+  it("空のUIDを拒否する", async () => {
+    await expect(SharedDiaryClient.getByOwner("")).rejects.toThrowError(
+      "uid is required to fetch shared diaries.",
+    );
+  });
+});

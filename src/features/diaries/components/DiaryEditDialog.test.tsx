@@ -5,6 +5,12 @@ import { Timestamp } from "firebase/firestore";
 import { describe, expect, it, vi } from "vitest";
 import { DiaryEditDialog } from "./DiaryEditDialog";
 
+vi.mock("@/contexts/LocalUserContext", () => ({
+  useLocalUser: () => ({
+    localUser: { markdownEditorEnabled: true },
+  }),
+}));
+
 const diary: Diary = {
   id: "diary-1",
   uid: "user-1",
