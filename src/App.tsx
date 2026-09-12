@@ -6,6 +6,7 @@ import { DiariesPage } from "./features/diaries";
 import { HomePage } from "./features/home";
 import { LoginPage } from "./features/login";
 import { LegacyLegalRedirect, LegalPage } from "./features/legal";
+import { NotFoundPage } from "./features/notFound";
 import { SharedDiaryPage } from "./features/sharedDiary";
 import { AppShellLayout } from "./layout/AppShellLayout";
 import { AuthenticatedLayout } from "./layout/AuthenticatedLayout";
@@ -92,6 +93,7 @@ export const App = () => {
           path={PATHS.aiDataUse.path}
           element={<LegacyLegalRedirect documentId="ai-data-use" />}
         />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>
   );
