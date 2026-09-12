@@ -36,6 +36,7 @@ import {
   Moon,
   Palette,
   Pencil,
+  Share2,
   Settings,
   Sun,
   SunMoon,
@@ -53,6 +54,7 @@ import {
 import { ProfileSettingsForm } from "./ProfileSettingsForm";
 import { AccountDeleteDialog } from "./AccountDeleteDialog";
 import { AccountSettingsSection } from "./AccountSettingsSection";
+import { SharedDiariesSettingsSection } from "./SharedDiariesSettingsSection";
 
 type Props = {
   uid?: string;
@@ -60,7 +62,8 @@ type Props = {
   onOpenChange: (open: boolean) => void;
 };
 
-type SettingsSection = "profile" | "general" | "memory" | "account";
+type SettingsSection =
+  "profile" | "general" | "memory" | "shared-diaries" | "account";
 
 const themeIcons = {
   light: Sun,
@@ -257,6 +260,7 @@ export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
       section === "profile" ||
       section === "general" ||
       section === "memory" ||
+      section === "shared-diaries" ||
       section === "account"
     ) {
       setActiveSection(section);
@@ -283,7 +287,7 @@ export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
               設定
             </DialogTitle>
             <DialogDescription className="sr-only">
-              プロフィール、表示、メモリ、アカウントに関する設定を変更できます。
+              プロフィール、表示、メモリ、共有した日記、アカウントに関する設定を変更できます。
             </DialogDescription>
           </DialogHeader>
           <Tabs
@@ -319,6 +323,13 @@ export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
                 >
                   <Brain className="size-4" />
                   メモリ
+                </TabsTrigger>
+                <TabsTrigger
+                  value="shared-diaries"
+                  className="relative h-14 flex-none justify-start rounded-none px-3 text-muted-foreground shadow-none after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:rounded-full after:bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:after:bg-primary sm:h-10 sm:w-full sm:rounded-md sm:after:hidden sm:hover:bg-accent sm:hover:text-accent-foreground sm:data-[state=active]:bg-background sm:data-[state=active]:shadow-sm"
+                >
+                  <Share2 className="size-4" />
+                  共有した日記
                 </TabsTrigger>
                 <TabsTrigger
                   value="account"
@@ -611,6 +622,22 @@ export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
                         </div>
                       </div>
                     ) : null}
+                  </div>
+                </ScrollArea>
+              </TabsContent>
+              <TabsContent
+                value="shared-diaries"
+                className="m-0 flex min-h-0 flex-1 flex-col"
+              >
+                <div className="shrink-0 border-b px-5 py-4 sm:px-6">
+                  <h2 className="text-lg font-semibold">共有した日記</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    共有中の日記を確認し、共有を解除できます。
+                  </p>
+                </div>
+                <ScrollArea className="min-h-0 flex-1">
+                  <div className="px-5 py-5 sm:px-6">
+                    <SharedDiariesSettingsSection uid={uid} />
                   </div>
                 </ScrollArea>
               </TabsContent>
