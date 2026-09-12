@@ -18,9 +18,9 @@ users/{uid}/diaries/{diaryId}/images/{imageId}.{extension}
 - 絵日記保存ではAI生成画像を先頭に置き、手動画像と合わせて最大2枚です。手動画像が既に2枚なら生成・保存を開始しません。
 - accepted MIMEはJPEG、PNG、WebP、HEIC、HEIFです。
 - 長辺1600px超、700KiB超、またはHEIC / HEIFならCanvasでresize / compressします。
-- 変換対象はWebPへ統一し、quality 0.60から0.82の範囲で500KiB以下になる最も高いqualityを探索します。
+- 変換対象はWebPを優先し、最初の書き出しで別形式が返るbrowserでは白背景へ合成したJPEGに切り替えます。以後は選択した形式でquality 0.60から0.82の範囲のうち500KiB以下になる最も高いqualityを探索します。
 - quality調整だけで500KiB以下にならない場合は、長辺320pxを下限として解像度を段階的に下げます。
-- 長辺320pxでも500KiBを超える場合やWebP encodingに対応していないbrowserではuploadしません。
+- 長辺320pxでも500KiBを超える場合や、画像読込・Canvas処理・JPEGへの切り替え後のencodingに失敗する場合はuploadしません。
 - 700KiB以下かつ長辺1600px以下のJPEG / PNG / WebPは再encodeしません。
 - upload metadataは`contentType`と`customMetadata.originalName`です。
 - delete時の`storage/object-not-found`は成功相当です。
@@ -32,6 +32,8 @@ users/{uid}/diaries/{diaryId}/images/{imageId}.{extension}
 
 `UserStorageClient.deleteAllByUid`は`users/{uid}`を1000件ずつlistし、子prefixを再帰的にたどって全objectを削除します。Firestoreの画像fieldに存在しない孤立objectも対象です。
 
-HEIC / HEIFは容量や解像度にかかわらずWebPへ変換してからuploadします。browserが入力画像をdecodeできない場合のuploadは失敗します。
+HEIC / HEIFは容量や解像度にかかわらずWebP、またはWebP encoding非対応時はJPEGへ変換してからuploadします。独自のHEIC decoderは使用しません。browserが入力画像をdecodeできない場合のuploadは失敗し、作成・編集の保存時にJPEG / PNGへの変換を案内します。画像変換失敗と圧縮上限超過も個別に通知します。
+
+画像処理用Object URLは変換完了後に解放し、Canvasも成功・失敗の双方で解放します。
 
 共有documentはdownload URLをcopyし、公開画面の`img`へ渡します。未認証でのtoken URL挙動は未検証です。

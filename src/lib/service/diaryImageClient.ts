@@ -17,6 +17,10 @@ import {
   MIN_DIARY_IMAGE_EDGE,
 } from "@/constants/diaryImages";
 import { storage } from "@/firebase/firebase";
+import {
+  createDiaryImageError,
+  isDiaryImageError,
+} from "@/lib/diaryImageError";
 import { generateDiaryImageId } from "@/lib/generateId";
 import type { DiaryImage } from "@/types/diary/diary";
 
@@ -44,8 +48,7 @@ type CompressionAttempt = {
   minimumQualitySize: number;
 };
 
-const COMPRESSED_IMAGE_CONTENT_TYPE = "image/webp";
-const COMPRESSED_IMAGE_EXTENSION = "webp";
+type CompressedImageType = "image/webp" | "image/jpeg";
 
 const getExtension = (contentType: string): string => {
   switch (contentType) {
@@ -73,6 +76,7 @@ const loadImage = async (imageUrl: string): Promise<HTMLImageElement> =>
 const canvasToBlob = async (
   canvas: HTMLCanvasElement,
   quality: number,
+  contentType: CompressedImageType,
 ): Promise<Blob> =>
   new Promise((resolve, reject) => {
     canvas.toBlob(
@@ -82,14 +86,9 @@ const canvasToBlob = async (
           return;
         }
 
-        if (blob.type !== COMPRESSED_IMAGE_CONTENT_TYPE) {
-          reject(new Error("WebP encoding is not supported"));
-          return;
-        }
-
         resolve(blob);
       },
-      COMPRESSED_IMAGE_CONTENT_TYPE,
+      contentType,
       quality,
     );
   });
@@ -104,30 +103,44 @@ const getInitialDimensions = (dimensions: ImageDimensions): ImageDimensions => {
   };
 };
 
+const releaseCanvas = (canvas: HTMLCanvasElement) => {
+  canvas.width = 0;
+  canvas.height = 0;
+};
+
 const drawImage = (
+  canvas: HTMLCanvasElement,
   image: HTMLImageElement,
   dimensions: ImageDimensions,
-): HTMLCanvasElement => {
-  const canvas = document.createElement("canvas");
+  contentType: CompressedImageType,
+): void => {
   canvas.width = dimensions.width;
   canvas.height = dimensions.height;
-
   const context = canvas.getContext("2d");
-  if (!context) {
-    throw new Error("Failed to prepare image canvas");
+  if (!context) throw new Error("Failed to prepare image canvas");
+  if (contentType === "image/jpeg") {
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, dimensions.width, dimensions.height);
   }
-
   context.drawImage(image, 0, 0, dimensions.width, dimensions.height);
-  return canvas;
+};
+
+const encodeImage = async (
+  canvas: HTMLCanvasElement,
+  quality: number,
+  contentType: CompressedImageType,
+): Promise<Blob> => {
+  const blob = await canvasToBlob(canvas, quality, contentType);
+  if (blob.type !== contentType)
+    throw new Error("Image encoding is not supported");
+  return blob;
 };
 
 const findBestCompression = async (
   canvas: HTMLCanvasElement,
+  contentType: CompressedImageType,
+  maximumQualityBlob: Blob,
 ): Promise<CompressionAttempt> => {
-  const maximumQualityBlob = await canvasToBlob(
-    canvas,
-    DIARY_IMAGE_MAX_QUALITY,
-  );
   if (maximumQualityBlob.size <= DIARY_IMAGE_TARGET_MAX_BYTES) {
     return {
       blob: maximumQualityBlob,
@@ -135,9 +148,10 @@ const findBestCompression = async (
     };
   }
 
-  const minimumQualityBlob = await canvasToBlob(
+  const minimumQualityBlob = await encodeImage(
     canvas,
     DIARY_IMAGE_MIN_QUALITY,
+    contentType,
   );
   if (minimumQualityBlob.size > DIARY_IMAGE_TARGET_MAX_BYTES) {
     return {
@@ -152,7 +166,7 @@ const findBestCompression = async (
 
   for (let step = 0; step < DIARY_IMAGE_QUALITY_SEARCH_STEPS; step += 1) {
     const quality = (minimumQuality + maximumQuality) / 2;
-    const candidate = await canvasToBlob(canvas, quality);
+    const candidate = await encodeImage(canvas, quality, contentType);
 
     if (candidate.size <= DIARY_IMAGE_TARGET_MAX_BYTES) {
       bestBlob = candidate;
@@ -192,41 +206,87 @@ const compressImage = async (
   originalDimensions: ImageDimensions,
 ): Promise<PreparedImage> => {
   let dimensions = getInitialDimensions(originalDimensions);
+  let contentType: CompressedImageType = "image/webp";
+  let firstEncoding = true;
 
   while (true) {
-    const canvas = drawImage(image, dimensions);
-    const compression = await findBestCompression(canvas);
+    const canvas = document.createElement("canvas");
+    try {
+      drawImage(canvas, image, dimensions, contentType);
+      let maximumQualityBlob = await canvasToBlob(
+        canvas,
+        DIARY_IMAGE_MAX_QUALITY,
+        contentType,
+      );
+      if (firstEncoding && maximumQualityBlob.type !== contentType) {
+        contentType = "image/jpeg";
+        drawImage(canvas, image, dimensions, contentType);
+        maximumQualityBlob = await encodeImage(
+          canvas,
+          DIARY_IMAGE_MAX_QUALITY,
+          contentType,
+        );
+      }
+      firstEncoding = false;
+      if (maximumQualityBlob.type !== contentType)
+        throw new Error("Image encoding is not supported");
+      const compression = await findBestCompression(
+        canvas,
+        contentType,
+        maximumQualityBlob,
+      );
 
-    if (compression.blob) {
-      return {
-        blob: compression.blob,
-        width: dimensions.width,
-        height: dimensions.height,
-        contentType: COMPRESSED_IMAGE_CONTENT_TYPE,
-        extension: COMPRESSED_IMAGE_EXTENSION,
-      };
+      if (compression.blob) {
+        return {
+          blob: compression.blob,
+          width: dimensions.width,
+          height: dimensions.height,
+          contentType,
+          extension: getExtension(contentType),
+        };
+      }
+      if (
+        Math.max(dimensions.width, dimensions.height) <= MIN_DIARY_IMAGE_EDGE
+      ) {
+        throw createDiaryImageError(
+          "size-limit",
+          "Failed to compress image below the size limit",
+        );
+      }
+      dimensions = getReducedDimensions(
+        dimensions,
+        compression.minimumQualitySize,
+      );
+    } finally {
+      releaseCanvas(canvas);
     }
-
-    if (Math.max(dimensions.width, dimensions.height) <= MIN_DIARY_IMAGE_EDGE) {
-      throw new Error("Failed to compress image below the size limit");
-    }
-
-    dimensions = getReducedDimensions(
-      dimensions,
-      compression.minimumQualitySize,
-    );
   }
 };
 
 const prepareDiaryImage = async (file: File): Promise<PreparedImage> => {
   if (!isSupportedDiaryImageType(file.type)) {
-    throw new Error("Unsupported image type");
+    throw createDiaryImageError(
+      "unsupported-type",
+      "Unsupported image type",
+      undefined,
+      file.type,
+    );
   }
 
   const imageUrl = URL.createObjectURL(file);
 
   try {
-    const image = await loadImage(imageUrl);
+    let image: HTMLImageElement;
+    try {
+      image = await loadImage(imageUrl);
+    } catch (cause) {
+      throw createDiaryImageError(
+        "load-failed",
+        "Failed to load image",
+        cause,
+        file.type,
+      );
+    }
     const dimensions = {
       width: image.naturalWidth,
       height: image.naturalHeight,
@@ -248,7 +308,17 @@ const prepareDiaryImage = async (file: File): Promise<PreparedImage> => {
       };
     }
 
-    return compressImage(image, dimensions);
+    try {
+      return await compressImage(image, dimensions);
+    } catch (cause) {
+      if (isDiaryImageError(cause)) throw cause;
+      throw createDiaryImageError(
+        "conversion-failed",
+        "Failed to convert image",
+        cause,
+        file.type,
+      );
+    }
   } finally {
     URL.revokeObjectURL(imageUrl);
   }
