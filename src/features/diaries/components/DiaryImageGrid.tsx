@@ -1,11 +1,13 @@
+import useEmblaCarousel from "embla-carousel-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
 import { getDiaryImageAspectRatio } from "@/lib/getDiaryImageAspectRatio";
 import { cn } from "@/lib/utils";
 import type { DiaryImage } from "@/types/diary/diary";
-import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+
 import { DiaryImagePreviewDialog } from "./DiaryImagePreviewDialog";
 
 type DiaryImageGridProps = {

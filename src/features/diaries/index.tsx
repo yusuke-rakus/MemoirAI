@@ -1,4 +1,5 @@
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+
 import { DiariesView } from "./components/DiariesView";
 import { useInitialDiaryDate } from "./hooks/useInitialDiaryDate";
 import { DiaryDetailProvider } from "./provider/DiaryDetailProvider";

@@ -1,8 +1,12 @@
-import type { TagColor } from "@/constants/tagColors";
+import { useCallback, useMemo, useState } from "react";
+import { toast } from "sonner";
+
 import { MAX_DIARY_IMAGE_COUNT } from "@/constants/diaryImages";
+import type { TagColor } from "@/constants/tagColors";
 import { useLocalUser } from "@/contexts/LocalUserContext";
 import { diaryTitleModel } from "@/firebase/models/createDiarySchema";
 import { memoryExtractionModel } from "@/firebase/models/memoryExtractionSchema";
+import { getDiaryImageErrorMessage } from "@/lib/diaryImageError";
 import { generateDiaryId } from "@/lib/generateId";
 import { DiaryClient } from "@/lib/service/diaryClient";
 import {
@@ -11,21 +15,20 @@ import {
 } from "@/lib/service/diaryIllustrationClient";
 import { DiaryImageClient } from "@/lib/service/diaryImageClient";
 import { UserMemoryClient } from "@/lib/service/userMemoryClient";
-import { invalidateDiarySearchCache } from "@/stores/diarySearchStore";
 import { requestDiaryRefresh } from "@/stores/diaryRefreshStore";
+import { invalidateDiarySearchCache } from "@/stores/diarySearchStore";
 import type { DiaryImage } from "@/types/diary/diary";
 import type {
   ActiveUserMemoryContext,
   ExtractedUserMemory,
 } from "@/types/memory";
-import { useCallback, useMemo, useState } from "react";
-import { toast } from "sonner";
-import { type DiaryCardImage, useDiaryCard } from "./useDiaryCard";
+
 import type {
   DiaryCreationProgress,
   DiaryCreationStepStatus,
   DiarySaveMode,
 } from "../types";
+import { type DiaryCardImage, useDiaryCard } from "./useDiaryCard";
 
 interface Tag {
   color: TagColor;
@@ -368,9 +371,10 @@ export const useCreateDiary = () => {
         toast.success("日記を作成しました🎊");
       } catch (error) {
         toast.error(
-          error instanceof DiaryIllustrationError
-            ? "画像を生成できませんでした。再試行するか、通常保存に切り替えてください"
-            : "日記の作成に失敗しました",
+          getDiaryImageErrorMessage(error) ??
+            (error instanceof DiaryIllustrationError
+              ? "画像を生成できませんでした。再試行するか、通常保存に切り替えてください"
+              : "日記の作成に失敗しました"),
         );
         throw error;
       }

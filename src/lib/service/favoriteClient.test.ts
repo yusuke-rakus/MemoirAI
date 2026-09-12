@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { FavoriteClient, type FavoritePageCursor } from "./favoriteClient";
 
 const firestoreMocks = vi.hoisted(() => ({

@@ -1,5 +1,6 @@
-import { db } from "@/firebase/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+
+import { db } from "@/firebase/firebase";
 
 const USER_SETTINGS_DOC_ID = "appearance";
 

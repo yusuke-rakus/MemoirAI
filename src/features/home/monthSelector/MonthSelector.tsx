@@ -1,6 +1,8 @@
+import { useRef } from "react";
+
 import { MonthSelectorScrollButton } from "@/components/shared/calendar/MonthSelectorScrollButton";
 import { Button } from "@/components/ui/button";
-import { useRef } from "react";
+
 import {
   useMonths,
   useScrollToCurrentMonth,
@@ -15,8 +17,7 @@ export const MonthSelector = (props: MonthSelectorProps) => {
   const { targetDate } = props;
   const months = useMonths();
   const setMonthRouteParams = useSetMonthRouteParams();
-  const { currentMonthRef, setScrollToCurrentMonth } =
-    useScrollToCurrentMonth();
+  const { currentMonthRef } = useScrollToCurrentMonth(months);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollLeft = () => {
@@ -25,8 +26,6 @@ export const MonthSelector = (props: MonthSelectorProps) => {
   const scrollRight = () => {
     scrollRef.current?.scrollBy({ left: 100, behavior: "smooth" });
   };
-
-  setScrollToCurrentMonth(currentMonthRef, months);
 
   return (
     <div className="mx-auto flex w-full max-w-lg items-center overflow-hidden">

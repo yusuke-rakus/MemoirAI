@@ -4,6 +4,7 @@ import {
   ReCaptchaEnterpriseProvider,
 } from "firebase/app-check";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { initializeFirebaseAppCheck } from "./appCheck";
 
 vi.mock("firebase/app-check", () => ({

@@ -1,5 +1,6 @@
-import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 
 type LegalConsentErrorProps = {
   onRetry: () => void;

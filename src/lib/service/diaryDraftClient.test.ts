@@ -1,5 +1,7 @@
 import "fake-indexeddb/auto";
+
 import { beforeEach, describe, expect, it } from "vitest";
+
 import { DiaryDraftClient } from "./diaryDraftClient";
 
 const DATABASE_NAME = "memoir-ai-drafts";

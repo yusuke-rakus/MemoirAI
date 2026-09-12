@@ -1,10 +1,11 @@
+import { getAuth, onAuthStateChanged, type User } from "firebase/auth";
+import { useEffect, useState } from "react";
+
 import { normalizePrimaryColorKey } from "@/constants/primaryColors";
 import { normalizeThemeKey } from "@/constants/themes";
 import { defaultLocalUser, useLocalUser } from "@/contexts/LocalUserContext";
 import { UserProfileClient } from "@/lib/service/userProfileClient";
 import { UserSettingsClient } from "@/lib/service/userSettingsClient";
-import { getAuth, onAuthStateChanged, type User } from "firebase/auth";
-import { useEffect, useState } from "react";
 
 export const useAuthCheck = () => {
   const { setLocalUser } = useLocalUser();

@@ -1,6 +1,8 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { Views } from "./constants/views";
 import { useInitialDiaryDate } from "./hooks/useInitialDiaryDate";
 import { MonthSelector } from "./monthSelector/MonthSelector";

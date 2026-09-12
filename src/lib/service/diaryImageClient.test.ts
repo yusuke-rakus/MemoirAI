@@ -1,8 +1,10 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import {
   DIARY_IMAGE_COMPRESSION_TRIGGER_BYTES,
   DIARY_IMAGE_TARGET_MAX_BYTES,
 } from "@/constants/diaryImages";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { DiaryImageClient } from "./diaryImageClient";
 
 const storageMocks = vi.hoisted(() => ({
@@ -34,7 +36,11 @@ type BlobSizeResolver = (
 ) => number | null;
 
 let imageDimensions = { width: 1200, height: 900 };
-let encodedContentType = "image/webp";
+let encodedContentType: string | null = null;
+let webpSupported = true;
+let loadFails = false;
+const canvases: HTMLCanvasElement[] = [];
+const fillRectMock = vi.fn();
 let blobSizeResolver: BlobSizeResolver = () => 400 * 1024;
 const drawImageMock = vi.fn();
 const createObjectURLMock = vi.fn(() => "blob:test-image");
@@ -47,7 +53,7 @@ class MockImage {
   onerror: (() => void) | null = null;
 
   set src(_value: string) {
-    queueMicrotask(() => this.onload?.());
+    queueMicrotask(() => (loadFails ? this.onerror?.() : this.onload?.()));
   }
 }
 
@@ -59,7 +65,11 @@ const createImageFile = (
 
 beforeEach(() => {
   imageDimensions = { width: 1200, height: 900 };
-  encodedContentType = "image/webp";
+  encodedContentType = null;
+  webpSupported = true;
+  loadFails = false;
+  canvases.length = 0;
+  fillRectMock.mockReset();
   blobSizeResolver = () => 400 * 1024;
   drawImageMock.mockReset();
   createObjectURLMock.mockReset().mockReturnValue("blob:test-image");
@@ -78,10 +88,14 @@ beforeEach(() => {
   vi.stubGlobal("Image", MockImage);
 
   vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(
-    () =>
-      ({
+    function (this: HTMLCanvasElement) {
+      canvases.push(this);
+      return {
         drawImage: drawImageMock,
-      }) as unknown as GPUCanvasContext,
+        fillRect: fillRectMock,
+        fillStyle: "",
+      } as unknown as GPUCanvasContext;
+    },
   );
   vi.spyOn(HTMLCanvasElement.prototype, "toBlob").mockImplementation(function (
     this: HTMLCanvasElement,
@@ -93,7 +107,11 @@ beforeEach(() => {
     callback(
       size === null
         ? null
-        : new Blob([new Uint8Array(size)], { type: encodedContentType }),
+        : new Blob([new Uint8Array(size)], {
+            type:
+              encodedContentType ??
+              (!webpSupported && _type === "image/webp" ? "image/png" : _type),
+          }),
     );
   });
 
@@ -102,33 +120,48 @@ beforeEach(() => {
   storageMocks.getDownloadURL.mockResolvedValue("https://memoir.test/image-1");
 });
 
-describe("DiaryImageClient.upload", () => {
-  it("700KiB以下かつ長辺1600px以下の画像は変換しない", async () => {
-    const file = createImageFile(DIARY_IMAGE_COMPRESSION_TRIGGER_BYTES);
-
-    const image = await DiaryImageClient.upload({
-      uid: "user-1",
-      diaryId: "diary-1",
-      file,
-    });
-
-    expect(storageMocks.uploadBytes).toHaveBeenCalledWith(
-      expect.objectContaining({
-        path: "users/user-1/diaries/diary-1/images/image-1.jpg",
-      }),
-      file,
-      {
-        contentType: "image/jpeg",
-        customMetadata: { originalName: "photo.jpg" },
-      },
+afterEach(() => {
+  for (const canvas of canvases) {
+    expect(canvas.width).toBe(0);
+    expect(canvas.height).toBe(0);
+  }
+  if (createObjectURLMock.mock.calls.length) {
+    expect(revokeObjectURLMock).toHaveBeenCalledExactlyOnceWith(
+      "blob:test-image",
     );
-    expect(HTMLCanvasElement.prototype.toBlob).not.toHaveBeenCalled();
-    expect(image).toMatchObject({
-      width: 1200,
-      height: 900,
-      contentType: "image/jpeg",
-    });
-  });
+  }
+});
+
+describe("DiaryImageClient.upload", () => {
+  it.each(["image/jpeg", "image/png", "image/webp"])(
+    "700KiB以下かつ長辺1600px以下の%sは変換しない",
+    async (type) => {
+      const file = createImageFile(DIARY_IMAGE_COMPRESSION_TRIGGER_BYTES, type);
+
+      const image = await DiaryImageClient.upload({
+        uid: "user-1",
+        diaryId: "diary-1",
+        file,
+      });
+
+      expect(storageMocks.uploadBytes).toHaveBeenCalledWith(
+        expect.objectContaining({
+          path: `users/user-1/diaries/diary-1/images/image-1.${type === "image/jpeg" ? "jpg" : type.split("/")[1]}`,
+        }),
+        file,
+        {
+          contentType: type,
+          customMetadata: { originalName: "photo.jpg" },
+        },
+      );
+      expect(HTMLCanvasElement.prototype.toBlob).not.toHaveBeenCalled();
+      expect(image).toMatchObject({
+        width: 1200,
+        height: 900,
+        contentType: type,
+      });
+    },
+  );
 
   it("700KiB超の画像を最も高い品質の500KiB以下のWebPにする", async () => {
     const file = createImageFile(DIARY_IMAGE_COMPRESSION_TRIGGER_BYTES + 1);
@@ -217,7 +250,7 @@ describe("DiaryImageClient.upload", () => {
     expect(image.contentType).toBe("image/webp");
   });
 
-  it("WebPへエンコードできない場合はアップロードしない", async () => {
+  it("JPEGも出力形式が一致しない場合はアップロードしない", async () => {
     const file = createImageFile(DIARY_IMAGE_COMPRESSION_TRIGGER_BYTES + 1);
     encodedContentType = "image/png";
 
@@ -227,7 +260,10 @@ describe("DiaryImageClient.upload", () => {
         diaryId: "diary-1",
         file,
       }),
-    ).rejects.toThrowError("WebP encoding is not supported");
+    ).rejects.toMatchObject({
+      code: "conversion-failed",
+      cause: expect.any(Error),
+    });
     expect(storageMocks.uploadBytes).not.toHaveBeenCalled();
   });
 
@@ -259,4 +295,152 @@ describe("DiaryImageClient.upload", () => {
     expect(createObjectURLMock).not.toHaveBeenCalled();
     expect(storageMocks.uploadBytes).not.toHaveBeenCalled();
   });
+});
+
+const uploadFile = (file: File) =>
+  DiaryImageClient.upload({ uid: "user-1", diaryId: "diary-1", file });
+
+describe("ブラウザの画像変換互換性", () => {
+  it.each(
+    ["image/heic", "image/heif"].flatMap((type) =>
+      [200 * 1024, 701 * 1024, 10 * 1024 * 1024, 11 * 1024 * 1024].flatMap(
+        (size) => [true, false].map((supported) => ({ type, size, supported })),
+      ),
+    ),
+  )("$type $size bytes WebP=$supported", async ({ type, size, supported }) => {
+    webpSupported = supported;
+    const file = createImageFile(size, type, "photo.heic");
+    const result = await uploadFile(file);
+    const contentType = supported ? "image/webp" : "image/jpeg";
+    const blob = storageMocks.uploadBytes.mock.calls[0][1] as Blob;
+    expect(blob.type).toBe(contentType);
+    expect(blob.size).toBeLessThanOrEqual(DIARY_IMAGE_TARGET_MAX_BYTES);
+    expect(result.contentType).toBe(contentType);
+    expect(result.storagePath).toBe(
+      `users/user-1/diaries/diary-1/images/image-1.${supported ? "webp" : "jpg"}`,
+    );
+    expect(storageMocks.uploadBytes.mock.calls[0][2]).toEqual({
+      contentType,
+      customMetadata: { originalName: file.name },
+    });
+    if (!supported) {
+      expect(fillRectMock).toHaveBeenCalledWith(0, 0, 1200, 900);
+      expect(fillRectMock.mock.invocationCallOrder[0]).toBeLessThan(
+        drawImageMock.mock.invocationCallOrder[1],
+      );
+      const contexts = vi.mocked(HTMLCanvasElement.prototype.getContext).mock
+        .results;
+      expect(contexts[1].value.fillStyle).toBe("#ffffff");
+    } else {
+      expect(fillRectMock).not.toHaveBeenCalled();
+    }
+  });
+
+  it.each(["image/jpeg", "image/png", "image/webp"])(
+    "大容量%sをJPEGで品質探索する",
+    async (type) => {
+      webpSupported = false;
+      blobSizeResolver = (quality) => Math.round((100 + quality * 500) * 1024);
+      await uploadFile(createImageFile(701 * 1024, type));
+      const blob = storageMocks.uploadBytes.mock.calls[0][1] as Blob;
+      expect(blob.type).toBe("image/jpeg");
+      expect(blob.size).toBeLessThanOrEqual(DIARY_IMAGE_TARGET_MAX_BYTES);
+      expect(blob.size).toBeGreaterThan(490 * 1024);
+      const types = vi
+        .mocked(HTMLCanvasElement.prototype.toBlob)
+        .mock.calls.map((call) => call[1]);
+      expect(types).toEqual(["image/webp", ...Array(7).fill("image/jpeg")]);
+    },
+  );
+
+  it("JPEGで解像度を下げ、WebPを再試行しない", async () => {
+    webpSupported = false;
+    imageDimensions = { width: 2400, height: 1800 };
+    blobSizeResolver = (_quality, width) =>
+      width === 1600 ? 700 * 1024 : 450 * 1024;
+    const result = await uploadFile(createImageFile(200 * 1024, "image/heic"));
+    expect(result.width).toBeLessThan(1600);
+    expect(result.contentType).toBe("image/jpeg");
+    expect(
+      vi
+        .mocked(HTMLCanvasElement.prototype.toBlob)
+        .mock.calls.filter((call) => call[1] === "image/webp"),
+    ).toHaveLength(1);
+  });
+
+  it("JPEGでも下限解像度で収まらなければ送信しない", async () => {
+    webpSupported = false;
+    imageDimensions = { width: 320, height: 240 };
+    blobSizeResolver = () => 600 * 1024;
+    await expect(
+      uploadFile(createImageFile(200 * 1024, "image/heic")),
+    ).rejects.toMatchObject({ code: "size-limit" });
+    expect(storageMocks.uploadBytes).not.toHaveBeenCalled();
+  });
+
+  it.each(["image/heic", "image/heif", "image/jpeg"])(
+    "%s読込失敗を区別する",
+    async (type) => {
+      loadFails = true;
+      await expect(
+        uploadFile(createImageFile(200 * 1024, type)),
+      ).rejects.toMatchObject({
+        code: "load-failed",
+        contentType: type,
+        cause: expect.any(Error),
+      });
+      expect(storageMocks.uploadBytes).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["context", "draw", "null", "throw"])(
+    "Canvas失敗: %s",
+    async (failure) => {
+      if (failure === "context")
+        vi.mocked(HTMLCanvasElement.prototype.getContext).mockImplementation(
+          function (this: HTMLCanvasElement) {
+            canvases.push(this);
+            return null;
+          },
+        );
+      if (failure === "draw")
+        drawImageMock.mockImplementation(() => {
+          throw new Error("draw failed");
+        });
+      if (failure === "null") blobSizeResolver = () => null;
+      if (failure === "throw")
+        vi.mocked(HTMLCanvasElement.prototype.toBlob).mockImplementation(() => {
+          throw new Error("encode failed");
+        });
+      await expect(
+        uploadFile(createImageFile(200 * 1024, "image/heic")),
+      ).rejects.toMatchObject({
+        code: "conversion-failed",
+        cause: expect.any(Error),
+      });
+      expect(storageMocks.uploadBytes).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([true, false])(
+    "非同期変換完了までURLを保持する: 成功=%s",
+    async (success) => {
+      let finish!: BlobCallback;
+      vi.mocked(HTMLCanvasElement.prototype.toBlob).mockImplementation(
+        (callback) => {
+          finish = callback;
+        },
+      );
+      const promise = uploadFile(createImageFile(200 * 1024, "image/heic"));
+      await vi.waitFor(() => expect(finish).toBeDefined());
+      expect(revokeObjectURLMock).not.toHaveBeenCalled();
+      expect(canvases[0].width).toBe(1200);
+      finish(success ? new Blob(["image"], { type: "image/webp" }) : null);
+      if (success) await promise;
+      else
+        await expect(promise).rejects.toMatchObject({
+          code: "conversion-failed",
+        });
+    },
+  );
 });

@@ -1,3 +1,12 @@
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  setDoc,
+  writeBatch,
+} from "firebase/firestore";
+
 import { db } from "@/firebase/firebase";
 import { generateMemoryFactId, generatePersonMemoryId } from "@/lib/generateId";
 import type {
@@ -11,14 +20,6 @@ import type {
   UserMemoryProfileKey,
   UserProfileMemoryFact,
 } from "@/types/memory";
-import {
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  setDoc,
-  writeBatch,
-} from "firebase/firestore";
 
 const MEMORY_SETTINGS_DOC_ID = "memory";
 const PEOPLE_COLLECTION_ID = "people";

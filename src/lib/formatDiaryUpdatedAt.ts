@@ -1,4 +1,3 @@
-import type { Diary } from "@/types/diary/diary";
 import {
   differenceInDays,
   differenceInHours,
@@ -9,6 +8,8 @@ import {
   isAfter,
   subMonths,
 } from "date-fns";
+
+import type { Diary } from "@/types/diary/diary";
 
 type DiaryTimestamps = Pick<Diary, "createdAt" | "updatedAt">;
 

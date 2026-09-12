@@ -1,8 +1,10 @@
+import { useOutletContext } from "react-router-dom";
+
 import { LoginHeader } from "@/features/login/components/LoginHeader";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import type { AppShellOutletContext } from "@/layout/AppShellLayout";
 import { MainLayout } from "@/layout/MainLayout";
-import { useOutletContext } from "react-router-dom";
+
 import { SharedDiaryView } from "./components/SharedDiaryView";
 
 export const SharedDiaryPage = () => {

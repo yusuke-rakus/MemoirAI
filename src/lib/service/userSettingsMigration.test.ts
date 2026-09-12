@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { runUserSettingsMigrations } from "./userSettingsMigration";
 
 const mocks = vi.hoisted(() => ({

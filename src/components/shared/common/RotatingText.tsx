@@ -1,10 +1,12 @@
-import { cn } from "@/lib/utils";
 import {
   AnimatePresence,
-  motion,
   type HTMLMotionProps,
+  motion,
   type Transition,
 } from "motion/react";
+
+import { cn } from "@/lib/utils";
+
 import { useRotatingText } from "./useRotatingText";
 
 export type RotatingTextProps = {

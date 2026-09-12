@@ -1,3 +1,6 @@
+import { LogOut } from "lucide-react";
+import { type ReactNode, useRef } from "react";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -7,8 +10,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { LocalUser } from "@/contexts/LocalUserContext";
-import { LogOut } from "lucide-react";
-import { type ReactNode, useRef } from "react";
 
 type AvatarMenuProps = {
   user: LocalUser | null;

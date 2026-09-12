@@ -1,5 +1,7 @@
-import { auth, provider } from "@/firebase/firebase";
 import { deleteUser, reauthenticateWithPopup } from "firebase/auth";
+
+import { auth, provider } from "@/firebase/firebase";
+
 import { DiaryDraftClient } from "./diaryDraftClient";
 import { UserAccountDataClient } from "./userAccountDataClient";
 import { UserStorageClient } from "./userStorageClient";

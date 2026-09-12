@@ -1,3 +1,5 @@
+import { ChevronDown } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -6,7 +8,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
+
 import type { DiarySaveMode } from "../types";
 
 type CreatePhase = "idle" | "generating" | "saving";

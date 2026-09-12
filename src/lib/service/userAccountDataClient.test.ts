@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { UserAccountDataClient } from "./userAccountDataClient";
 
 const mocks = vi.hoisted(() => ({

@@ -1,19 +1,20 @@
-import { db } from "@/firebase/firebase";
 import {
   collection,
+  type CollectionReference,
   deleteDoc,
   doc,
+  type DocumentData,
   getDocs,
   limit,
+  type Query,
   query,
   serverTimestamp,
   Timestamp,
   where,
   writeBatch,
-  type CollectionReference,
-  type DocumentData,
-  type Query,
 } from "firebase/firestore";
+
+import { db } from "@/firebase/firebase";
 
 const DELETE_BATCH_SIZE = 450;
 const LEGAL_RETENTION_YEARS = 5;

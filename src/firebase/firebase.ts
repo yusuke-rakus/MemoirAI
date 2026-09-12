@@ -1,4 +1,3 @@
-import { env } from "@/lib/env";
 import { initializeApp } from "firebase/app";
 import {
   connectAuthEmulator,
@@ -8,6 +7,9 @@ import {
 } from "firebase/auth";
 import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
 import { connectStorageEmulator, getStorage } from "firebase/storage";
+
+import { env } from "@/lib/env";
+
 import { initializeFirebaseAppCheck } from "./appCheck";
 
 const firebaseConfig = {

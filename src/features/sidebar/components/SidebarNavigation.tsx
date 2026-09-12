@@ -1,3 +1,5 @@
+import { Link, useLocation } from "react-router-dom";
+
 import {
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -7,7 +9,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { PATHS } from "@/constants/path";
-import { Link, useLocation } from "react-router-dom";
 
 const menuItems = [PATHS.calendar, PATHS.diaries];
 

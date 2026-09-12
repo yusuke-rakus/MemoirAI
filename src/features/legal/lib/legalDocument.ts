@@ -1,5 +1,6 @@
 import { parse as parseYaml } from "yaml";
 import { z } from "zod";
+
 import {
   LEGAL_DOCUMENT_IDS,
   type LegalDocument,

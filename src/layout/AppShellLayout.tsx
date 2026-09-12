@@ -1,3 +1,7 @@
+import { signOut, type User } from "firebase/auth";
+import { Outlet, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+
 import { LoadingScreen } from "@/components/shared/common/LoadingScreen";
 import { PATHS } from "@/constants/path";
 import { LegalConsentError } from "@/features/legal/components/LegalConsentError";
@@ -6,9 +10,7 @@ import { useLegalAcceptance } from "@/features/legal/hooks/useLegalAcceptance";
 import { auth } from "@/firebase/firebase";
 import { useAuthCheck } from "@/hooks/useAuthCheck";
 import { useUserInitialization } from "@/hooks/useUserInitialization";
-import { signOut, type User } from "firebase/auth";
-import { Outlet, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+
 import { MainLayout } from "./MainLayout";
 
 export type AppShellOutletContext = {

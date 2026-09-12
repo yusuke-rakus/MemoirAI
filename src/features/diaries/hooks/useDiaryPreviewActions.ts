@@ -1,13 +1,14 @@
+import { Timestamp } from "firebase/firestore";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
+import { getDiaryImageErrorMessage } from "@/lib/diaryImageError";
 import { DiaryClient } from "@/lib/service/diaryClient";
 import { DiaryImageClient } from "@/lib/service/diaryImageClient";
 import { SharedDiaryClient } from "@/lib/service/sharedDiaryClient";
-import type { Diary, DiaryImage } from "@/types/diary/diary";
-import { Timestamp } from "firebase/firestore";
-import { invalidateDiarySearchCache } from "@/stores/diarySearchStore";
 import { requestDiaryRefresh } from "@/stores/diaryRefreshStore";
+import { invalidateDiarySearchCache } from "@/stores/diarySearchStore";
+import type { Diary, DiaryImage } from "@/types/diary/diary";
 
 export type DiaryPreviewMutationValues = Pick<
   Diary,
@@ -67,7 +68,9 @@ export const useDiaryPreviewActions = ({
           },
         );
         console.error("Failed to update diary", error);
-        toast.error("日記の更新に失敗しました");
+        toast.error(
+          getDiaryImageErrorMessage(error) ?? "日記の更新に失敗しました",
+        );
         setIsUpdating(false);
         return false;
       }

@@ -1,11 +1,13 @@
-import { PATHS } from "@/constants/path";
 import { Navigate, Route, Routes } from "react-router-dom";
+
+import { PATHS } from "@/constants/path";
+
 import { NotificationToaster } from "./components/shared/common/NotificationToaster";
 import { NewDiaryPage } from "./features/createDiary";
 import { DiariesPage } from "./features/diaries";
 import { HomePage } from "./features/home";
-import { LoginPage } from "./features/login";
 import { LegacyLegalRedirect, LegalPage } from "./features/legal";
+import { LoginPage } from "./features/login";
 import { NotFoundPage } from "./features/notFound";
 import { SharedDiaryPage } from "./features/sharedDiary";
 import { AppShellLayout } from "./layout/AppShellLayout";

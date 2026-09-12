@@ -1,8 +1,10 @@
+import { type ReactElement, type ReactNode } from "react";
+
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { DiarySearchDialog } from "@/features/searchDiary/components/DiarySearchDialog";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { cn } from "@/lib/utils";
-import { type ReactElement, type ReactNode } from "react";
+
 import { AppSidebar } from "./AppSidebar";
 import { Header } from "./Header";
 

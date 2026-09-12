@@ -1,6 +1,7 @@
-import { auth, provider, signInWithPopup } from "@/firebase/firebase";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+
+import { auth, provider, signInWithPopup } from "@/firebase/firebase";
 
 export const useLogin = () => {
   const navigate = useNavigate();

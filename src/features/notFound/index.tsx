@@ -1,8 +1,9 @@
+import { House, LogIn } from "lucide-react";
+import { Link } from "react-router-dom";
+
 import { Button } from "@/components/ui/button";
 import { PATHS } from "@/constants/path";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
-import { House, LogIn } from "lucide-react";
-import { Link } from "react-router-dom";
 
 export const NotFoundPage = () => {
   useDocumentTitle("ページが見つかりません");

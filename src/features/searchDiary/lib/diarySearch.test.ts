@@ -1,6 +1,8 @@
-import type { Diary, Tag } from "@/types/diary/diary";
 import { Timestamp } from "firebase/firestore";
 import { describe, expect, it } from "vitest";
+
+import type { Diary, Tag } from "@/types/diary/diary";
+
 import {
   appendSearchTerm,
   getFrequentTags,

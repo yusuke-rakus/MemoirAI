@@ -1,8 +1,10 @@
-import type { Diary } from "@/types/diary/diary";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Timestamp } from "firebase/firestore";
 import { describe, expect, it, vi } from "vitest";
+
+import type { Diary } from "@/types/diary/diary";
+
 import { DiaryEditDialog } from "./DiaryEditDialog";
 
 vi.mock("@/contexts/LocalUserContext", () => ({

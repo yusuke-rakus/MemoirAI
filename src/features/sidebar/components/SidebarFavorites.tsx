@@ -1,3 +1,7 @@
+import { ChevronDown, Loader2, MessageSquareDashed } from "lucide-react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+
 import {
   Collapsible,
   CollapsibleContent,
@@ -15,9 +19,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { PATHS } from "@/constants/path";
-import { ChevronDown, Loader2, MessageSquareDashed } from "lucide-react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+
 import { useFetchFavoriteDiaries } from "../hooks/useFetchFavoriteDiaries";
 
 export const SidebarFavorites = () => {

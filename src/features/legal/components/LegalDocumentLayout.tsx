@@ -1,12 +1,14 @@
-import { Button } from "@/components/ui/button";
-import type { LegalDocument } from "../types/legalDocument";
-import { formatLegalEffectiveDate } from "../lib/legalDocument";
-import { useLegalReturnDestination } from "../hooks/useLegalReturnDestination";
-import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { ArrowLeft, ArrowUp } from "lucide-react";
 import ReactMarkdown, { type Components } from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { Link } from "react-router-dom";
+import remarkGfm from "remark-gfm";
+
+import { Button } from "@/components/ui/button";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+
+import { useLegalReturnDestination } from "../hooks/useLegalReturnDestination";
+import { formatLegalEffectiveDate } from "../lib/legalDocument";
+import type { LegalDocument } from "../types/legalDocument";
 
 type LegalDocumentLayoutProps = {
   documents: readonly LegalDocument[];

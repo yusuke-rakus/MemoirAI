@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+
 import { LegalDocumentLayout } from "../components/LegalDocumentLayout";
 import { LEGAL_DOCUMENTS } from "../documents";
 

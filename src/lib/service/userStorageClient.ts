@@ -1,10 +1,11 @@
-import { storage } from "@/firebase/firebase";
 import {
   deleteObject,
   list,
   ref,
   type StorageReference,
 } from "firebase/storage";
+
+import { storage } from "@/firebase/firebase";
 
 const STORAGE_LIST_PAGE_SIZE = 1000;
 

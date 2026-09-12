@@ -1,3 +1,5 @@
+import { useCallback, useEffect, useState } from "react";
+
 import {
   DEFAULT_THEME_KEY,
   normalizeThemeKey,
@@ -5,7 +7,6 @@ import {
 } from "@/constants/themes";
 import { useLocalUser } from "@/contexts/LocalUserContext";
 import { UserSettingsClient } from "@/lib/service/userSettingsClient";
-import { useCallback, useEffect, useState } from "react";
 
 export function useTheme() {
   const { localUser } = useLocalUser();

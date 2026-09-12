@@ -1,5 +1,6 @@
-import type { Diary } from "@/types/diary/diary";
 import { create } from "zustand";
+
+import type { Diary } from "@/types/diary/diary";
 
 type DiarySearchState = {
   open: boolean;

@@ -1,11 +1,12 @@
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { z } from "zod";
+
 import {
   LEGAL_DOCUMENT_VERSIONS,
   REQUIRED_LEGAL_CONSENT_VERSION,
 } from "@/features/legal/constants/legalDocuments";
 import { db } from "@/firebase/firebase";
 import type { LegalAcceptance } from "@/types/legal";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
-import { z } from "zod";
 
 const storedLegalAcceptanceSchema = z.object({
   uid: z.string().min(1),

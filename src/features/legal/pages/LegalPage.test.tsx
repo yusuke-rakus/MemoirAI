@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { useLegalReturnDestination } from "../hooks/useLegalReturnDestination";
 import { LegalPage } from "./LegalPage";
 
@@ -39,7 +40,7 @@ describe("LegalPage", () => {
     expect(
       screen.getByRole("heading", { name: /損害賠償責任の制限/ }),
     ).toBeVisible();
-    expect(screen.getByText(/累計損害賠償額は、1万円を上限/)).toBeVisible();
+    expect(screen.getByText(/累計損害賠償額は、1千円を上限/)).toBeVisible();
     expect(
       screen.getByText(/法令により管轄を有する日本の裁判所/),
     ).toBeVisible();

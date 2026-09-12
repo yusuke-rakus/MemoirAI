@@ -1,5 +1,3 @@
-import { db } from "@/firebase/firebase";
-import type { Favorite } from "@/types/favorite";
 import {
   collection,
   deleteDoc,
@@ -16,6 +14,9 @@ import {
   startAfter,
   type WithFieldValue,
 } from "firebase/firestore";
+
+import { db } from "@/firebase/firebase";
+import type { Favorite } from "@/types/favorite";
 
 const FAVORITE_PAGE_SIZE = 10;
 

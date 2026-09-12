@@ -1,10 +1,11 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+
 import {
-  MAX_DIARY_IMAGE_COUNT,
   isSupportedDiaryImageType,
+  MAX_DIARY_IMAGE_COUNT,
 } from "@/constants/diaryImages";
 import { generateDiaryImageId } from "@/lib/generateId";
 import type { DiaryImage } from "@/types/diary/diary";
-import { useCallback, useEffect, useRef, useState } from "react";
 
 export type NewDiaryEditImage = {
   id: string;

@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+
 import { useCurrentDateStore } from "../../provider/CurrentDateProvider";
 
 export type Month = {
@@ -79,24 +80,19 @@ export const useSetMonthRouteParams = () => {
 };
 
 /**
- * 指定された要素がマウントされた際に、その要素をビューの中央にスクロールするカスタムフック
- * @param ref スクロール対象の要素へのRefObject
- * @param dependencies スクロールを再トリガーするための依存配列
+ * 現在の月の要素がマウントされた後、月一覧の更新に応じてビューの中央へスクロールするカスタムフック
+ * @param months スクロールを再トリガーする月一覧
  */
-export const useScrollToCurrentMonth = () => {
+export const useScrollToCurrentMonth = (months: Month[]) => {
   const currentMonthRef = useRef<HTMLButtonElement | null>(null);
 
-  const setScrollToCurrentMonth = (
-    ref: RefObject<HTMLButtonElement | null>,
-    dependencies: Month[] = [],
-  ) => {
-    useEffect(() => {
-      ref.current?.scrollIntoView({
-        behavior: "smooth",
-        inline: "center",
-        block: "nearest",
-      });
-    }, [dependencies]);
-  };
-  return { currentMonthRef, setScrollToCurrentMonth };
+  useEffect(() => {
+    currentMonthRef.current?.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest",
+    });
+  }, [months]);
+
+  return { currentMonthRef };
 };

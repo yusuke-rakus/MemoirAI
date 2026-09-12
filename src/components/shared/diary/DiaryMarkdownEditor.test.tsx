@@ -1,8 +1,10 @@
-import { Textarea } from "@/components/ui/textarea";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { describe, expect, it } from "vitest";
+
+import { Textarea } from "@/components/ui/textarea";
+
 import { DiaryMarkdownEditor } from "./DiaryMarkdownEditor";
 
 const EditorHarness = () => {

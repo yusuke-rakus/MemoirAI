@@ -1,3 +1,8 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,10 +27,6 @@ import type {
   UserMemoryFact,
   UserProfileMemoryFact,
 } from "@/types/memory";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 export type EditableMemory =
   | { kind: "profile"; fact: UserProfileMemoryFact; label: string }

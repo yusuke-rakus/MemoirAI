@@ -1,6 +1,9 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { createDiaryImageError } from "@/lib/diaryImageError";
 import type { ActiveUserMemoryContext } from "@/types/memory";
+
 import { useCreateDiary } from "./useCreateDiary";
 
 const mocks = vi.hoisted(() => ({
@@ -462,6 +465,49 @@ describe("useCreateDiary", () => {
       expect.objectContaining({ id: "generated.png" }),
       expect.objectContaining({ id: "manual.jpg" }),
     ]);
+    expect(result.current.creationProgress).toBeNull();
+  });
+});
+
+describe("画像エラー通知", () => {
+  it.each([
+    [
+      createDiaryImageError(
+        "load-failed",
+        "load failed",
+        undefined,
+        "image/heic",
+      ),
+      "このHEIC/HEIF画像を読み込めませんでした。JPEGまたはPNGに変換して追加してください",
+    ],
+    [
+      createDiaryImageError("conversion-failed", "convert failed"),
+      "画像を変換できませんでした。JPEGまたはPNGに変換するか、画像を小さくして追加してください",
+    ],
+    [
+      createDiaryImageError("size-limit", "size failed"),
+      "画像を保存可能なサイズまで圧縮できませんでした。画像を小さくして追加してください",
+    ],
+    [new Error("network failed"), "日記の作成に失敗しました"],
+  ])("%sを通知し入力を維持する", async (error, message) => {
+    const files = [
+      new File(["first"], "first.jpg", { type: "image/jpeg" }),
+      new File(["second"], "second.heic", { type: "image/heic" }),
+    ];
+    mocks.cards = [createCard("残す本文", files)];
+    const originalCards = mocks.cards;
+    const uploaded = { id: "uploaded-first" };
+    mocks.upload.mockResolvedValueOnce(uploaded).mockRejectedValueOnce(error);
+    const { result } = renderHook(() => useCreateDiary());
+    await act(async () => {
+      await expect(result.current.onSave("standard")).rejects.toBe(error);
+    });
+    expect(mocks.toastError).toHaveBeenCalledWith(message);
+    expect(mocks.deleteMany).toHaveBeenCalledExactlyOnceWith([uploaded]);
+    expect(mocks.add).not.toHaveBeenCalled();
+    expect(mocks.toastSuccess).not.toHaveBeenCalled();
+    expect(mocks.cards).toBe(originalCards);
+    expect(mocks.cards[0].images.map((image) => image.file)).toEqual(files);
     expect(result.current.creationProgress).toBeNull();
   });
 });

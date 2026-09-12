@@ -1,8 +1,10 @@
-import { useSidebar } from "@/components/ui/sidebar";
 import { fireEvent, render, screen } from "@testing-library/react";
 import type { ReactElement, ReactNode } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { useSidebar } from "@/components/ui/sidebar";
+
 import { useFetchFavoriteDiaries } from "../hooks/useFetchFavoriteDiaries";
 import { SidebarFavorites } from "./SidebarFavorites";
 

@@ -1,5 +1,6 @@
-import { env } from "@/lib/env";
 import { useEffect } from "react";
+
+import { env } from "@/lib/env";
 
 export const useDocumentTitle = (
   title?: string | null,

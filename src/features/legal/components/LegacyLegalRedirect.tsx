@@ -1,5 +1,7 @@
-import { PATHS } from "@/constants/path";
 import { Navigate } from "react-router-dom";
+
+import { PATHS } from "@/constants/path";
+
 import type { LegalDocumentId } from "../types/legalDocument";
 
 export const LegacyLegalRedirect = ({

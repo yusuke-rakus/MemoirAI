@@ -1,6 +1,8 @@
+import { CloudUpload, Image, type LucideIcon, Tags } from "lucide-react";
+
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { CloudUpload, Image, Tags, type LucideIcon } from "lucide-react";
+
 import type { DiaryCreationProgress, DiaryCreationStepStatus } from "../types";
 
 type DiaryCreationProgressDialogProps = {

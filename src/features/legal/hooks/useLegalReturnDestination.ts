@@ -1,6 +1,7 @@
-import { auth } from "@/firebase/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
+
+import { auth } from "@/firebase/firebase";
 
 type LegalReturnDestination = {
   label: "アプリへ戻る" | "ログインへ戻る";

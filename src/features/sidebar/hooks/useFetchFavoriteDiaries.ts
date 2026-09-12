@@ -1,3 +1,6 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+
 import { useLocalUser } from "@/contexts/LocalUserContext";
 import {
   FavoriteClient,
@@ -6,8 +9,6 @@ import {
 import { SharedDiaryClient } from "@/lib/service/sharedDiaryClient";
 import { useFavoriteRefreshStore } from "@/stores/favoriteRefreshStore";
 import type { SharedDiary } from "@/types/diary/sharedDiary";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 
 const FAVORITE_PAGE_SIZE = 10;
 

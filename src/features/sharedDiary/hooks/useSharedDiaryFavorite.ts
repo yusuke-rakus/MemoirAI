@@ -1,7 +1,8 @@
-import { FavoriteClient } from "@/lib/service/favoriteClient";
-import { requestFavoriteRefresh } from "@/stores/favoriteRefreshStore";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+
+import { FavoriteClient } from "@/lib/service/favoriteClient";
+import { requestFavoriteRefresh } from "@/stores/favoriteRefreshStore";
 
 type UseSharedDiaryFavoriteParams = {
   uid?: string | null;

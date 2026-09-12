@@ -1,3 +1,8 @@
+import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { useState } from "react";
+import { describe, expect, it } from "vitest";
+
 import {
   Sheet,
   SheetContent,
@@ -5,10 +10,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { render, screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { useState } from "react";
-import { describe, expect, it } from "vitest";
+
 import { AvatarMenu } from "./AvatarMenu";
 
 const MobileSidebarAvatarMenu = () => {

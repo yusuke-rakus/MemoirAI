@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { resolveDiaryIllustrationConfig } from "./diaryIllustrationConfig";
 
 describe("resolveDiaryIllustrationConfig", () => {

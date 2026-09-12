@@ -1,10 +1,13 @@
-import { DiaryClient } from "@/lib/service/diaryClient";
-import { DiaryImageClient } from "@/lib/service/diaryImageClient";
-import { SharedDiaryClient } from "@/lib/service/sharedDiaryClient";
-import type { Diary } from "@/types/diary/diary";
 import { act, renderHook } from "@testing-library/react";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { createDiaryImageError } from "@/lib/diaryImageError";
+import { DiaryClient } from "@/lib/service/diaryClient";
+import { DiaryImageClient } from "@/lib/service/diaryImageClient";
+import { SharedDiaryClient } from "@/lib/service/sharedDiaryClient";
+import type { Diary, DiaryImage } from "@/types/diary/diary";
+
 import { useDiaryPreviewActions } from "./useDiaryPreviewActions";
 
 vi.mock("@/lib/service/diaryClient", () => ({
@@ -140,5 +143,58 @@ describe("useDiaryPreviewActions deleteDiary", () => {
     expect(toastWarningMock).toHaveBeenCalledWith(
       "日記を削除しましたが、画像の整理に失敗しました",
     );
+  });
+});
+
+describe("画像更新エラー通知", () => {
+  it.each([
+    [
+      createDiaryImageError(
+        "load-failed",
+        "load failed",
+        undefined,
+        "image/heic",
+      ),
+      "このHEIC/HEIF画像を読み込めませんでした。JPEGまたはPNGに変換して追加してください",
+    ],
+    [
+      createDiaryImageError("conversion-failed", "convert failed"),
+      "画像を変換できませんでした。JPEGまたはPNGに変換するか、画像を小さくして追加してください",
+    ],
+    [
+      createDiaryImageError("size-limit", "size failed"),
+      "画像を保存可能なサイズまで圧縮できませんでした。画像を小さくして追加してください",
+    ],
+    [new Error("network failed"), "日記の更新に失敗しました"],
+  ])("%sを通知し追加済み画像だけを削除する", async (error, message) => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const uploaded = { id: "uploaded-first" } as DiaryImage;
+    vi.mocked(DiaryImageClient.upload)
+      .mockResolvedValueOnce(uploaded)
+      .mockRejectedValueOnce(error);
+    const { result } = renderHook(() =>
+      useDiaryPreviewActions({ diary, onCompleted: vi.fn() }),
+    );
+    const values = {
+      date: new Date(),
+      title: "残すタイトル",
+      content: "残す本文",
+      tags: [],
+      retainedImages: diary.images ?? [],
+      newImageFiles: [
+        new File(["first"], "first.jpg"),
+        new File(["second"], "second.heic"),
+      ],
+    };
+    await act(async () => {
+      expect(await result.current.updateDiary(values)).toBe(false);
+    });
+    expect(toast.error).toHaveBeenCalledWith(message);
+    expect(deleteImagesMock).toHaveBeenCalledExactlyOnceWith([uploaded]);
+    expect(DiaryClient.update).not.toHaveBeenCalled();
+    expect(toast.success).not.toHaveBeenCalled();
+    expect(values.content).toBe("残す本文");
+    expect(values.newImageFiles).toHaveLength(2);
+    expect(result.current.isUpdating).toBe(false);
   });
 });

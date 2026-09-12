@@ -1,7 +1,8 @@
-import { useLocalUser } from "@/contexts/LocalUserContext";
-import { UserSettingsClient } from "@/lib/service/userSettingsClient";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
+
+import { useLocalUser } from "@/contexts/LocalUserContext";
+import { UserSettingsClient } from "@/lib/service/userSettingsClient";
 
 export const useMarkdownEditorSetting = () => {
   const { localUser, setLocalUser } = useLocalUser();

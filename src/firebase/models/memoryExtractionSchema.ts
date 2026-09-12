@@ -1,4 +1,5 @@
 import { getGenerativeModel, Schema } from "firebase/ai";
+
 import { ai, DEFAULT_MODEL } from "./models";
 
 const profileKeys = [

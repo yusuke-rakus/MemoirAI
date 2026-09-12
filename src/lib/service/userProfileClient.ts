@@ -1,10 +1,4 @@
 import {
-  DISPLAY_NAME_MAX_LENGTH,
-  normalizeDisplayName,
-} from "@/constants/userProfile";
-import { db } from "@/firebase/firebase";
-import type { UserProfileSettings } from "@/types/userSettings";
-import {
   collection,
   doc,
   getDoc,
@@ -14,6 +8,13 @@ import {
   where,
   writeBatch,
 } from "firebase/firestore";
+
+import {
+  DISPLAY_NAME_MAX_LENGTH,
+  normalizeDisplayName,
+} from "@/constants/userProfile";
+import { db } from "@/firebase/firebase";
+import type { UserProfileSettings } from "@/types/userSettings";
 
 const PROFILE_SETTINGS_DOC_ID = "profile";
 const SHARED_DIARIES_PER_BATCH = 499;

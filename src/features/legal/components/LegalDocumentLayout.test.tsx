@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { useLegalReturnDestination } from "../hooks/useLegalReturnDestination";
 import type { LegalDocument } from "../types/legalDocument";
 import { LegalDocumentLayout } from "./LegalDocumentLayout";
