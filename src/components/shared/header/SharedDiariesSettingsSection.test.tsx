@@ -72,4 +72,30 @@ describe("SharedDiariesSettingsSection", () => {
       expect(screen.queryByText("夏の思い出")).not.toBeInTheDocument();
     });
   });
+
+  it("タイトルが空でも共有を解除できる", async () => {
+    const diaryWithoutTitle = { ...diary, title: "" };
+    getByOwnerMock.mockResolvedValue([
+      { sharedDiaryId: "share-without-title", diary: diaryWithoutTitle },
+    ]);
+    unpublishMock.mockResolvedValue({ wasShared: true });
+    const user = userEvent.setup();
+
+    render(<SharedDiariesSettingsSection uid="user-1" />);
+
+    const unshareButton = await screen.findByRole("button", { name: "解除" });
+    expect(unshareButton).toBeVisible();
+
+    await user.click(unshareButton);
+    expect(
+      screen.getByRole("heading", { name: "共有を解除しますか？" }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "共有を解除する" }));
+
+    await waitFor(() => {
+      expect(unpublishMock).toHaveBeenCalledWith(diaryWithoutTitle);
+      expect(screen.getByText("共有した日記はありません")).toBeInTheDocument();
+    });
+  });
 });

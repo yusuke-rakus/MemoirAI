@@ -137,7 +137,7 @@ export const SharedDiariesSettingsSection = ({ uid }: Props) => {
           {diaries.map((sharedDiary) => (
             <div
               key={sharedDiary.sharedDiaryId}
-              className="flex items-center gap-4 px-4 py-3"
+              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3"
             >
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">
@@ -145,7 +145,7 @@ export const SharedDiariesSettingsSection = ({ uid }: Props) => {
                 </p>
                 <time
                   dateTime={sharedDiary.diary.sharedAt.toDate().toISOString()}
-                  className="mt-1 block text-xs text-muted-foreground"
+                  className="mt-1 block truncate text-xs text-muted-foreground"
                 >
                   {format(sharedDiary.diary.sharedAt.toDate(), "yyyy年M月d日")}
                   に共有
