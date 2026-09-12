@@ -9,6 +9,7 @@ type DiaryMarkdownEditorProps = {
   content: string;
   className?: string;
   disabled?: boolean;
+  enabled: boolean;
   previewClassName?: string;
   resetKey: string;
 };
@@ -20,6 +21,7 @@ export const DiaryMarkdownEditor = ({
   content,
   className,
   disabled = false,
+  enabled,
   previewClassName,
   resetKey,
 }: DiaryMarkdownEditorProps) => {
@@ -28,6 +30,10 @@ export const DiaryMarkdownEditor = ({
   useEffect(() => {
     setMode("write");
   }, [resetKey]);
+
+  if (!enabled) {
+    return children;
+  }
 
   return (
     <Tabs

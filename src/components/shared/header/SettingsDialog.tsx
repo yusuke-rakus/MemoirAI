@@ -8,11 +8,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { themeOptions, type THemeKey } from "@/constants/themes";
 import { usePrimaryColor } from "@/hooks/usePrimaryColor";
+import { useMarkdownEditorSetting } from "@/hooks/useMarkdownEditorSetting";
 import { useDeleteAccount } from "@/hooks/useDeleteAccount";
 import useTheme from "@/hooks/useTheme";
 import { UserMemoryClient } from "@/lib/service/userMemoryClient";
@@ -28,6 +31,7 @@ import {
   Brain,
   BookOpen,
   Check,
+  Code2,
   Monitor,
   Moon,
   Palette,
@@ -94,6 +98,11 @@ export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
   const [editingItem, setEditingItem] = useState<EditableMemory | null>(null);
   const [deletingItem, setDeletingItem] = useState<EditableMemory | null>(null);
   const { theme, setTheme } = useTheme();
+  const {
+    markdownEditorEnabled,
+    setMarkdownEditorEnabled,
+    isSavingMarkdownEditorSetting,
+  } = useMarkdownEditorSetting();
   const {
     primaryColor,
     primaryColorOptions,
@@ -384,6 +393,36 @@ export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
                             </Button>
                           );
                         })}
+                      </div>
+                    </section>
+                    <section className="border-t pt-6">
+                      <div className="flex items-center gap-2">
+                        <Code2 className="size-4" />
+                        <h3 className="text-sm font-semibold">
+                          Markdownエディタ
+                        </h3>
+                      </div>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        日記の作成・編集画面で入力とプレビューの切り替えを表示します。
+                      </p>
+                      <div className="mt-3 flex items-center justify-between gap-4 rounded-md border px-3 py-2.5">
+                        <Label
+                          htmlFor="markdown-editor-enabled"
+                          className="flex flex-col items-start gap-1"
+                        >
+                          <span>Markdownエディタを表示</span>
+                          <span className="text-xs font-normal text-muted-foreground">
+                            {markdownEditorEnabled ? "オン" : "オフ"}
+                          </span>
+                        </Label>
+                        <Switch
+                          id="markdown-editor-enabled"
+                          checked={markdownEditorEnabled}
+                          disabled={isSavingMarkdownEditorSetting || !uid}
+                          onCheckedChange={(checked) =>
+                            void setMarkdownEditorEnabled(checked)
+                          }
+                        />
                       </div>
                     </section>
                     <section className="border-t pt-6">

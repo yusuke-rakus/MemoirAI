@@ -9,7 +9,7 @@ const EditorHarness = () => {
   const [content, setContent] = useState("# 最初の見出し");
 
   return (
-    <DiaryMarkdownEditor content={content} resetKey="diary-1">
+    <DiaryMarkdownEditor content={content} enabled resetKey="diary-1">
       <Textarea
         aria-label="日記本文"
         value={content}
@@ -42,7 +42,7 @@ describe("DiaryMarkdownEditor", () => {
   it("空の本文ではプレビュー用の案内を表示する", async () => {
     const user = userEvent.setup();
     render(
-      <DiaryMarkdownEditor content="  " resetKey="empty-diary">
+      <DiaryMarkdownEditor content="  " enabled resetKey="empty-diary">
         <Textarea aria-label="日記本文" value="  " readOnly />
       </DiaryMarkdownEditor>,
     );
@@ -74,7 +74,7 @@ describe("DiaryMarkdownEditor", () => {
   it("対象日記が変わると入力タブへ戻る", async () => {
     const user = userEvent.setup();
     const { rerender } = render(
-      <DiaryMarkdownEditor content="# 本文" resetKey="diary-1">
+      <DiaryMarkdownEditor content="# 本文" enabled resetKey="diary-1">
         <Textarea aria-label="日記本文" value="# 本文" readOnly />
       </DiaryMarkdownEditor>,
     );
@@ -85,7 +85,7 @@ describe("DiaryMarkdownEditor", () => {
     );
 
     rerender(
-      <DiaryMarkdownEditor content="# 本文" resetKey="diary-2">
+      <DiaryMarkdownEditor content="# 本文" enabled resetKey="diary-2">
         <Textarea aria-label="日記本文" value="# 本文" readOnly />
       </DiaryMarkdownEditor>,
     );
@@ -96,5 +96,21 @@ describe("DiaryMarkdownEditor", () => {
         "true",
       );
     });
+  });
+
+  it("無効時は本文入力欄だけを表示する", () => {
+    render(
+      <DiaryMarkdownEditor content="# 本文" enabled={false} resetKey="diary-1">
+        <Textarea aria-label="日記本文" value="# 本文" readOnly />
+      </DiaryMarkdownEditor>,
+    );
+
+    expect(
+      screen.getByRole("textbox", { name: "日記本文" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "入力" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("tab", { name: "プレビュー" }),
+    ).not.toBeInTheDocument();
   });
 });
