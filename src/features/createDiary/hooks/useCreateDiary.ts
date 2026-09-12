@@ -6,6 +6,7 @@ import type { TagColor } from "@/constants/tagColors";
 import { useLocalUser } from "@/contexts/LocalUserContext";
 import { diaryTitleModel } from "@/firebase/models/createDiarySchema";
 import { memoryExtractionModel } from "@/firebase/models/memoryExtractionSchema";
+import { getDiaryImageErrorMessage } from "@/lib/diaryImageError";
 import { generateDiaryId } from "@/lib/generateId";
 import { DiaryClient } from "@/lib/service/diaryClient";
 import {
@@ -370,9 +371,10 @@ export const useCreateDiary = () => {
         toast.success("日記を作成しました🎊");
       } catch (error) {
         toast.error(
-          error instanceof DiaryIllustrationError
-            ? "画像を生成できませんでした。再試行するか、通常保存に切り替えてください"
-            : "日記の作成に失敗しました",
+          getDiaryImageErrorMessage(error) ??
+            (error instanceof DiaryIllustrationError
+              ? "画像を生成できませんでした。再試行するか、通常保存に切り替えてください"
+              : "日記の作成に失敗しました"),
         );
         throw error;
       }
