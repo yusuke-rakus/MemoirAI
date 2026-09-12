@@ -292,7 +292,7 @@ export const DiaryPreviewCard = ({
           <CardFooter className="flex items-end gap-3 p-0">
             {diary.tags.length >= 1 && (
               <div className="flex flex-wrap items-center gap-2">
-                <Tag className="h-4 w-4 text-ring" />
+                <Tag className="h-4 w-4 text-muted-foreground" />
                 {diary.tags.map((tag, i) => (
                   <DiaryTag key={`${tag.name}-${i}`} tag={tag} />
                 ))}
