@@ -23,7 +23,7 @@ const renderDialog = (isUnsharing = false) => {
 };
 
 describe("DiaryUnshareDialog", () => {
-  it("現在のリンクが無効になり、再共有で新しいリンクになると説明する", () => {
+  it("現在の共有リンクが無効になると説明する", () => {
     renderDialog();
 
     expect(
@@ -31,7 +31,7 @@ describe("DiaryUnshareDialog", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        "「夏の思い出」の現在の共有リンクを無効にします。再共有すると新しいリンクが発行されます。",
+        "「夏の思い出」の現在の共有リンクを無効にします。",
       ),
     ).toBeInTheDocument();
   });
