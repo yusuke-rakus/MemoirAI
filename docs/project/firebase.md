@@ -16,14 +16,14 @@ Firestore schema、query、Rulesは`firestore.md`を参照してください。
 
 ## Active services
 
-| Service           | Current use                                      | Main source                |
-| ----------------- | ------------------------------------------------ | -------------------------- |
-| Authentication    | Google login、auth state、logout                 | auth hooks、`AppSidebar`   |
-| App Check         | reCAPTCHA Enterprise / development debug token   | `src/firebase/appCheck.ts` |
-| Cloud Firestore   | diary、settings、memory、shared copy             | `src/lib/service/*Client`  |
-| Cloud Storage     | manual / AI-generated diary images               | `DiaryImageClient`         |
+| Service           | Current use                                               | Main source                |
+| ----------------- | --------------------------------------------------------- | -------------------------- |
+| Authentication    | Google login、auth state、logout                          | auth hooks、`AppSidebar`   |
+| App Check         | reCAPTCHA Enterprise / development debug token            | `src/firebase/appCheck.ts` |
+| Cloud Firestore   | diary、settings、memory、shared copy                      | `src/lib/service/*Client`  |
+| Cloud Storage     | manual / AI-generated diary images                        | `DiaryImageClient`         |
 | Firebase AI Logic | title / tag、long-term memory、flat-vector sticker images | `src/firebase/models`      |
-| Hosting           | `dist` SPA配信                                   | config、GitHub Actions     |
+| Hosting           | `dist` SPA配信                                            | config、GitHub Actions     |
 
 ## Detailed snapshots
 

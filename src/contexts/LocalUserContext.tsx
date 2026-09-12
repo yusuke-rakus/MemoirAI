@@ -1,4 +1,4 @@
-import { createContext, type ReactNode,useContext, useState } from "react";
+import { createContext, type ReactNode, useContext, useState } from "react";
 
 import {
   DEFAULT_PRIMARY_COLOR_KEY,

@@ -32,7 +32,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { type THemeKey,themeOptions } from "@/constants/themes";
+import { type THemeKey, themeOptions } from "@/constants/themes";
 import { LegalLinks } from "@/features/legal/components/LegalLinks";
 import { useDeleteAccount } from "@/hooks/useDeleteAccount";
 import { useMarkdownEditorSetting } from "@/hooks/useMarkdownEditorSetting";
