@@ -1,5 +1,7 @@
-import { PATHS } from "@/constants/path";
 import { Navigate, Outlet, useOutletContext } from "react-router-dom";
+
+import { PATHS } from "@/constants/path";
+
 import type { AppShellOutletContext } from "./AppShellLayout";
 
 export const AuthenticatedLayout = () => {

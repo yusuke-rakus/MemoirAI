@@ -4,11 +4,12 @@ import {
   ImageConfigImageSize,
   ResponseModality,
 } from "firebase/ai";
-import { ai } from "./models";
+
 import {
   diaryIllustrationConfig,
   type DiaryImageSize,
 } from "./diaryIllustrationConfig";
+import { ai } from "./models";
 
 const imageSizeMap = {
   "512": ImageConfigImageSize.SIZE_512,

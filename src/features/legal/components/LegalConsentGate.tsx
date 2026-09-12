@@ -1,7 +1,9 @@
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { BookOpenCheck, LogOut, ShieldCheck } from "lucide-react";
 import { useId, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+
 import { LegalLinks } from "./LegalLinks";
 
 type LegalConsentGateProps = {

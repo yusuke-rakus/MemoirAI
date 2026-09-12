@@ -1,9 +1,11 @@
-import type { Diary } from "@/types/diary/diary";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Timestamp } from "firebase/firestore";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { useDiarySearchStore } from "@/stores/diarySearchStore";
+import type { Diary } from "@/types/diary/diary";
+
 import { DiarySearchDialog } from "./DiarySearchDialog";
 
 const mocks = vi.hoisted(() => ({

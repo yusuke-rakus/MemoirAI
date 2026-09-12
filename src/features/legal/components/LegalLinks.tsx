@@ -1,7 +1,8 @@
-import { PATHS } from "@/constants/path";
-import { cn } from "@/lib/utils";
 import { ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
+
+import { PATHS } from "@/constants/path";
+import { cn } from "@/lib/utils";
 
 type LegalLinksProps = {
   className?: string;

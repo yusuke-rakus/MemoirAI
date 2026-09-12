@@ -1,6 +1,8 @@
+import { useRef } from "react";
+
 import { MonthSelectorScrollButton } from "@/components/shared/calendar/MonthSelectorScrollButton";
 import { Button } from "@/components/ui/button";
-import { useRef } from "react";
+
 import {
   useMonths,
   useScrollToCurrentMonth,

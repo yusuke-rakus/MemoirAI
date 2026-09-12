@@ -3,7 +3,9 @@ import type { User } from "firebase/auth";
 import type { ReactElement, ReactNode } from "react";
 import { MemoryRouter, Outlet, Route, Routes } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
+
 import type { AppShellOutletContext } from "@/layout/AppShellLayout";
+
 import { SharedDiaryPage } from ".";
 
 vi.mock("@/features/login/components/LoginHeader", () => ({

@@ -1,6 +1,8 @@
-import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { isSameDay } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
+
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+
 import { Diaries } from "../diaryList/Diaries";
 import { useDiaryList } from "../hooks/useDiaryList";
 import { Calendar } from "./Calendar";

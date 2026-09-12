@@ -1,8 +1,10 @@
-import { useSidebar } from "@/components/ui/sidebar";
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import type { ReactNode } from "react";
 import userEvent from "@testing-library/user-event";
+import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { useSidebar } from "@/components/ui/sidebar";
+
 import { AppSidebar } from "./AppSidebar";
 
 vi.mock("@/components/ui/sidebar", () => ({

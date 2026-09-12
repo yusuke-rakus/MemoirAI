@@ -1,8 +1,10 @@
-import { FavoriteClient } from "@/lib/service/favoriteClient";
-import { requestFavoriteRefresh } from "@/stores/favoriteRefreshStore";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { FavoriteClient } from "@/lib/service/favoriteClient";
+import { requestFavoriteRefresh } from "@/stores/favoriteRefreshStore";
+
 import {
   type FavoriteMutationResult,
   useSharedDiaryFavorite,

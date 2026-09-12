@@ -1,7 +1,9 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { SharedDiaryClient } from "@/lib/service/sharedDiaryClient";
+
 import { SharedDiariesSettingsSection } from "./SharedDiariesSettingsSection";
 
 vi.mock("@/lib/service/sharedDiaryClient", () => ({

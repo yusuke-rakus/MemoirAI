@@ -1,14 +1,15 @@
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+
 import {
   DEFAULT_PRIMARY_COLOR_KEY,
   getPrimaryColorOption,
   normalizePrimaryColorKey,
-  primaryColorOptions,
   type PrimaryColorKey,
+  primaryColorOptions,
 } from "@/constants/primaryColors";
 import { useLocalUser } from "@/contexts/LocalUserContext";
 import { UserSettingsClient } from "@/lib/service/userSettingsClient";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
 
 const PRIMARY_COLOR_VARIABLES = [
   "--primary",

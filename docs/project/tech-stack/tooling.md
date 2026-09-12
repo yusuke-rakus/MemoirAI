@@ -9,7 +9,7 @@ snapshot metadataは`../tech-stack.md`を参照してください。
 - `packageManager`と`engines`はなく、local Node / pnpm versionは`Not established`です。
 - CIだけがpnpm `10.28.1`とNode `24`を固定します。
 - `@/*` aliasはViteとTypeScriptで`src/*`を指します。
-- ESLint flat configはJS / TypeScript recommended、React Hooks、React Refreshを有効化し、type-awareではありません。
+- ESLint flat configはJS / TypeScript recommended、React Hooks、React Refresh、`eslint-plugin-simple-import-sort`を有効化し、type-awareではありません。
 - Prettierは`prettier-plugin-tailwindcss`を使い、`src/index.css`と`cn` / `cva`を設定します。
 - `pnpm-workspace.yaml`はworkspace一覧ではなくdependency build scriptのallow listです。
 - PostCSSとAutoprefixerはありますが、PostCSS設定fileはありません。
@@ -23,6 +23,7 @@ snapshot metadataは`../tech-stack.md`を参照してください。
 | `pnpm legal:check` | Markdown front matterと本文version hashを検証 |
 | `pnpm legal:sync`  | Markdown本文hashをfront matterのversionへ同期 |
 | `pnpm lint`        | repository全体へESLint                        |
+| `pnpm lint:fix`    | repository全体の自動修正（import整列を含む）  |
 | `pnpm format`      | repository全体をPrettierで書換                |
 | `pnpm preview`     | build成果物をpreview                          |
 | `pnpm seed`        | `.env`でEmulatorへseed                        |

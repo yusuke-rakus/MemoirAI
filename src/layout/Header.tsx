@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+
 import { AppTooltip } from "@/components/shared/common/AppTooltip";
 import { SidebarPenButton } from "@/components/shared/sidebar/SidebarPenButton";
 import { SidebarSearchButton } from "@/components/shared/sidebar/SidebarSearchButton";
@@ -5,7 +7,6 @@ import { SidebarToggleButton } from "@/components/shared/sidebar/SidebarToggleBu
 import { useSidebar } from "@/components/ui/sidebar";
 import { PATHS } from "@/constants/path";
 import { useDiarySearchStore } from "@/stores/diarySearchStore";
-import { useNavigate } from "react-router-dom";
 
 export const Header = () => {
   const { open, openMobile, isMobile, toggleSidebar } = useSidebar();

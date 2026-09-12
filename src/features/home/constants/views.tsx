@@ -1,4 +1,5 @@
 import { PATHS } from "@/constants/path";
+
 import { CalendarView } from "../calendar/CalendarView";
 import { DiaryView } from "../diaryList/DiaryView";
 

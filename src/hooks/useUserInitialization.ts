@@ -1,5 +1,6 @@
-import { runUserSettingsMigrations } from "@/lib/service/userSettingsMigration";
 import { useEffect, useState } from "react";
+
+import { runUserSettingsMigrations } from "@/lib/service/userSettingsMigration";
 
 export type UserInitializationStatus = "idle" | "loading" | "ready" | "error";
 

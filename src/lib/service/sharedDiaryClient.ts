@@ -1,7 +1,3 @@
-import { db } from "@/firebase/firebase";
-import { normalizeDisplayName } from "@/constants/userProfile";
-import { generateShareId } from "@/lib/generateId";
-import type { Diary } from "@/types/diary/diary";
 import {
   collection,
   deleteField,
@@ -13,6 +9,11 @@ import {
   runTransaction,
   where,
 } from "firebase/firestore";
+
+import { normalizeDisplayName } from "@/constants/userProfile";
+import { db } from "@/firebase/firebase";
+import { generateShareId } from "@/lib/generateId";
+import type { Diary } from "@/types/diary/diary";
 
 type ShareResult = {
   shareId: string;

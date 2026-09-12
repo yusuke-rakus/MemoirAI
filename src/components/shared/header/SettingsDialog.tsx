@@ -1,5 +1,24 @@
+import {
+  BookOpen,
+  Brain,
+  Check,
+  Code2,
+  Monitor,
+  Moon,
+  Palette,
+  Pencil,
+  Settings,
+  Share2,
+  Sun,
+  SunMoon,
+  Trash2,
+  UserRound,
+  UserRoundX,
+} from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
-import { LegalLinks } from "@/features/legal/components/LegalLinks";
 import {
   Dialog,
   DialogContent,
@@ -13,10 +32,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { themeOptions, type THemeKey } from "@/constants/themes";
-import { usePrimaryColor } from "@/hooks/usePrimaryColor";
-import { useMarkdownEditorSetting } from "@/hooks/useMarkdownEditorSetting";
+import { type THemeKey,themeOptions } from "@/constants/themes";
+import { LegalLinks } from "@/features/legal/components/LegalLinks";
 import { useDeleteAccount } from "@/hooks/useDeleteAccount";
+import { useMarkdownEditorSetting } from "@/hooks/useMarkdownEditorSetting";
+import { usePrimaryColor } from "@/hooks/usePrimaryColor";
 import useTheme from "@/hooks/useTheme";
 import { UserMemoryClient } from "@/lib/service/userMemoryClient";
 import { cn } from "@/lib/utils";
@@ -27,33 +47,15 @@ import type {
   UserMemoryFact,
   UserProfileMemoryFact,
 } from "@/types/memory";
+
+import { AccountDeleteDialog } from "./AccountDeleteDialog";
+import { AccountSettingsSection } from "./AccountSettingsSection";
 import {
-  Brain,
-  BookOpen,
-  Check,
-  Code2,
-  Monitor,
-  Moon,
-  Palette,
-  Pencil,
-  Share2,
-  Settings,
-  Sun,
-  SunMoon,
-  Trash2,
-  UserRoundX,
-  UserRound,
-} from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
-import {
-  MemoryEditDialog,
   type EditableMemory,
+  MemoryEditDialog,
   type MemoryEditValues,
 } from "./MemoryEditDialog";
 import { ProfileSettingsForm } from "./ProfileSettingsForm";
-import { AccountDeleteDialog } from "./AccountDeleteDialog";
-import { AccountSettingsSection } from "./AccountSettingsSection";
 import { SharedDiariesSettingsSection } from "./SharedDiariesSettingsSection";
 
 type Props = {

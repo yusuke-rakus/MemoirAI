@@ -1,5 +1,6 @@
 import { Timestamp } from "firebase/firestore";
 import { describe, expect, it } from "vitest";
+
 import {
   formatDiaryUpdatedAt,
   getDiaryUpdatedAt,

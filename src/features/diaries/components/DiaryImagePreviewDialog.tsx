@@ -1,12 +1,13 @@
+import { useCallback, useEffect, useState } from "react";
+
 import {
   Carousel,
+  type CarouselApi,
   CarouselContent,
   CarouselItem,
-  type CarouselApi,
 } from "@/components/ui/carousel";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import type { DiaryImage } from "@/types/diary/diary";
-import { useCallback, useEffect, useState } from "react";
 
 type DiaryImagePreviewDialogProps = {
   images: DiaryImage[];

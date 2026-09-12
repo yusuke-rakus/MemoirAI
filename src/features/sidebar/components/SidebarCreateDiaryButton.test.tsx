@@ -1,8 +1,10 @@
-import { AppTooltip } from "@/components/shared/common/AppTooltip";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
+
+import { AppTooltip } from "@/components/shared/common/AppTooltip";
+
 import { SidebarCreateDiaryButton } from "./SidebarCreateDiaryButton";
 
 vi.mock("@/components/ui/sidebar", async () => {

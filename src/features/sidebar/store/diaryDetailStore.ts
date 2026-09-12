@@ -1,5 +1,6 @@
-import type { Diary } from "@/types/diary/diary";
 import { createStore } from "zustand/vanilla";
+
+import type { Diary } from "@/types/diary/diary";
 
 export type DiaryDetailState = {
   uploadedDiaries: Diary[];

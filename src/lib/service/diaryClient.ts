@@ -1,4 +1,3 @@
-import { db } from "@/firebase/firebase";
 import {
   collection,
   deleteDoc,
@@ -14,6 +13,8 @@ import {
   Timestamp,
   where,
 } from "firebase/firestore";
+
+import { db } from "@/firebase/firebase";
 
 const DIARY_PAGE_SIZE = 10;
 

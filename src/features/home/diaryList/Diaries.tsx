@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type { Diary } from "@/types/diary/diary";
+
 import { DiaryItem } from "./components/DiaryItem";
 import { EmptyDiaries } from "./EmptyDiaries";
 

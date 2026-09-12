@@ -1,8 +1,10 @@
 import { generateKeyPairSync } from "node:crypto";
+
 import { cert, deleteApp, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import { z } from "zod";
+
 import developmentSeedDataJson from "./seedData.json";
 
 const EMULATORS = {

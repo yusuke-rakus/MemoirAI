@@ -1,9 +1,11 @@
-import { AppTooltip } from "@/components/shared/common/AppTooltip";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { Heart } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
+
+import { AppTooltip } from "@/components/shared/common/AppTooltip";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
 import type { FavoriteMutationResult } from "../hooks/useSharedDiaryFavorite";
 
 type SharedDiaryFavoriteButtonProps = {

@@ -1,10 +1,11 @@
+import type { ReactNode } from "react";
+
 import {
   DropdownMenuPortal,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { ReactNode } from "react";
 
 type SettingsDropdownSubItemProps = {
   icon: React.ElementType;

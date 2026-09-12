@@ -1,6 +1,3 @@
-import { useLegalAcceptance } from "@/features/legal/hooks/useLegalAcceptance";
-import { useAuthCheck } from "@/hooks/useAuthCheck";
-import { useUserInitialization } from "@/hooks/useUserInitialization";
 import { fireEvent, render, screen } from "@testing-library/react";
 import type { User } from "firebase/auth";
 import type { ReactNode } from "react";
@@ -12,6 +9,11 @@ import {
   useOutletContext,
 } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { useLegalAcceptance } from "@/features/legal/hooks/useLegalAcceptance";
+import { useAuthCheck } from "@/hooks/useAuthCheck";
+import { useUserInitialization } from "@/hooks/useUserInitialization";
+
 import { AppShellLayout, type AppShellOutletContext } from "./AppShellLayout";
 
 vi.mock("@/hooks/useAuthCheck", () => ({

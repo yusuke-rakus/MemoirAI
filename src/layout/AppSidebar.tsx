@@ -1,3 +1,9 @@
+import { getAuth, signOut } from "firebase/auth";
+import { Settings } from "lucide-react";
+import { memo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+
 import { AppTooltip } from "@/components/shared/common/AppTooltip";
 import { AvatarMenu } from "@/components/shared/header/AvatarMenu";
 import { SettingsDialog } from "@/components/shared/header/SettingsDialog";
@@ -18,11 +24,6 @@ import { SidebarCreateDiaryButton } from "@/features/sidebar/components/SidebarC
 import { SidebarNavigation } from "@/features/sidebar/components/SidebarNavigation";
 import { clearPrimaryColorOverrides } from "@/hooks/usePrimaryColor";
 import { useDiarySearchStore } from "@/stores/diarySearchStore";
-import { getAuth, signOut } from "firebase/auth";
-import { Settings } from "lucide-react";
-import { memo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 
 export const AppSidebar = memo(function AppSidebar() {
   const { open, openMobile, isMobile, toggleSidebar } = useSidebar();

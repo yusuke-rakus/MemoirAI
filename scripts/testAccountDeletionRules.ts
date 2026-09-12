@@ -1,12 +1,14 @@
+import "firebase/compat/firestore";
+import "firebase/compat/storage";
+
 import { readFileSync } from "node:fs";
+
 import {
   assertFails,
   assertSucceeds,
   initializeTestEnvironment,
 } from "@firebase/rules-unit-testing";
 import firebase from "firebase/compat/app";
-import "firebase/compat/firestore";
-import "firebase/compat/storage";
 
 const PROJECT_ID = "demo-memoir-ai-account-deletion-rules";
 const OWNER_UID = "rules-owner";

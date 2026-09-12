@@ -1,6 +1,7 @@
+import { useReducedMotion } from "motion/react";
+
 import PixelBlast from "@/components/shared/background/PixelBlast";
 import { LegalLinks } from "@/features/legal/components/LegalLinks";
-import { useReducedMotion } from "motion/react";
 
 export const LoginView = () => {
   const shouldReduceMotion = useReducedMotion();

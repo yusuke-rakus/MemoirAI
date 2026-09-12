@@ -1,8 +1,10 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import {
   DIARY_IMAGE_COMPRESSION_TRIGGER_BYTES,
   DIARY_IMAGE_TARGET_MAX_BYTES,
 } from "@/constants/diaryImages";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { DiaryImageClient } from "./diaryImageClient";
 
 const storageMocks = vi.hoisted(() => ({

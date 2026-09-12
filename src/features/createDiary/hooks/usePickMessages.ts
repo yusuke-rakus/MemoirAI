@@ -1,5 +1,6 @@
-import { DIARY_PROMPT_MESSAGES } from "@/constants/diaryMessages";
 import { useMemo } from "react";
+
+import { DIARY_PROMPT_MESSAGES } from "@/constants/diaryMessages";
 
 const RANDOM_MESSAGES_LENGTH = 5;
 

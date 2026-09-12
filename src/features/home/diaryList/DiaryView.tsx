@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+
 import { useDiaryList } from "../hooks/useDiaryList";
 import { useCurrentDateStore } from "../provider/CurrentDateProvider";
 import { Diaries } from "./Diaries";

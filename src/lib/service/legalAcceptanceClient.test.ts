@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { LEGAL_DOCUMENT_VERSIONS } from "@/features/legal/constants/legalDocuments";
+
 import { LegalAcceptanceClient } from "./legalAcceptanceClient";
 
 const firestoreMocks = vi.hoisted(() => ({

@@ -1,10 +1,11 @@
-import { DefaultTagColor, type TagColor } from "@/constants/tagColors";
-import {
-  MAX_DIARY_IMAGE_COUNT,
-  isSupportedDiaryImageType,
-} from "@/constants/diaryImages";
 import type { KeyboardEvent } from "react";
 import { create } from "zustand";
+
+import {
+  isSupportedDiaryImageType,
+  MAX_DIARY_IMAGE_COUNT,
+} from "@/constants/diaryImages";
+import { DefaultTagColor, type TagColor } from "@/constants/tagColors";
 
 export interface DiaryCardTag {
   color: TagColor;

@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import type { User } from "firebase/auth";
 import { MemoryRouter, Outlet, Route, Routes } from "react-router-dom";
 import { describe, expect, it } from "vitest";
+
 import type { AppShellOutletContext } from "./AppShellLayout";
 import { AuthenticatedLayout } from "./AuthenticatedLayout";
 

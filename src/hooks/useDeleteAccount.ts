@@ -1,11 +1,12 @@
-import { PATHS } from "@/constants/path";
-import { defaultLocalUser, useLocalUser } from "@/contexts/LocalUserContext";
-import { AccountDeletionClient } from "@/lib/service/accountDeletionClient";
-import { clearPrimaryColorOverrides } from "@/hooks/usePrimaryColor";
 import { FirebaseError } from "firebase/app";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+
+import { PATHS } from "@/constants/path";
+import { defaultLocalUser, useLocalUser } from "@/contexts/LocalUserContext";
+import { clearPrimaryColorOverrides } from "@/hooks/usePrimaryColor";
+import { AccountDeletionClient } from "@/lib/service/accountDeletionClient";
 
 type UseDeleteAccountOptions = {
   uid?: string;

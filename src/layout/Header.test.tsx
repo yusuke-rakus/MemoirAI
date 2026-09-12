@@ -1,6 +1,8 @@
-import { useSidebar } from "@/components/ui/sidebar";
 import { render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { useSidebar } from "@/components/ui/sidebar";
+
 import { Header } from "./Header";
 
 vi.mock("@/components/ui/sidebar", () => ({

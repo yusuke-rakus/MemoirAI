@@ -1,3 +1,7 @@
+import { act, renderHook, waitFor } from "@testing-library/react";
+import { toast } from "sonner";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { useLocalUser } from "@/contexts/LocalUserContext";
 import {
   FavoriteClient,
@@ -7,9 +11,7 @@ import {
 import { SharedDiaryClient } from "@/lib/service/sharedDiaryClient";
 import { useFavoriteRefreshStore } from "@/stores/favoriteRefreshStore";
 import type { Favorite } from "@/types/favorite";
-import { act, renderHook, waitFor } from "@testing-library/react";
-import { toast } from "sonner";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { useFetchFavoriteDiaries } from "./useFetchFavoriteDiaries";
 
 vi.mock("@/contexts/LocalUserContext", () => ({

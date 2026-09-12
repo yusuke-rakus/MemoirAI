@@ -1,5 +1,6 @@
-import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 
 type LoginButtonProps = {
   handleLogin: () => void;

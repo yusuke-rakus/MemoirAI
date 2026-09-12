@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useReducedMotion } from "motion/react";
 import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import type { FavoriteMutationResult } from "../hooks/useSharedDiaryFavorite";
 import { SharedDiaryFavoriteButton } from "./SharedDiaryFavoriteButton";
 

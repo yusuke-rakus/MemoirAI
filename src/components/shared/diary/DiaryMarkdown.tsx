@@ -1,7 +1,8 @@
-import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
+
+import { cn } from "@/lib/utils";
 
 type DiaryMarkdownProps = {
   children: string;

@@ -1,7 +1,9 @@
-import type { SharedDiary } from "@/types/diary/sharedDiary";
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import type { SharedDiary } from "@/types/diary/sharedDiary";
+
 import { useSharedDiary } from "../hooks/useSharedDiary";
 import { useSharedDiaryFavorite } from "../hooks/useSharedDiaryFavorite";
 import { SharedDiaryView } from "./SharedDiaryView";

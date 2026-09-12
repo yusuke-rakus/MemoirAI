@@ -1,5 +1,6 @@
-import { LegalAcceptanceClient } from "@/lib/service/legalAcceptanceClient";
 import { useCallback, useEffect, useState } from "react";
+
+import { LegalAcceptanceClient } from "@/lib/service/legalAcceptanceClient";
 
 export type LegalAcceptanceStatus =
   "idle" | "loading" | "accepted" | "required" | "error";
