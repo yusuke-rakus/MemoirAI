@@ -1,12 +1,13 @@
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { z } from "zod";
 
-import {
-  LEGAL_DOCUMENT_VERSIONS,
-  REQUIRED_LEGAL_CONSENT_VERSION,
-} from "@/features/legal/constants/legalDocuments";
 import { db } from "@/firebase/firebase";
-import type { LegalAcceptance } from "@/types/legal";
+import type { LegalAcceptance, LegalDocumentVersions } from "@/types/legal";
+
+export type LegalAcceptancePolicy = {
+  requiredConsentVersion: string;
+  documentVersions: LegalDocumentVersions;
+};
 
 const storedLegalAcceptanceSchema = z.object({
   uid: z.string().min(1),
@@ -32,16 +33,21 @@ const legalAcceptanceSchema = storedLegalAcceptanceSchema.extend({
   confirmedAdult: z.literal(true),
 });
 
-const currentAcceptanceRef = (uid: string) =>
-  doc(db, "users", uid, "legalAcceptances", REQUIRED_LEGAL_CONSENT_VERSION);
+const currentAcceptanceRef = (uid: string, requiredConsentVersion: string) =>
+  doc(db, "users", uid, "legalAcceptances", requiredConsentVersion);
 
 export class LegalAcceptanceClient {
-  static async getCurrent(uid: string): Promise<LegalAcceptance | null> {
+  static async getCurrent(
+    uid: string,
+    policy: LegalAcceptancePolicy,
+  ): Promise<LegalAcceptance | null> {
     if (!uid) {
       throw new Error("uid is required to fetch legal acceptance.");
     }
 
-    const snapshot = await getDoc(currentAcceptanceRef(uid));
+    const snapshot = await getDoc(
+      currentAcceptanceRef(uid, policy.requiredConsentVersion),
+    );
     if (!snapshot.exists()) return null;
 
     const parsed = storedLegalAcceptanceSchema.safeParse(snapshot.data());
@@ -51,7 +57,7 @@ export class LegalAcceptanceClient {
 
     if (
       parsed.data.uid !== uid ||
-      parsed.data.requiredConsentVersion !== REQUIRED_LEGAL_CONSENT_VERSION
+      parsed.data.requiredConsentVersion !== policy.requiredConsentVersion
     ) {
       throw new Error("Stored legal acceptance does not match the user.");
     }
@@ -61,15 +67,18 @@ export class LegalAcceptanceClient {
     return legalAcceptanceSchema.parse(parsed.data);
   }
 
-  static async acceptCurrent(uid: string): Promise<void> {
+  static async acceptCurrent(
+    uid: string,
+    policy: LegalAcceptancePolicy,
+  ): Promise<void> {
     if (!uid) {
       throw new Error("uid is required to save legal acceptance.");
     }
 
-    await setDoc(currentAcceptanceRef(uid), {
+    await setDoc(currentAcceptanceRef(uid, policy.requiredConsentVersion), {
       uid,
-      requiredConsentVersion: REQUIRED_LEGAL_CONSENT_VERSION,
-      documentVersions: LEGAL_DOCUMENT_VERSIONS,
+      requiredConsentVersion: policy.requiredConsentVersion,
+      documentVersions: policy.documentVersions,
       confirmedAdult: true,
       acceptanceMethod: "single-checkbox",
       locale: "ja-JP",

@@ -10,6 +10,14 @@
 - stateの共有範囲と生存期間を確認し、最小の所有者を選ぶ。
 - store actionへ外部I/Oを追加する場合は、hook / gateway境界への影響を設計変更として確認する。
 
+## File responsibility boundaries
+
+- ファイルの分割は行数だけで決めない。LOCは調査の優先度を決める目安に留め、独立した変更理由、層・外部境界、stateの所有と生存期間、consumer、co-changeを確認する。
+- 別のユーザー目的・domain規則・外部境界が同居する場合は、責務ごとの分割を検討する。UI composition、feature hook / use-case、純粋ロジック、外部I/O gatewayを一つの責務として混在させない。
+- 一つのユーザー目的を完結させ、同じ成功条件・失敗条件・ライフサイクルを共有するpage / Dialogのorchestrationは、ファイルが長くても機械的に分割しない。
+- 分割後にpropsの中継、循環import、単一consumer向けの不自然なshared abstractionだけが増える場合は、分割を保留する。共通化は実際の複数consumerと共通の責務・data contractを確認してから行う。
+- 分割では既存のpublic props / method、route、user-visible behavior、Firestore / Storage contract、loading・error・成功時の挙動を明示的に維持する。
+
 ## TypeScript
 
 - `any`は型が得られない外部境界に限定し、その境界を狭くする。

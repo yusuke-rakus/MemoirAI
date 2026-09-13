@@ -27,7 +27,6 @@
 
 ## Reverse or ambiguous placement
 
-- `DiaryDraftClient` → `src/features/createDiary/hooks/useDiaryCard.ts`の型
 - `src/components/shared/calendar/MonthSelectorScrollButton.tsx` → homeだけ
 - `src/components/shared/background/PixelBlast.tsx` → loginだけ
 - `src/components/shared/common/useRotatingText.ts` → createDiaryだけ

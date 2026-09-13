@@ -5,29 +5,14 @@ import {
   isSupportedDiaryImageType,
   MAX_DIARY_IMAGE_COUNT,
 } from "@/constants/diaryImages";
-import { DefaultTagColor, type TagColor } from "@/constants/tagColors";
+import { DefaultTagColor } from "@/constants/tagColors";
+import type {
+  DiaryCard,
+  DiaryCardImage,
+  DiaryCardTag,
+} from "@/types/diaryDraft";
 
-export interface DiaryCardTag {
-  color: TagColor;
-  name: string;
-}
-
-export interface DiaryCardImage {
-  id: string;
-  file: File;
-  previewUrl: string;
-}
-
-export interface DiaryCard {
-  id: string;
-  title: string;
-  body: string;
-  tags: DiaryCardTag[];
-  images: DiaryCardImage[];
-  date: Date;
-  isCollapsed: boolean;
-  isRemoving: boolean;
-}
+export type { DiaryCard, DiaryCardImage, DiaryCardTag };
 
 type AddImagesResult = {
   addedCount: number;

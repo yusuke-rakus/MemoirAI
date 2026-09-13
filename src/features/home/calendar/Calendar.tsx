@@ -31,6 +31,17 @@ interface CalendarProps {
   onDateSelect?: (date: Date) => void;
 }
 
+const getMonthWeekCount = (date: Date) => {
+  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  const daysInMonth = new Date(
+    date.getFullYear(),
+    date.getMonth() + 1,
+    0,
+  ).getDate();
+
+  return Math.ceil((firstDay + daysInMonth) / 7);
+};
+
 export const Calendar = ({
   dialies,
   selectedDate,
@@ -70,7 +81,13 @@ export const Calendar = ({
       const viewportHeight =
         window.visualViewport?.height ?? window.innerHeight;
       const top = containerRef.current.getBoundingClientRect().top;
-      const nextHeight = Math.floor(viewportHeight - top - 16);
+      const availableHeight = Math.floor(viewportHeight - top - 16);
+      // Reserve at most one cell-width for each visible week so that, after
+      // the weekday header, cells never exceed square.
+      const squareCellHeightLimit = Math.floor(
+        (containerRef.current.clientWidth * getMonthWeekCount(date)) / 7,
+      );
+      const nextHeight = Math.min(availableHeight, squareCellHeightLimit);
 
       if (nextHeight <= 0) {
         return;
@@ -92,7 +109,7 @@ export const Calendar = ({
         updateCalendarHeight,
       );
     };
-  }, [isMobile]);
+  }, [date, isMobile]);
 
   const handleDateClick = (arg: { date: Date }) => {
     onDateSelect?.(arg.date);
@@ -146,9 +163,11 @@ export const Calendar = ({
           );
           addKeyboardActivation(arg.el, () => onDateSelect?.(arg.date));
         }}
-        dayMaxEvents={3}
+        dayMaxEventRows={2}
+        fixedWeekCount={false}
         moreLinkContent={(arg) => `+${arg.num}件`}
         moreLinkClick="popover"
+        showNonCurrentDates
         headerToolbar={false}
         locale="ja"
         height="100%"
@@ -165,7 +184,7 @@ export const Calendar = ({
           return (
             <div
               className={cn(
-                "w-full cursor-pointer truncate rounded text-left text-xs transition-opacity sm:text-sm",
+                "w-full cursor-pointer truncate rounded text-left text-[0.65rem] leading-3 transition-opacity sm:text-sm sm:leading-normal",
                 arg.event.classNames.join(" "),
               )}
               title={arg.event.title}

@@ -6,7 +6,7 @@ snapshot metadataは`../tech-stack.md`を参照してください。
 
 - Vitest、jsdom、React Testing Library、user-event、jest-domを使用します。
 - test設定は`vite.config.ts`に統合し、Vite pluginと`@/*` aliasを共有します。
-- setupは`src/test/setup.ts`、testは対象に隣接する`*.test.ts`または`*.test.tsx`です。
+- setupは`src/test/setup.ts`、testは対象実装と同じ責務ディレクトリ内の`__tests__/`に置く`*.test.ts`または`*.test.tsx`です。
 - 代表testは`useShareDiary`と`DiaryDeleteDialog`を対象にします。
 - coverage、Playwright / Cypressはありません。account削除用Firestore / Storage Rulesは`pnpm test:rules`で起動済みEmulatorに対して検証します。
 - `scripts/seed.ts`は件数を検証しますが、自動test suiteではありません。

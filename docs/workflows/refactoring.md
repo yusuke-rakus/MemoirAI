@@ -9,12 +9,19 @@ refactoringは外部behaviorを維持する構造変更として扱います。b
 - `../rules/testing.md`に沿い、必要なsource checkとmanual flowのbaselineを記録する。
 - 共通化対象が見た目だけ同じか、責務・生存期間・data contractまで同じか確認する。
 
+### File responsibility assessment
+
+- 対象ファイル、近接実装、consumer、import方向、公開props / methodを読み、同居する責務群と独立して変更される根拠を記録する。LOCだけを分割根拠にしない。
+- 判断結果は「明確な分割候補」「分割余地はあるが凝集しているもの」「分割不要」に分ける。現在の実装から判断できない意図は推測せず、`Not established`または`No explicit convention found`と記す。
+- 明確な候補では、Recommendedの分割境界・配置先・最小interface・互換性を保つ移行順・必要な検証を先に定める。
+
 ## 2. Set a narrow boundary
 
 - file移動、API変更、behavior変更、機械的formatを別の論理単位にする。
 - 新しいabstractionは現在の複数consumerに必要な最小interfaceにする。
 - 存在しないdomain/repository layerを名前だけ追加しない。
 - duplicated implementationを残す場合も、今回のscope外なら無理に統合しない。
+- component、feature hook / use-case、純粋ロジック、外部I/O gatewayの境界をまたぐ分割では、それぞれのstate・副作用・外部contractのownerを明確にする。
 
 ## 3. Refactor incrementally
 
