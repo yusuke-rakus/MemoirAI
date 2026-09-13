@@ -1,8 +1,13 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
 import { PATHS } from "@/constants/path";
 import { useLocalUser } from "@/contexts/LocalUserContext";
+import {
+  diaryQueryKeys,
+  sharedDiaryQueryKeys,
+} from "@/lib/query/queryKeys";
 import { SharedDiaryClient } from "@/lib/service/sharedDiaryClient";
 import type { Diary } from "@/types/diary/diary";
 
@@ -33,39 +38,76 @@ const buildXShareUrl = (shareUrl: string, title: string) =>
 export const useShareDiary = (diary: Diary) => {
   const [isSharing, setIsSharing] = useState(false);
   const [isUnsharing, setIsUnsharing] = useState(false);
-  const [shareStatus, setShareStatus] = useState<ShareStatus>("idle");
   const { localUser } = useLocalUser();
+  const queryClient = useQueryClient();
+  const shareId = diary.shareId ?? diary.id;
+  const shareStatusQuery = useQuery({
+    queryKey: sharedDiaryQueryKeys.status(diary.uid, diary.id, shareId),
+    enabled: false,
+    queryFn: () => SharedDiaryClient.getActiveShareId(diary),
+  });
+
+  const shareStatus: ShareStatus = shareStatusQuery.isFetching
+    ? "loading"
+    : shareStatusQuery.isError
+      ? "error"
+      : shareStatusQuery.isSuccess
+        ? shareStatusQuery.data
+          ? "shared"
+          : "not-shared"
+        : "idle";
 
   const checkShareStatus = useCallback(async () => {
-    if (shareStatus !== "idle" && shareStatus !== "error") {
+    if (shareStatusQuery.isSuccess || shareStatusQuery.isFetching) {
       return;
     }
-
-    setShareStatus("loading");
-    try {
-      const shareId = await SharedDiaryClient.getActiveShareId(diary);
-      setShareStatus(shareId ? "shared" : "not-shared");
-    } catch (error) {
-      console.error("Failed to check diary share status", error);
-      setShareStatus("error");
+    const result = await shareStatusQuery.refetch();
+    if (result.error) {
+      console.error("Failed to check diary share status", result.error);
       toast.error("共有状態の確認に失敗しました");
     }
-  }, [diary, shareStatus]);
+  }, [shareStatusQuery]);
 
   const publishShareUrl = useCallback(async () => {
     const { shareId } = await SharedDiaryClient.publish(
       diary,
       localUser.displayName,
     );
-    setShareStatus("shared");
+    queryClient.setQueryData(
+      sharedDiaryQueryKeys.status(diary.uid, diary.id, shareId),
+      shareId,
+    );
+    await Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: diaryQueryKeys.all(diary.uid),
+        refetchType: "all",
+      }),
+      queryClient.invalidateQueries({
+        queryKey: sharedDiaryQueryKeys.byOwner(diary.uid),
+        refetchType: "all",
+      }),
+    ]);
     return buildShareUrl(shareId);
-  }, [diary, localUser.displayName]);
+  }, [diary, localUser.displayName, queryClient]);
 
   const unshareDiary = useCallback(async () => {
     setIsUnsharing(true);
     try {
       await SharedDiaryClient.unpublish(diary);
-      setShareStatus("not-shared");
+      queryClient.setQueryData(
+        sharedDiaryQueryKeys.status(diary.uid, diary.id, shareId),
+        null,
+      );
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: diaryQueryKeys.all(diary.uid),
+          refetchType: "all",
+        }),
+        queryClient.invalidateQueries({
+          queryKey: sharedDiaryQueryKeys.byOwner(diary.uid),
+          refetchType: "all",
+        }),
+      ]);
       toast.success("共有を停止しました");
       return true;
     } catch (error) {
@@ -75,7 +117,7 @@ export const useShareDiary = (diary: Diary) => {
     } finally {
       setIsUnsharing(false);
     }
-  }, [diary]);
+  }, [diary, queryClient, shareId]);
 
   const copyShareLink = useCallback(async () => {
     setIsSharing(true);

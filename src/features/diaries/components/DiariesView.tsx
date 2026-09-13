@@ -26,18 +26,18 @@ const getReturnTo = (state: unknown) => {
 };
 
 export const DiariesView = () => {
-  const { date, uploadedDiaries } = useDiaryDetailStore();
-  const { refetch } = useFetchDiary();
+  const { date } = useDiaryDetailStore();
+  const { diaries, refetch } = useFetchDiary();
   const location = useLocation();
   const navigate = useNavigate();
   const returnTo = getReturnTo(location.state);
 
   useEffect(() => {
-    if (!window.location.hash || uploadedDiaries.length === 0) return;
+    if (!window.location.hash || diaries.length === 0) return;
     const target = document.getElementById(window.location.hash.slice(1));
     target?.scrollIntoView({ block: "start" });
     target?.focus();
-  }, [uploadedDiaries]);
+  }, [diaries]);
 
   return (
     <div
@@ -61,14 +61,13 @@ export const DiariesView = () => {
       <div className="flex flex-col gap-1">
         <h2 className="text-3xl font-bold">{format(date, "M月d日")}</h2>
         <p className="text-sm text-muted-foreground">
-          {uploadedDiaries.length > 0 &&
-            `本日は ${uploadedDiaries.length} 件の記録があります`}
+          {diaries.length > 0 && `本日は ${diaries.length} 件の記録があります`}
         </p>
       </div>
       <div>
-        {uploadedDiaries.length > 0 ? (
+        {diaries.length > 0 ? (
           <div className="space-y-4">
-            {uploadedDiaries.map((diary) => (
+            {diaries.map((diary) => (
               <DiaryPreviewCard
                 key={diary.id}
                 diary={diary}

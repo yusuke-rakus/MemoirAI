@@ -1,81 +1,37 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
 import { useLocalUser } from "@/contexts/LocalUserContext";
+import { diaryQueryKeys } from "@/lib/query/queryKeys";
 import { DiaryClient, type DiaryPageCursor } from "@/lib/service/diaryClient";
-import { useDiaryRefreshStore } from "@/stores/diaryRefreshStore";
 import type { Diary } from "@/types/diary/diary";
-
-import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
 
 export const useFetchDiary = () => {
   const { localUser } = useLocalUser();
-  const refreshRevision = useDiaryRefreshStore((state) => state.revision);
-  const { uploadedDiaries, setUploadedDiaries, setIsLoading } =
-    useDiaryDetailStore();
-  const cursorRef = useRef<DiaryPageCursor | null>(null);
-  const isLoadingMoreRef = useRef(false);
-  const [hasMore, setHasMore] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-
-  const fetchFirstPage = useCallback(async () => {
-    if (!localUser?.uid) return;
-
-    setIsLoading(true);
-    try {
-      const page = await DiaryClient.getByUidPaged<Diary>(localUser.uid);
-
-      cursorRef.current = page.cursor;
-      setHasMore(page.hasMore);
-      setUploadedDiaries(page.diaries);
-    } catch (error) {
-      console.error("Failed to fetch diary", error);
-      toast.error("日記の取得に失敗しました");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [localUser?.uid, setUploadedDiaries, setIsLoading]);
+  const query = useInfiniteQuery({
+    queryKey: diaryQueryKeys.sidebar(localUser.uid),
+    enabled: Boolean(localUser.uid),
+    initialPageParam: null as DiaryPageCursor | null,
+    queryFn: ({ pageParam }) =>
+      DiaryClient.getByUidPaged<Diary>(localUser.uid, pageParam),
+    getNextPageParam: (lastPage) =>
+      lastPage.hasMore ? lastPage.cursor : undefined,
+  });
 
   useEffect(() => {
-    cursorRef.current = null;
-    setHasMore(false);
-    void fetchFirstPage();
-  }, [fetchFirstPage, refreshRevision]);
-
-  const loadMore = useCallback(async () => {
-    if (
-      !localUser?.uid ||
-      !hasMore ||
-      !cursorRef.current ||
-      isLoadingMoreRef.current
-    ) {
-      return;
+    if (query.error) {
+      console.error("Failed to fetch diary", query.error);
+      toast.error("日記の取得に失敗しました");
     }
-
-    isLoadingMoreRef.current = true;
-    setIsLoadingMore(true);
-    try {
-      const page = await DiaryClient.getByUidPaged<Diary>(
-        localUser.uid,
-        cursorRef.current,
-      );
-
-      cursorRef.current = page.cursor;
-      setHasMore(page.hasMore);
-      setUploadedDiaries([...uploadedDiaries, ...page.diaries]);
-    } catch (error) {
-      console.error("Failed to fetch more diaries", error);
-      toast.error("日記の追加取得に失敗しました");
-    } finally {
-      isLoadingMoreRef.current = false;
-      setIsLoadingMore(false);
-    }
-  }, [hasMore, localUser?.uid, setUploadedDiaries, uploadedDiaries]);
+  }, [query.error]);
 
   return {
-    refetch: fetchFirstPage,
-    loadMore,
-    hasMore,
-    isLoadingMore,
+    diaries: query.data?.pages.flatMap((page) => page.diaries) ?? [],
+    isLoading: query.isLoading && Boolean(localUser.uid),
+    refetch: query.refetch,
+    loadMore: query.fetchNextPage,
+    hasMore: query.hasNextPage,
+    isLoadingMore: query.isFetchingNextPage,
   };
 };

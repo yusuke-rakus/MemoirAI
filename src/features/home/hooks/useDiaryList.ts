@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import { useLocalUser } from "@/contexts/LocalUserContext";
+import { diaryQueryKeys } from "@/lib/query/queryKeys";
 import { DiaryClient } from "@/lib/service/diaryClient";
 import type { Diary } from "@/types/diary/diary";
 
@@ -9,41 +10,33 @@ import { useCurrentDateStore } from "../provider/CurrentDateProvider";
 export const useDiaryList = () => {
   const { localUser } = useLocalUser();
   const { date } = useCurrentDateStore();
-  const [dialies, setDialies] = useState<Diary[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchData = async () => {
-    try {
-      const data = await DiaryClient.getByUidAndMonth(
+  const query = useQuery({
+    queryKey: diaryQueryKeys.byMonth(
+      localUser.uid,
+      date.getFullYear(),
+      date.getMonth() + 1,
+    ),
+    enabled: Boolean(localUser.uid),
+    queryFn: async (): Promise<Diary[]> => {
+      const data = await DiaryClient.getByUidAndMonth<Diary>(
         localUser.uid,
         date.getFullYear(),
         date.getMonth() + 1,
       );
-      if (!data) {
-        setDialies([]);
-        return;
-      }
+      return (data ?? [])
+        .slice()
+        .sort(
+          (a, b) =>
+            b.date.toMillis() - a.date.toMillis() ||
+            b.createdAt.toMillis() - a.createdAt.toMillis(),
+        );
+    },
+  });
 
-      const sorted = data.sort(
-        (a, b) =>
-          b.date.toMillis() - a.date.toMillis() ||
-          b.createdAt.toMillis() - a.createdAt.toMillis(),
-      );
-
-      const uniqueByDay: Diary[] = sorted.map((diary) => ({
-        id: diary.id,
-        ...(diary as Omit<Diary, "id">),
-      }));
-
-      setDialies(uniqueByDay);
-    } finally {
-      setLoading(false);
-    }
+  return {
+    dialies: query.data ?? [],
+    loading: query.isLoading && Boolean(localUser.uid),
+    error: query.error,
+    refetch: query.refetch,
   };
-
-  useEffect(() => {
-    fetchData();
-  }, [date]);
-
-  return { dialies, loading };
 };

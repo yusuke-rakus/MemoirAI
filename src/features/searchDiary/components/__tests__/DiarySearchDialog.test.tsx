@@ -4,6 +4,7 @@ import { Timestamp } from "firebase/firestore";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useDiarySearchStore } from "@/stores/diarySearchStore";
+import { QueryTestProvider } from "@/test/QueryTestProvider";
 import type { Diary } from "@/types/diary/diary";
 
 import { DiarySearchDialog } from "../DiarySearchDialog";
@@ -42,10 +43,9 @@ const createDiary = (
 
 const setCachedDiaries = (diaries: Diary[]) => {
   act(() => {
+    mocks.getByUid.mockResolvedValue(diaries);
     useDiarySearchStore.setState({
       open: true,
-      cachedUid: "user-1",
-      diaries,
     });
   });
 };
@@ -61,8 +61,6 @@ beforeEach(() => {
   );
   useDiarySearchStore.setState({
     open: false,
-    cachedUid: null,
-    diaries: [],
   });
 });
 
@@ -80,7 +78,11 @@ describe("DiarySearchDialog", () => {
     ]);
     const user = userEvent.setup();
 
-    render(<DiarySearchDialog />);
+    render(
+      <QueryTestProvider>
+        <DiarySearchDialog />
+      </QueryTestProvider>,
+    );
 
     const input = screen.getByRole("textbox", {
       name: "日記の検索キーワード",
@@ -109,7 +111,11 @@ describe("DiarySearchDialog", () => {
     setCachedDiaries([markdownDiary]);
     const user = userEvent.setup();
 
-    render(<DiarySearchDialog />);
+    render(
+      <QueryTestProvider>
+        <DiarySearchDialog />
+      </QueryTestProvider>,
+    );
 
     await user.type(
       screen.getByRole("textbox", { name: "日記の検索キーワード" }),
@@ -136,7 +142,11 @@ describe("DiarySearchDialog", () => {
       ]),
     ]);
 
-    render(<DiarySearchDialog />);
+    render(
+      <QueryTestProvider>
+        <DiarySearchDialog />
+      </QueryTestProvider>,
+    );
 
     expect(
       screen.queryByRole("region", { name: "よく使うタグ" }),
@@ -147,7 +157,11 @@ describe("DiarySearchDialog", () => {
     mocks.getByUid.mockReturnValue(new Promise(() => undefined));
     act(() => useDiarySearchStore.getState().setOpen(true));
 
-    render(<DiarySearchDialog />);
+    render(
+      <QueryTestProvider>
+        <DiarySearchDialog />
+      </QueryTestProvider>,
+    );
 
     expect(
       await screen.findByText("日記を読み込んでいます…"),
@@ -163,7 +177,11 @@ describe("DiarySearchDialog", () => {
     ]);
     act(() => useDiarySearchStore.getState().setOpen(true));
 
-    render(<DiarySearchDialog />);
+    render(
+      <QueryTestProvider>
+        <DiarySearchDialog />
+      </QueryTestProvider>,
+    );
 
     expect(
       await screen.findByRole("button", {
@@ -182,7 +200,11 @@ describe("DiarySearchDialog", () => {
     mocks.getByUid.mockRejectedValue(new Error("failed"));
     act(() => useDiarySearchStore.getState().setOpen(true));
 
-    render(<DiarySearchDialog />);
+    render(
+      <QueryTestProvider>
+        <DiarySearchDialog />
+      </QueryTestProvider>,
+    );
 
     expect(
       await screen.findByText(

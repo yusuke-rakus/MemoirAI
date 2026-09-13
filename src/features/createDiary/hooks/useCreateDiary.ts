@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -8,6 +9,7 @@ import { diaryTitleModel } from "@/firebase/models/createDiarySchema";
 import { memoryExtractionModel } from "@/firebase/models/memoryExtractionSchema";
 import { getDiaryImageErrorMessage } from "@/lib/diaryImageError";
 import { generateDiaryId } from "@/lib/generateId";
+import { diaryQueryKeys } from "@/lib/query/queryKeys";
 import { DiaryClient } from "@/lib/service/diaryClient";
 import {
   DiaryIllustrationClient,
@@ -15,8 +17,6 @@ import {
 } from "@/lib/service/diaryIllustrationClient";
 import { DiaryImageClient } from "@/lib/service/diaryImageClient";
 import { UserMemoryClient } from "@/lib/service/userMemoryClient";
-import { requestDiaryRefresh } from "@/stores/diaryRefreshStore";
-import { invalidateDiarySearchCache } from "@/stores/diarySearchStore";
 import type { DiaryImage } from "@/types/diary/diary";
 import type {
   ActiveUserMemoryContext,
@@ -225,6 +225,7 @@ const uploadDiaryImages = async (
 };
 
 export const useCreateDiary = () => {
+  const queryClient = useQueryClient();
   const [creationProgress, setCreationProgress] =
     useState<DiaryCreationProgress | null>(null);
   const { localUser } = useLocalUser();
@@ -342,13 +343,15 @@ export const useCreateDiary = () => {
             console.error("Failed to save diary memory", error);
           }
         }
-        invalidateDiarySearchCache();
-        requestDiaryRefresh();
+        await queryClient.invalidateQueries({
+          queryKey: diaryQueryKeys.all(localUser.uid),
+          refetchType: "all",
+        });
       } finally {
         setCreationProgress(null);
       }
     },
-    [localUser?.uid],
+    [localUser?.uid, queryClient],
   );
 
   const diariesToCreate = useMemo(

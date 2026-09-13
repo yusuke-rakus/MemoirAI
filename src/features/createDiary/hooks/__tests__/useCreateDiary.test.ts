@@ -1,10 +1,14 @@
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook as baseRenderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createDiaryImageError } from "@/lib/diaryImageError";
+import { QueryTestProvider } from "@/test/QueryTestProvider";
 import type { ActiveUserMemoryContext } from "@/types/memory";
 
 import { useCreateDiary } from "../useCreateDiary";
+
+const renderHook = <Result,>(callback: () => Result) =>
+  baseRenderHook(callback, { wrapper: QueryTestProvider });
 
 const mocks = vi.hoisted(() => ({
   cards: [] as Array<{
@@ -25,8 +29,6 @@ const mocks = vi.hoisted(() => ({
   extractMemory: vi.fn(),
   getMemory: vi.fn(),
   mergeMemory: vi.fn(),
-  invalidateSearch: vi.fn(),
-  requestRefresh: vi.fn(),
   generateId: vi.fn(),
   toastSuccess: vi.fn(),
   toastError: vi.fn(),
@@ -73,14 +75,6 @@ vi.mock("@/lib/service/userMemoryClient", () => ({
     getActiveMemoryContext: mocks.getMemory,
     mergeExtractedMemory: mocks.mergeMemory,
   },
-}));
-
-vi.mock("@/stores/diarySearchStore", () => ({
-  invalidateDiarySearchCache: mocks.invalidateSearch,
-}));
-
-vi.mock("@/stores/diaryRefreshStore", () => ({
-  requestDiaryRefresh: mocks.requestRefresh,
 }));
 
 vi.mock("sonner", () => ({
@@ -405,8 +399,6 @@ describe("useCreateDiary", () => {
 
     expect(mocks.upload).not.toHaveBeenCalled();
     expect(mocks.add).not.toHaveBeenCalled();
-    expect(mocks.invalidateSearch).not.toHaveBeenCalled();
-    expect(mocks.requestRefresh).not.toHaveBeenCalled();
     expect(mocks.toastError).toHaveBeenCalledWith("日記の作成に失敗しました");
     expect(result.current.creationProgress).toBeNull();
   });

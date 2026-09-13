@@ -1,13 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 import { useLocalUser } from "@/contexts/LocalUserContext";
+import { favoriteQueryKeys } from "@/lib/query/queryKeys";
 import {
   FavoriteClient,
   type FavoritePageCursor,
 } from "@/lib/service/favoriteClient";
 import { SharedDiaryClient } from "@/lib/service/sharedDiaryClient";
-import { useFavoriteRefreshStore } from "@/stores/favoriteRefreshStore";
 import type { SharedDiary } from "@/types/diary/sharedDiary";
 
 const FAVORITE_PAGE_SIZE = 10;
@@ -21,6 +22,7 @@ type ResolvedFavoritePage = {
   diaries: SidebarFavoriteDiary[];
   cursor: FavoritePageCursor | null;
   hasMore: boolean;
+  staleFavoriteIds: string[];
 };
 
 const fetchResolvedFavoritePage = async (
@@ -28,6 +30,7 @@ const fetchResolvedFavoritePage = async (
   initialCursor: FavoritePageCursor | null,
 ): Promise<ResolvedFavoritePage> => {
   const diaries: SidebarFavoriteDiary[] = [];
+  const staleFavoriteIds: string[] = [];
   let cursor = initialCursor;
   let hasMore = true;
 
@@ -51,24 +54,10 @@ const fetchResolvedFavoritePage = async (
       resolvedDiaries.map(({ sharedDiaryId, diary }) => [sharedDiaryId, diary]),
     );
 
-    const staleFavoriteIds = page.favorites
+    const missingFavoriteIds = page.favorites
       .map((favorite) => favorite.sharedDiaryId)
       .filter((sharedDiaryId) => !diaryById.has(sharedDiaryId));
-    const cleanupResults = await Promise.allSettled(
-      staleFavoriteIds.map((sharedDiaryId) =>
-        FavoriteClient.delete(uid, sharedDiaryId),
-      ),
-    );
-
-    cleanupResults.forEach((result, index) => {
-      if (result.status === "rejected") {
-        console.error(
-          `Failed to delete stale favorite: ${staleFavoriteIds[index]}`,
-          result.reason,
-        );
-      }
-    });
-
+    staleFavoriteIds.push(...missingFavoriteIds);
     page.favorites.forEach(({ sharedDiaryId }) => {
       const diary = diaryById.get(sharedDiaryId);
       if (diary) {
@@ -77,89 +66,66 @@ const fetchResolvedFavoritePage = async (
     });
   }
 
-  return { diaries, cursor, hasMore };
+  return { diaries, cursor, hasMore, staleFavoriteIds };
 };
 
 export const useFetchFavoriteDiaries = (isOpen: boolean) => {
   const { localUser } = useLocalUser();
-  const refreshRevision = useFavoriteRefreshStore((state) => state.revision);
-  const cursorRef = useRef<FavoritePageCursor | null>(null);
+  const cleanedFavoriteIdsRef = useRef(new Set<string>());
   const isLoadingMoreRef = useRef(false);
-  const [favoriteDiaries, setFavoriteDiaries] = useState<
-    SidebarFavoriteDiary[]
-  >([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(false);
-
-  const fetchFirstPage = useCallback(async () => {
-    if (!localUser.uid) {
-      cursorRef.current = null;
-      setFavoriteDiaries([]);
-      setHasMore(false);
-      setIsLoading(false);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const page = await fetchResolvedFavoritePage(localUser.uid, null);
-      cursorRef.current = page.cursor;
-      setFavoriteDiaries(page.diaries);
-      setHasMore(page.hasMore);
-    } catch (error) {
-      console.error("Failed to fetch favorite diaries", error);
-      toast.error("お気に入りの取得に失敗しました");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [localUser.uid]);
+  const query = useInfiniteQuery({
+    queryKey: favoriteQueryKeys.list(localUser.uid),
+    enabled: isOpen && Boolean(localUser.uid),
+    initialPageParam: null as FavoritePageCursor | null,
+    queryFn: ({ pageParam }) =>
+      fetchResolvedFavoritePage(localUser.uid, pageParam),
+    getNextPageParam: (lastPage) =>
+      lastPage.hasMore ? lastPage.cursor : undefined,
+  });
 
   useEffect(() => {
-    if (!isOpen) {
-      return;
+    if (query.error) {
+      console.error("Failed to fetch favorite diaries", query.error);
+      toast.error("お気に入りの取得に失敗しました");
     }
+  }, [query.error]);
 
-    void fetchFirstPage();
-  }, [fetchFirstPage, isOpen, refreshRevision]);
+  useEffect(() => {
+    const staleFavoriteIds = (query.data?.pages ?? [])
+      .flatMap((page) => page.staleFavoriteIds)
+      .filter((id) => !cleanedFavoriteIdsRef.current.has(id));
+    if (staleFavoriteIds.length === 0) return;
 
-  const loadMore = useCallback(async () => {
-    if (
-      !localUser.uid ||
-      !hasMore ||
-      !cursorRef.current ||
-      isLoadingMoreRef.current
-    ) {
-      return;
-    }
-
-    isLoadingMoreRef.current = true;
-    setIsLoadingMore(true);
-    try {
-      const page = await fetchResolvedFavoritePage(
-        localUser.uid,
-        cursorRef.current,
-      );
-      cursorRef.current = page.cursor;
-      setFavoriteDiaries((currentDiaries) => [
-        ...currentDiaries,
-        ...page.diaries,
-      ]);
-      setHasMore(page.hasMore);
-    } catch (error) {
-      console.error("Failed to fetch more favorite diaries", error);
-      toast.error("お気に入りの追加取得に失敗しました");
-    } finally {
-      isLoadingMoreRef.current = false;
-      setIsLoadingMore(false);
-    }
-  }, [hasMore, localUser.uid]);
+    staleFavoriteIds.forEach((id) => cleanedFavoriteIdsRef.current.add(id));
+    void Promise.allSettled(
+      staleFavoriteIds.map((sharedDiaryId) =>
+        FavoriteClient.delete(localUser.uid, sharedDiaryId),
+      ),
+    ).then((results) => {
+      results.forEach((result, index) => {
+        if (result.status === "rejected") {
+          console.error(
+            `Failed to delete stale favorite: ${staleFavoriteIds[index]}`,
+            result.reason,
+          );
+        }
+      });
+    });
+  }, [localUser.uid, query.data]);
 
   return {
-    favoriteDiaries,
-    isLoading,
-    isLoadingMore,
-    hasMore,
-    loadMore,
+    favoriteDiaries: query.data?.pages.flatMap((page) => page.diaries) ?? [],
+    isLoading: query.isLoading && isOpen && Boolean(localUser.uid),
+    isLoadingMore: query.isFetchingNextPage,
+    hasMore: query.hasNextPage,
+    loadMore: async () => {
+      if (isLoadingMoreRef.current || !query.hasNextPage) return;
+      isLoadingMoreRef.current = true;
+      try {
+        await query.fetchNextPage();
+      } finally {
+        isLoadingMoreRef.current = false;
+      }
+    },
   };
 };

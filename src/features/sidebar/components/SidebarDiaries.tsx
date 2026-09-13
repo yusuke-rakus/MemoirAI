@@ -14,12 +14,11 @@ import {
 import { PATHS } from "@/constants/path";
 
 import { useFetchDiary } from "../hooks/useFetchDiary";
-import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
 import { SidebarFavorites } from "./SidebarFavorites";
 
 export const SidebarDiaries = () => {
-  const { loadMore, hasMore, isLoadingMore } = useFetchDiary();
-  const { uploadedDiaries, isLoading } = useDiaryDetailStore();
+  const { diaries, isLoading, loadMore, hasMore, isLoadingMore } =
+    useFetchDiary();
   const { isMobile, setOpenMobile } = useSidebar();
 
   const handleNavigation = () => {
@@ -41,9 +40,9 @@ export const SidebarDiaries = () => {
               </SidebarMenuItem>
             ))}
           </>
-        ) : uploadedDiaries.length > 0 ? (
+        ) : diaries.length > 0 ? (
           <>
-            {uploadedDiaries.map((diary) => {
+            {diaries.map((diary) => {
               return (
                 <SidebarMenuSubItem key={diary.id}>
                   <SidebarMenuButton asChild>

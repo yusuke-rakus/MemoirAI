@@ -1,11 +1,19 @@
-import { act, renderHook } from "@testing-library/react";
+import {
+  act,
+  renderHook as baseRenderHook,
+  waitFor,
+} from "@testing-library/react";
 import { toast } from "sonner";
 import { describe, expect, it, vi } from "vitest";
 
 import { SharedDiaryClient } from "@/lib/service/sharedDiaryClient";
+import { QueryTestProvider } from "@/test/QueryTestProvider";
 import type { Diary } from "@/types/diary/diary";
 
 import { useShareDiary } from "../useShareDiary";
+
+const renderHook = <Result,>(callback: () => Result) =>
+  baseRenderHook(callback, { wrapper: QueryTestProvider });
 
 vi.mock("@/contexts/LocalUserContext", () => ({
   useLocalUser: () => ({
@@ -69,7 +77,7 @@ describe("useShareDiary", () => {
     });
 
     expect(getActiveShareIdMock).toHaveBeenCalledWith(diary);
-    expect(result.current.isShared).toBe(true);
+    await waitFor(() => expect(result.current.isShared).toBe(true));
     expect(result.current.isCheckingShareStatus).toBe(false);
   });
 

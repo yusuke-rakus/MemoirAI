@@ -1,6 +1,7 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { BookOpen, Unlink } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
+import { sharedDiaryQueryKeys } from "@/lib/query/queryKeys";
 import {
   SharedDiaryClient,
   type SharedDiaryResult,
@@ -38,38 +40,19 @@ const sortBySharedAtDescending = (
 ) => second.diary.sharedAt.toMillis() - first.diary.sharedAt.toMillis();
 
 export const SharedDiariesSettingsSection = ({ uid }: Props) => {
-  const [diaries, setDiaries] = useState<OwnedSharedDiary[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
+  const queryClient = useQueryClient();
+  const query = useQuery({
+    queryKey: sharedDiaryQueryKeys.byOwner(uid ?? ""),
+    enabled: Boolean(uid),
+    queryFn: async () => {
+      const diaries = await SharedDiaryClient.getByOwner<SharedDiary>(uid!);
+      return diaries.slice().sort(sortBySharedAtDescending);
+    },
+  });
   const [selectedDiary, setSelectedDiary] = useState<OwnedSharedDiary | null>(
     null,
   );
   const [isUnsharing, setIsUnsharing] = useState(false);
-
-  const fetchSharedDiaries = useCallback(async () => {
-    if (!uid) {
-      setDiaries([]);
-      setIsLoading(false);
-      return;
-    }
-
-    setIsLoading(true);
-    setHasError(false);
-    try {
-      const sharedDiaries =
-        await SharedDiaryClient.getByOwner<SharedDiary>(uid);
-      setDiaries(sharedDiaries.sort(sortBySharedAtDescending));
-    } catch (error) {
-      console.error("Failed to fetch owned shared diaries", error);
-      setHasError(true);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [uid]);
-
-  useEffect(() => {
-    void fetchSharedDiaries();
-  }, [fetchSharedDiaries]);
 
   const handleUnshare = async () => {
     if (!selectedDiary) return;
@@ -77,11 +60,10 @@ export const SharedDiariesSettingsSection = ({ uid }: Props) => {
     setIsUnsharing(true);
     try {
       await SharedDiaryClient.unpublish(selectedDiary.diary);
-      setDiaries((current) =>
-        current.filter(
-          (diary) => diary.sharedDiaryId !== selectedDiary.sharedDiaryId,
-        ),
-      );
+      await queryClient.invalidateQueries({
+        queryKey: sharedDiaryQueryKeys.byOwner(uid ?? ""),
+        refetchType: "all",
+      });
       setSelectedDiary(null);
       toast.success("共有を停止しました");
     } catch (error) {
@@ -92,7 +74,7 @@ export const SharedDiariesSettingsSection = ({ uid }: Props) => {
     }
   };
 
-  if (isLoading) {
+  if (query.isLoading && uid) {
     return (
       <div className="space-y-3" aria-label="共有した日記を読み込み中">
         <Skeleton className="h-16 w-full" />
@@ -101,7 +83,7 @@ export const SharedDiariesSettingsSection = ({ uid }: Props) => {
     );
   }
 
-  if (hasError) {
+  if (query.isError) {
     return (
       <div className="space-y-3">
         <p className="text-sm text-destructive">
@@ -110,7 +92,7 @@ export const SharedDiariesSettingsSection = ({ uid }: Props) => {
         <Button
           type="button"
           variant="outline"
-          onClick={() => void fetchSharedDiaries()}
+          onClick={() => void query.refetch()}
         >
           再試行
         </Button>
@@ -120,7 +102,7 @@ export const SharedDiariesSettingsSection = ({ uid }: Props) => {
 
   return (
     <>
-      {diaries.length === 0 ? (
+      {(query.data ?? []).length === 0 ? (
         <Empty className="min-h-56 border">
           <EmptyHeader>
             <EmptyMedia variant="icon">
@@ -134,7 +116,7 @@ export const SharedDiariesSettingsSection = ({ uid }: Props) => {
         </Empty>
       ) : (
         <div className="divide-y rounded-md border">
-          {diaries.map((sharedDiary) => (
+          {(query.data ?? []).map((sharedDiary) => (
             <div
               key={sharedDiary.sharedDiaryId}
               className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3"

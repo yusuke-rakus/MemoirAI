@@ -1,7 +1,9 @@
+import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
 import { useLocalUser } from "@/contexts/LocalUserContext";
+import { diaryQueryKeys } from "@/lib/query/queryKeys";
 import { DiaryClient } from "@/lib/service/diaryClient";
 import type { Diary } from "@/types/diary/diary";
 
@@ -11,8 +13,7 @@ import { useInitialDiaryDate } from "./useInitialDiaryDate";
 export const useFetchDiary = () => {
   const { localUser } = useLocalUser();
   const initialDate = useInitialDiaryDate();
-  const { date, setDate, setUploadedDiaries, setIsLoading } =
-    useDiaryDetailStore();
+  const { date, setDate } = useDiaryDetailStore();
 
   useEffect(() => {
     if (date.getTime() !== initialDate.getTime()) {
@@ -20,48 +21,30 @@ export const useFetchDiary = () => {
     }
   }, [date, initialDate, setDate]);
 
+  const query = useQuery({
+    queryKey: diaryQueryKeys.byDate(localUser.uid, date),
+    enabled: Boolean(localUser.uid),
+    queryFn: async (): Promise<Diary[]> =>
+      (
+        (await DiaryClient.getByUidAndDate<Diary>(localUser.uid, date)) ?? []
+      )
+        .slice()
+        .sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis()),
+  });
+
   useEffect(() => {
-    if (!localUser?.uid) return;
-
-    const fetchDiary = async () => {
-      setIsLoading(true);
-      try {
-        const result =
-          (await DiaryClient.getByUidAndDate<Diary>(localUser.uid, date)) ?? [];
-        const sorted = result.sort(
-          (a, b) => b.createdAt.toMillis() - a.createdAt.toMillis(),
-        );
-
-        setUploadedDiaries(sorted);
-      } catch (error) {
-        console.error("Failed to fetch diary", error);
-        toast.error("日記の取得に失敗しました");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchDiary();
-  }, [date, localUser?.uid, setUploadedDiaries, setIsLoading]);
-
-  const refetch = async () => {
-    if (!localUser?.uid) return;
-    setIsLoading(true);
-    try {
-      const result =
-        (await DiaryClient.getByUidAndDate<Diary>(localUser.uid, date)) ?? [];
-      const sorted = result.sort(
-        (a, b) => b.createdAt.toMillis() - a.createdAt.toMillis(),
-      );
-
-      setUploadedDiaries(sorted);
-    } catch (error) {
-      console.error("Failed to fetch diary", error);
+    if (query.error) {
+      console.error("Failed to fetch diary", query.error);
       toast.error("日記の取得に失敗しました");
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [query.error]);
 
-  return { refetch };
+  return {
+    diaries: query.data ?? [],
+    isLoading: query.isLoading && Boolean(localUser.uid),
+    error: query.error,
+    refetch: async () => {
+      await query.refetch();
+    },
+  };
 };
