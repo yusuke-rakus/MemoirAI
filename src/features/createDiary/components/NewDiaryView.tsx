@@ -5,10 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { useRotatingText } from "@/components/shared/common/useRotatingText";
-import { DiaryMarkdownEditor } from "@/components/shared/diary/DiaryMarkdownEditor";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -17,14 +16,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Textarea } from "@/components/ui/textarea";
 import { MAX_DIARY_IMAGE_COUNT } from "@/constants/diaryImages";
 import { PATHS } from "@/constants/path";
 import { useLocalUser } from "@/contexts/LocalUserContext";
@@ -38,8 +35,8 @@ import { usePickMessages } from "../hooks/usePickMessages";
 import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
 import type { DiarySaveMode } from "../types";
 import { DiaryCreationProgressDialog } from "./DiaryCreationProgressDialog";
-import { DiaryImagePicker } from "./DiaryImagePicker";
 import { DiarySaveButton } from "./DiarySaveButton";
+import { DiaryCardEditor } from "./editor/DiaryCardEditor";
 
 export const NewDiaryView = () => {
   const { localUser } = useLocalUser();
@@ -269,108 +266,25 @@ export const NewDiaryView = () => {
                 </CardTitle>
               </CardHeader>
 
-              <CardContent>
-                <DiaryMarkdownEditor
-                  content={card.body}
-                  disabled={isCreating}
-                  enabled={localUser.markdownEditorEnabled}
-                  resetKey={`${format(date, "yyyy-MM-dd")}:${card.id}`}
-                  previewClassName="max-h-[500px] min-h-[300px] border-none shadow"
-                >
-                  <Textarea
-                    id={`diary-body-${card.id}`}
-                    placeholder={placeholderText}
-                    value={card.body}
-                    disabled={isCreating}
-                    onChange={(e) => updateCardBody(card.id, e.target.value)}
-                    className="max-h-[500px] min-h-[300px] resize-none overflow-y-auto border-none leading-relaxed shadow placeholder:text-muted-foreground/30 focus-visible:ring-0"
-                  />
-                </DiaryMarkdownEditor>
-
-                <div className="h-px w-full bg-gradient-to-r from-transparent via-border to-transparent opacity-50" />
-
-                {/* Tags Section */}
-                <div className="flex flex-wrap items-center gap-3 pt-2">
-                  <DiaryImagePicker
-                    cardId={card.id}
-                    images={card.images}
-                    disabled={isCreating}
-                    onAddImages={addImages}
-                  />
-
-                  <div className="flex flex-wrap gap-2">
-                    {card.tags.map((tag, tagIndex) => (
-                      <span
-                        key={tagIndex}
-                        className="inline-flex items-center gap-1.5 rounded-md bg-secondary/50 px-3 py-1 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary"
-                      >
-                        {tag.name}
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeTag(card.id, tagIndex)}
-                          aria-label={`${tag.name}タグを削除`}
-                          className="size-4 rounded-full hover:bg-transparent hover:text-destructive [&_svg]:size-3"
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="relative flex min-w-[200px] items-center">
-                    <Input
-                      placeholder="タグを追加"
-                      value={tagInputs[card.id] || ""}
-                      onChange={(e) =>
-                        handleTagInputChange(card.id, e.target.value)
-                      }
-                      onKeyDown={(e) => handleTagInputKeyDown(e, card.id)}
-                      className="h-8 border-none bg-transparent text-sm shadow placeholder:text-muted-foreground/40 focus-visible:ring-0"
-                    />
-                    {tagInputs[card.id] && (
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        className="ml-2 h-6 w-6"
-                        onClick={() => addTag(card.id)}
-                        aria-label="タグを追加"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-
-                {card.images.length > 0 && (
-                  <div className="flex flex-wrap gap-3 pt-4">
-                    {card.images.map((image) => (
-                      <div
-                        key={image.id}
-                        className="relative h-24 w-24 overflow-hidden rounded-md border bg-muted"
-                      >
-                        <img
-                          src={image.previewUrl}
-                          alt={`${image.file.name} のプレビュー`}
-                          className="h-full w-full object-cover"
-                        />
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          size="icon"
-                          disabled={isCreating}
-                          className="absolute top-1 right-1 h-6 w-6 rounded-full shadow-sm"
-                          onClick={() => removeImage(card.id, image.id)}
-                        >
-                          <X className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
+              <DiaryCardEditor
+                card={card}
+                dateKey={format(date, "yyyy-MM-dd")}
+                disabled={isCreating}
+                markdownEditorEnabled={localUser.markdownEditorEnabled}
+                placeholder={placeholderText}
+                tagInput={tagInputs[card.id] || ""}
+                onAddImages={(cardId, files) => {
+                  const result = addImages(cardId, files);
+                  showAddImagesResult(result);
+                  return result;
+                }}
+                onAddTag={addTag}
+                onRemoveImage={removeImage}
+                onRemoveTag={removeTag}
+                onTagInputChange={handleTagInputChange}
+                onTagInputKeyDown={handleTagInputKeyDown}
+                onUpdateBody={updateCardBody}
+              />
             </Card>
           ))}
         </div>

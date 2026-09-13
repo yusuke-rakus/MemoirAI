@@ -7,6 +7,9 @@ import { PATHS } from "@/constants/path";
 import { defaultLocalUser, useLocalUser } from "@/contexts/LocalUserContext";
 import { clearPrimaryColorOverrides } from "@/hooks/usePrimaryColor";
 import { AccountDeletionClient } from "@/lib/service/accountDeletionClient";
+import { DiaryDraftClient } from "@/lib/service/diaryDraftClient";
+import { UserAccountDataClient } from "@/lib/service/userAccountDataClient";
+import { UserStorageClient } from "@/lib/service/userStorageClient";
 
 type UseDeleteAccountOptions = {
   uid?: string;
@@ -50,6 +53,12 @@ export const useDeleteAccount = ({
     deletionInProgressRef.current = true;
     setIsDeleting(true);
     try {
+      await AccountDeletionClient.reauthenticateCurrentAccount(uid);
+      await DiaryDraftClient.clearAllByUid(uid);
+      await UserStorageClient.deleteAllByUid(uid);
+      await UserAccountDataClient.deleteSharedDiaries(uid);
+      await UserAccountDataClient.deletePrivateData(uid);
+      await UserAccountDataClient.retainLegalAcceptances(uid);
       await AccountDeletionClient.deleteCurrentAccount(uid);
       clearPrimaryColorOverrides();
       setLocalUser(defaultLocalUser);

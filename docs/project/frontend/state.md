@@ -24,4 +24,3 @@ TanStack Queryなどのserver-state libraryはありません。取得hookは主
 - metadata: localStorage `memoir-ai:draft:v1:{uid}:{date}`
 - image `File`: IndexedDB `memoir-ai-drafts` / `draft-images`
 - browser localだけに保存し、Firebaseへ同期しません。
-- `DiaryDraftClient`はcreateDiary featureの型へ逆依存しています。

@@ -13,10 +13,11 @@
   display: flex;
   justify-content: center;
 }
-.fc-daygrid-day-number {
+.fc .fc-daygrid-day-number {
   color: hsl(var(--foreground));
   font-size: 0.75rem;
   font-weight: 500;
+  padding-block: 1px;
 }
 .fc-day:not(.fc-day-other) .fc-daygrid-day-number {
   opacity: 1;
@@ -32,17 +33,11 @@
   color: hsl(var(--primary));
   font-size: 0.7rem;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.1;
+  padding-block: 0;
 }
 
-/* Keep day cells fixed-height even when dayMaxEvents is numeric. */
-.fc .fc-daygrid-body-unbalanced .fc-daygrid-day-frame {
-  overflow: hidden;
-}
-
+/* Keep the month grid within its fixed height without making it scrollable. */
 .fc .fc-daygrid-body-unbalanced .fc-daygrid-day-events {
-  position: absolute;
-  right: 0;
-  left: 0;
   min-height: 0;
 }

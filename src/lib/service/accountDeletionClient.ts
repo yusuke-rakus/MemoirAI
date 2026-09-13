@@ -2,12 +2,10 @@ import { deleteUser, reauthenticateWithPopup } from "firebase/auth";
 
 import { auth, provider } from "@/firebase/firebase";
 
-import { DiaryDraftClient } from "./diaryDraftClient";
-import { UserAccountDataClient } from "./userAccountDataClient";
-import { UserStorageClient } from "./userStorageClient";
-
 export class AccountDeletionClient {
-  static async deleteCurrentAccount(expectedUid: string): Promise<void> {
+  static async reauthenticateCurrentAccount(
+    expectedUid: string,
+  ): Promise<void> {
     if (!expectedUid) {
       throw new Error("uid is required to delete an account.");
     }
@@ -28,13 +26,9 @@ export class AccountDeletionClient {
         "Reauthenticated user does not match the requested account.",
       );
     }
+  }
 
-    await DiaryDraftClient.clearAllByUid(expectedUid);
-    await UserStorageClient.deleteAllByUid(expectedUid);
-    await UserAccountDataClient.deleteSharedDiaries(expectedUid);
-    await UserAccountDataClient.deletePrivateData(expectedUid);
-    await UserAccountDataClient.retainLegalAcceptances(expectedUid);
-
+  static async deleteCurrentAccount(expectedUid: string): Promise<void> {
     const userToDelete = auth.currentUser;
     if (!userToDelete || userToDelete.uid !== expectedUid) {
       throw new Error("Authenticated user changed during account deletion.");

@@ -2,7 +2,7 @@ import type {
   DiaryCard,
   DiaryCardImage,
   DiaryCardTag,
-} from "@/features/createDiary/hooks/useDiaryCard";
+} from "@/types/diaryDraft";
 
 const DATABASE_NAME = "memoir-ai-drafts";
 const DATABASE_VERSION = 1;
