@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SharedDiaryClient } from "@/lib/service/sharedDiaryClient";
+import { QueryTestProvider } from "@/test/QueryTestProvider";
 
 import { SharedDiariesSettingsSection } from "../SharedDiariesSettingsSection";
 
@@ -45,7 +46,11 @@ describe("SharedDiariesSettingsSection", () => {
   it("共有した日記がない場合はEmptyを表示する", async () => {
     getByOwnerMock.mockResolvedValue([]);
 
-    render(<SharedDiariesSettingsSection uid="user-1" />);
+    render(
+      <QueryTestProvider>
+        <SharedDiariesSettingsSection uid="user-1" />
+      </QueryTestProvider>,
+    );
 
     expect(
       await screen.findByText("共有した日記はありません"),
@@ -53,11 +58,17 @@ describe("SharedDiariesSettingsSection", () => {
   });
 
   it("共有した日記を表示し、確認後に共有を解除する", async () => {
-    getByOwnerMock.mockResolvedValue([{ sharedDiaryId: "share-1", diary }]);
+    getByOwnerMock
+      .mockResolvedValueOnce([{ sharedDiaryId: "share-1", diary }])
+      .mockResolvedValue([]);
     unpublishMock.mockResolvedValue({ wasShared: true });
     const user = userEvent.setup();
 
-    render(<SharedDiariesSettingsSection uid="user-1" />);
+    render(
+      <QueryTestProvider>
+        <SharedDiariesSettingsSection uid="user-1" />
+      </QueryTestProvider>,
+    );
 
     expect(await screen.findByText("夏の思い出")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "解除" }));
@@ -75,13 +86,19 @@ describe("SharedDiariesSettingsSection", () => {
 
   it("タイトルが空でも共有を解除できる", async () => {
     const diaryWithoutTitle = { ...diary, title: "" };
-    getByOwnerMock.mockResolvedValue([
-      { sharedDiaryId: "share-without-title", diary: diaryWithoutTitle },
-    ]);
+    getByOwnerMock
+      .mockResolvedValueOnce([
+        { sharedDiaryId: "share-without-title", diary: diaryWithoutTitle },
+      ])
+      .mockResolvedValue([]);
     unpublishMock.mockResolvedValue({ wasShared: true });
     const user = userEvent.setup();
 
-    render(<SharedDiariesSettingsSection uid="user-1" />);
+    render(
+      <QueryTestProvider>
+        <SharedDiariesSettingsSection uid="user-1" />
+      </QueryTestProvider>,
+    );
 
     const unshareButton = await screen.findByRole("button", { name: "解除" });
     expect(unshareButton).toBeVisible();

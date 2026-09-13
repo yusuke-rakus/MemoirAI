@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -18,6 +19,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { tagBgMap } from "@/constants/tagColors";
 import { useLocalUser } from "@/contexts/LocalUserContext";
+import { diaryQueryKeys } from "@/lib/query/queryKeys";
 import { DiaryClient } from "@/lib/service/diaryClient";
 import { cn } from "@/lib/utils";
 import { useDiarySearchStore } from "@/stores/diarySearchStore";
@@ -32,40 +34,20 @@ import {
 export const DiarySearchDialog = () => {
   const navigate = useNavigate();
   const { localUser } = useLocalUser();
-  const { open, cachedUid, diaries, setOpen, setCache } = useDiarySearchStore();
+  const { open, setOpen } = useDiarySearchStore();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasError, setHasError] = useState(false);
+  const diariesQuery = useQuery({
+    queryKey: diaryQueryKeys.search(localUser.uid),
+    enabled: open && Boolean(localUser.uid),
+    queryFn: async () =>
+      (await DiaryClient.getByUid<Diary>(localUser.uid)) ?? [],
+  });
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedQuery(query), 200);
     return () => window.clearTimeout(timer);
   }, [query]);
-
-  useEffect(() => {
-    if (!open || !localUser.uid || cachedUid === localUser.uid) return;
-    let active = true;
-    setIsLoading(true);
-    setHasError(false);
-    void DiaryClient.getByUid<Diary>(localUser.uid)
-      .then((result) => {
-        if (active) {
-          setIsLoading(false);
-          setCache(localUser.uid, result ?? []);
-        }
-      })
-      .catch((error) => {
-        console.error("Failed to fetch diaries for search", error);
-        if (active) {
-          setHasError(true);
-          setIsLoading(false);
-        }
-      });
-    return () => {
-      active = false;
-    };
-  }, [cachedUid, localUser.uid, open, setCache]);
 
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
@@ -78,10 +60,7 @@ export const DiarySearchDialog = () => {
     return () => window.removeEventListener("keydown", handleShortcut);
   }, [setOpen]);
 
-  const cachedDiaries = useMemo(
-    () => (cachedUid === localUser.uid ? diaries : []),
-    [cachedUid, diaries, localUser.uid],
-  );
+  const cachedDiaries = useMemo(() => diariesQuery.data ?? [], [diariesQuery.data]);
   const frequentTags = useMemo(
     () => (open ? getFrequentTags(cachedDiaries) : []),
     [cachedDiaries, open],
@@ -159,23 +138,23 @@ export const DiarySearchDialog = () => {
         )}
         <ScrollArea className="h-[min(60vh,480px)]">
           <div className="p-3" role="list" aria-label="検索結果">
-            {isLoading && !query && (
+            {diariesQuery.isLoading && !query && (
               <p className="p-6 text-center text-sm text-muted-foreground">
                 日記を読み込んでいます…
               </p>
             )}
-            {!isLoading && hasError && (
+            {!diariesQuery.isLoading && diariesQuery.isError && (
               <p className="p-6 text-center text-sm text-destructive">
                 日記を読み込めませんでした。ダイアログを開き直してください。
               </p>
             )}
-            {!isLoading && !hasError && !debouncedQuery && (
+            {!diariesQuery.isLoading && !diariesQuery.isError && !debouncedQuery && (
               <p className="p-6 text-center text-sm text-muted-foreground">
                 思い出したい出来事やタグを入力してください。
               </p>
             )}
-            {!isLoading &&
-              !hasError &&
+            {!diariesQuery.isLoading &&
+              !diariesQuery.isError &&
               debouncedQuery &&
               results.length === 0 && (
                 <p className="p-6 text-center text-sm text-muted-foreground">

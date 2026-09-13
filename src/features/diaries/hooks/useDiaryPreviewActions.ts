@@ -1,13 +1,16 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { Timestamp } from "firebase/firestore";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
 import { getDiaryImageErrorMessage } from "@/lib/diaryImageError";
+import {
+  diaryQueryKeys,
+  sharedDiaryQueryKeys,
+} from "@/lib/query/queryKeys";
 import { DiaryClient } from "@/lib/service/diaryClient";
 import { DiaryImageClient } from "@/lib/service/diaryImageClient";
 import { SharedDiaryClient } from "@/lib/service/sharedDiaryClient";
-import { requestDiaryRefresh } from "@/stores/diaryRefreshStore";
-import { invalidateDiarySearchCache } from "@/stores/diarySearchStore";
 import type { Diary, DiaryImage } from "@/types/diary/diary";
 
 export type DiaryPreviewMutationValues = Pick<
@@ -28,6 +31,7 @@ export const useDiaryPreviewActions = ({
   diary,
   onCompleted,
 }: UseDiaryPreviewActionsProps) => {
+  const queryClient = useQueryClient();
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -56,8 +60,10 @@ export const useDiaryPreviewActions = ({
           images: [...values.retainedImages, ...uploadedImages],
           updatedAt: Timestamp.now(),
         });
-        invalidateDiarySearchCache();
-        requestDiaryRefresh();
+        await queryClient.invalidateQueries({
+          queryKey: diaryQueryKeys.all(diary.uid),
+          refetchType: "all",
+        });
       } catch (error) {
         await DiaryImageClient.deleteMany(uploadedImages).catch(
           (deleteError) => {
@@ -94,7 +100,7 @@ export const useDiaryPreviewActions = ({
 
       return true;
     },
-    [diary.id, diary.images, diary.uid],
+    [diary.id, diary.images, diary.uid, queryClient],
   );
 
   const deleteDiary = useCallback(async () => {
@@ -105,8 +111,16 @@ export const useDiaryPreviewActions = ({
       const unshareResult = await SharedDiaryClient.unpublish(diary);
       wasShared = unshareResult.wasShared;
       await DiaryClient.delete(diary.uid, diary.id);
-      invalidateDiarySearchCache();
-      requestDiaryRefresh();
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: diaryQueryKeys.all(diary.uid),
+          refetchType: "all",
+        }),
+        queryClient.invalidateQueries({
+          queryKey: sharedDiaryQueryKeys.byOwner(diary.uid),
+          refetchType: "all",
+        }),
+      ]);
       await onCompleted();
     } catch (error) {
       console.error("Failed to delete diary", error);
@@ -130,7 +144,7 @@ export const useDiaryPreviewActions = ({
     }
 
     return true;
-  }, [diary, onCompleted]);
+  }, [diary, onCompleted, queryClient]);
 
   return {
     isUpdating,

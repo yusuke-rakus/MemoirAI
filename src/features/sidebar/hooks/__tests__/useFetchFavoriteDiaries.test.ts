@@ -1,4 +1,4 @@
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook as baseRenderHook, waitFor } from "@testing-library/react";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -9,10 +9,13 @@ import {
   type FavoritePageCursor,
 } from "@/lib/service/favoriteClient";
 import { SharedDiaryClient } from "@/lib/service/sharedDiaryClient";
-import { useFavoriteRefreshStore } from "@/stores/favoriteRefreshStore";
+import { QueryTestProvider } from "@/test/QueryTestProvider";
 import type { Favorite } from "@/types/favorite";
 
 import { useFetchFavoriteDiaries } from "../useFetchFavoriteDiaries";
+
+const renderHook = <Result,>(callback: () => Result) =>
+  baseRenderHook(callback, { wrapper: QueryTestProvider });
 
 vi.mock("@/contexts/LocalUserContext", () => ({
   useLocalUser: vi.fn(),
@@ -31,10 +34,6 @@ vi.mock("@/lib/service/sharedDiaryClient", () => ({
   },
 }));
 
-vi.mock("@/stores/favoriteRefreshStore", () => ({
-  useFavoriteRefreshStore: vi.fn(),
-}));
-
 vi.mock("sonner", () => ({
   toast: {
     error: vi.fn(),
@@ -45,9 +44,7 @@ const useLocalUserMock = vi.mocked(useLocalUser);
 const getByUidPagedMock = vi.mocked(FavoriteClient.getByUidPaged);
 const deleteFavoriteMock = vi.mocked(FavoriteClient.delete);
 const getByShareIdsMock = vi.mocked(SharedDiaryClient.getByShareIds);
-const useFavoriteRefreshStoreMock = vi.mocked(useFavoriteRefreshStore);
 const toastErrorMock = vi.mocked(toast.error);
-let refreshRevision = 0;
 
 const createCursor = (id: string) => ({ id }) as FavoritePageCursor;
 
@@ -70,14 +67,10 @@ const createResolvedDiary = (sharedDiaryId: string) => ({
 });
 
 beforeEach(() => {
-  refreshRevision = 0;
   useLocalUserMock.mockReturnValue({
     localUser: { uid: "user-1", markdownEditorEnabled: false },
     setLocalUser: vi.fn(),
   });
-  useFavoriteRefreshStoreMock.mockImplementation((selector) =>
-    selector({ revision: refreshRevision, requestRefresh: vi.fn() }),
-  );
   getByUidPagedMock.mockResolvedValue(createPage([]));
   deleteFavoriteMock.mockResolvedValue(undefined);
   getByShareIdsMock.mockResolvedValue([]);
@@ -185,7 +178,9 @@ describe("useFetchFavoriteDiaries", () => {
       await result.current.loadMore();
     });
 
-    expect(result.current.favoriteDiaries).toHaveLength(20);
+    await waitFor(() =>
+      expect(result.current.favoriteDiaries).toHaveLength(20),
+    );
     expect(
       result.current.favoriteDiaries[result.current.favoriteDiaries.length - 1]
         ?.sharedDiaryId,
@@ -225,17 +220,6 @@ describe("useFetchFavoriteDiaries", () => {
       resolveNextPage?.(createPage([]));
       await Promise.all([firstLoad, secondLoad]);
     });
-  });
-
-  it("favorite revision更新時に先頭pageを再取得する", async () => {
-    getByUidPagedMock.mockResolvedValue(createPage([]));
-    const { rerender } = renderHook(() => useFetchFavoriteDiaries(true));
-    await waitFor(() => expect(getByUidPagedMock).toHaveBeenCalledOnce());
-
-    refreshRevision += 1;
-    rerender();
-
-    await waitFor(() => expect(getByUidPagedMock).toHaveBeenCalledTimes(2));
   });
 
   it("取得失敗をtoastで通知する", async () => {

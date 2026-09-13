@@ -30,7 +30,6 @@ import { cn } from "@/lib/utils";
 import { useCreateDiary } from "../hooks/useCreateDiary";
 import { useDiaryCard } from "../hooks/useDiaryCard";
 import { useDiaryDraft } from "../hooks/useDiaryDraft";
-import { useFetchDiary } from "../hooks/useFetchDiary";
 import { usePickMessages } from "../hooks/usePickMessages";
 import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
 import type { DiarySaveMode } from "../types";
@@ -42,7 +41,6 @@ export const NewDiaryView = () => {
   const { localUser } = useLocalUser();
   const navigate = useNavigate();
   const { date, setDate } = useDiaryDetailStore();
-  useFetchDiary();
   const { createPhase, creationProgress, isCreating, onSave } =
     useCreateDiary();
   const {

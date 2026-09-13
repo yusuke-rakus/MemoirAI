@@ -1,14 +1,17 @@
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook as baseRenderHook, waitFor } from "@testing-library/react";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FavoriteClient } from "@/lib/service/favoriteClient";
-import { requestFavoriteRefresh } from "@/stores/favoriteRefreshStore";
+import { QueryTestProvider } from "@/test/QueryTestProvider";
 
 import {
   type FavoriteMutationResult,
   useSharedDiaryFavorite,
 } from "../useSharedDiaryFavorite";
+
+const renderHook = <Result,>(callback: () => Result) =>
+  baseRenderHook(callback, { wrapper: QueryTestProvider });
 
 vi.mock("@/lib/service/favoriteClient", () => ({
   FavoriteClient: {
@@ -16,10 +19,6 @@ vi.mock("@/lib/service/favoriteClient", () => ({
     add: vi.fn(),
     delete: vi.fn(),
   },
-}));
-
-vi.mock("@/stores/favoriteRefreshStore", () => ({
-  requestFavoriteRefresh: vi.fn(),
 }));
 
 vi.mock("sonner", () => ({
@@ -34,7 +33,6 @@ const addMock = vi.mocked(FavoriteClient.add);
 const deleteMock = vi.mocked(FavoriteClient.delete);
 const toastSuccessMock = vi.mocked(toast.success);
 const toastErrorMock = vi.mocked(toast.error);
-const requestFavoriteRefreshMock = vi.mocked(requestFavoriteRefresh);
 
 const favoriteParams = {
   uid: "user-1",
@@ -84,9 +82,8 @@ describe("useSharedDiaryFavorite", () => {
 
     expect(addMock).toHaveBeenCalledWith("user-1", "shared-diary-1");
     expect(mutationResult).toBe("added");
-    expect(result.current.isFavorite).toBe(true);
+    await waitFor(() => expect(result.current.isFavorite).toBe(true));
     expect(toastSuccessMock).not.toHaveBeenCalled();
-    expect(requestFavoriteRefreshMock).toHaveBeenCalledOnce();
   });
 
   it("登録済みの日記をお気に入りから削除する", async () => {
@@ -101,9 +98,8 @@ describe("useSharedDiaryFavorite", () => {
 
     expect(deleteMock).toHaveBeenCalledWith("user-1", "shared-diary-1");
     expect(mutationResult).toBe("removed");
-    expect(result.current.isFavorite).toBe(false);
+    await waitFor(() => expect(result.current.isFavorite).toBe(false));
     expect(toastSuccessMock).not.toHaveBeenCalled();
-    expect(requestFavoriteRefreshMock).toHaveBeenCalledOnce();
   });
 
   it("更新失敗時はお気に入り状態を維持してエラーを通知する", async () => {
@@ -123,7 +119,6 @@ describe("useSharedDiaryFavorite", () => {
     expect(toastErrorMock).toHaveBeenCalledWith(
       "お気に入りの更新に失敗しました",
     );
-    expect(requestFavoriteRefreshMock).not.toHaveBeenCalled();
   });
 
   it("更新中の重複操作を無視する", async () => {
@@ -143,7 +138,7 @@ describe("useSharedDiaryFavorite", () => {
       secondUpdate = result.current.toggleFavorite();
     });
 
-    expect(addMock).toHaveBeenCalledOnce();
+    await waitFor(() => expect(addMock).toHaveBeenCalledOnce());
     expect(result.current.isMutating).toBe(true);
 
     await act(async () => {
@@ -156,6 +151,6 @@ describe("useSharedDiaryFavorite", () => {
       expect(secondResult).toBeNull();
     });
 
-    expect(result.current.isMutating).toBe(false);
+    await waitFor(() => expect(result.current.isMutating).toBe(false));
   });
 });

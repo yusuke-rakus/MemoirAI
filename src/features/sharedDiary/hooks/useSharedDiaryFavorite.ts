@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
+import { favoriteQueryKeys } from "@/lib/query/queryKeys";
 import { FavoriteClient } from "@/lib/service/favoriteClient";
-import { requestFavoriteRefresh } from "@/stores/favoriteRefreshStore";
 
 type UseSharedDiaryFavoriteParams = {
   uid?: string | null;
@@ -15,93 +16,73 @@ export const useSharedDiaryFavorite = ({
   uid,
   sharedDiaryId,
 }: UseSharedDiaryFavoriteParams) => {
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isMutating, setIsMutating] = useState(false);
-  const [isAvailable, setIsAvailable] = useState(true);
+  const queryClient = useQueryClient();
   const mutationInFlightRef = useRef(false);
+  const query = useQuery({
+    queryKey: favoriteQueryKeys.byShareId(uid ?? "", sharedDiaryId ?? ""),
+    enabled: Boolean(uid && sharedDiaryId),
+    queryFn: () => FavoriteClient.exists(uid!, sharedDiaryId!),
+  });
+  const mutation = useMutation({
+    mutationFn: async () => {
+      if (!uid || !sharedDiaryId) return null;
+      if (query.data) {
+        await FavoriteClient.delete(uid, sharedDiaryId);
+        return "removed" as const;
+      }
+      await FavoriteClient.add(uid, sharedDiaryId);
+      return "added" as const;
+    },
+    onSuccess: async (result) => {
+      if (!uid || !sharedDiaryId || !result) return;
+      queryClient.setQueryData(
+        favoriteQueryKeys.byShareId(uid, sharedDiaryId),
+        result === "added",
+      );
+      await queryClient.invalidateQueries({
+        queryKey: favoriteQueryKeys.list(uid),
+        refetchType: "all",
+      });
+    },
+  });
+
+  const isAvailable = !query.isError;
 
   useEffect(() => {
-    let isActive = true;
-
-    if (!uid || !sharedDiaryId) {
-      setIsFavorite(false);
-      setIsLoading(false);
-      setIsAvailable(true);
-      return () => {
-        isActive = false;
-      };
+    if (query.error) {
+      console.error("Failed to fetch favorite", query.error);
+      toast.error("お気に入り状態の取得に失敗しました");
     }
-
-    const fetchFavorite = async () => {
-      setIsLoading(true);
-      setIsAvailable(true);
-
-      try {
-        const exists = await FavoriteClient.exists(uid, sharedDiaryId);
-        if (isActive) {
-          setIsFavorite(exists);
-        }
-      } catch (error) {
-        console.error("Failed to fetch favorite", error);
-        if (isActive) {
-          setIsAvailable(false);
-          toast.error("お気に入り状態の取得に失敗しました");
-        }
-      } finally {
-        if (isActive) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    void fetchFavorite();
-
-    return () => {
-      isActive = false;
-    };
-  }, [sharedDiaryId, uid]);
+  }, [query.error]);
 
   const toggleFavorite = async (): Promise<FavoriteMutationResult> => {
     if (
       !uid ||
       !sharedDiaryId ||
-      isLoading ||
+      query.isLoading ||
       !isAvailable ||
+      mutation.isPending ||
       mutationInFlightRef.current
     ) {
       return null;
     }
 
     mutationInFlightRef.current = true;
-    setIsMutating(true);
-
     try {
-      if (isFavorite) {
-        await FavoriteClient.delete(uid, sharedDiaryId);
-        setIsFavorite(false);
-        requestFavoriteRefresh();
-        return "removed";
-      } else {
-        await FavoriteClient.add(uid, sharedDiaryId);
-        setIsFavorite(true);
-        requestFavoriteRefresh();
-        return "added";
-      }
+      return await mutation.mutateAsync();
     } catch (error) {
       console.error("Failed to update favorite", error);
       toast.error("お気に入りの更新に失敗しました");
       return null;
     } finally {
       mutationInFlightRef.current = false;
-      setIsMutating(false);
     }
   };
 
   return {
-    isFavorite,
-    isLoading,
-    isMutating,
+    isFavorite: query.data ?? false,
+    isLoading: query.isLoading && Boolean(uid && sharedDiaryId),
+    isMutating: mutation.isPending,
     isAvailable,
     toggleFavorite,
   };

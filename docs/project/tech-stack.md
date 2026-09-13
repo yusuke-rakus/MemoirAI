@@ -13,7 +13,7 @@ versionは変動情報です。`package.json`、lockfile、各設定を現在状
 | Build / routing | Vite 8、`@vitejs/plugin-react`、React Router DOM 7             |
 | Styling         | Tailwind CSS 4、global CSS variables                           |
 | UI primitives   | shadcn `new-york`、Radix、CVA、Lucide                          |
-| State / forms   | React、Context、Zustand 5、react-hook-form 7、zod 3、resolvers |
+| State / forms   | React、Context、Zustand 5、TanStack Query 5、react-hook-form 7、zod 3、resolvers |
 | Backend         | Firebase Web SDK 12: Auth、Firestore、Storage、AI              |
 
 ## Notable libraries

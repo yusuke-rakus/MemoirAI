@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react";
+import { act, renderHook as baseRenderHook } from "@testing-library/react";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -6,9 +6,13 @@ import { createDiaryImageError } from "@/lib/diaryImageError";
 import { DiaryClient } from "@/lib/service/diaryClient";
 import { DiaryImageClient } from "@/lib/service/diaryImageClient";
 import { SharedDiaryClient } from "@/lib/service/sharedDiaryClient";
+import { QueryTestProvider } from "@/test/QueryTestProvider";
 import type { Diary, DiaryImage } from "@/types/diary/diary";
 
 import { useDiaryPreviewActions } from "../useDiaryPreviewActions";
+
+const renderHook = <Result,>(callback: () => Result) =>
+  baseRenderHook(callback, { wrapper: QueryTestProvider });
 
 vi.mock("@/lib/service/diaryClient", () => ({
   DiaryClient: {
@@ -28,14 +32,6 @@ vi.mock("@/lib/service/sharedDiaryClient", () => ({
   SharedDiaryClient: {
     unpublish: vi.fn(),
   },
-}));
-
-vi.mock("@/stores/diarySearchStore", () => ({
-  invalidateDiarySearchCache: vi.fn(),
-}));
-
-vi.mock("@/stores/diaryRefreshStore", () => ({
-  requestDiaryRefresh: vi.fn(),
 }));
 
 vi.mock("sonner", () => ({

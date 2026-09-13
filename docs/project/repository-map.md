@@ -30,7 +30,7 @@
 | `src/stores`                 | cross-feature Zustand store                             |
 | `src/lib/service`            | Firestore、Storage、browser persistence client          |
 | `src/firebase`               | Firebase初期化とAI model                                |
-| `src/lib`                    | 横断utility、env、ID、表示計算                          |
+| `src/lib`                    | 横断utility、env、ID、表示計算、TanStack Query設定・key  |
 | `src/types`                  | featureを跨ぐ共有型・永続化型                           |
 | `src/constants`              | path、theme、画像制約、共有固定値                       |
 | `src/index.css`              | global CSS、theme variable、Tailwind mapping            |
