@@ -33,7 +33,7 @@ MemoirAI は React / TypeScript / Vite の SPA です。Firebase Authentication�
 | bugfix                                  | `docs/workflows/bugfix.md`、対象領域の文書                                                                            |
 | refactoring                             | `docs/workflows/refactoring.md`、`docs/architecture/overview.md`、対象領域の文書                                      |
 | dependency・build・CI                   | `docs/project/tech-stack.md`、`docs/rules/testing.md`                                                                 |
-| 検証                                    | `docs/rules/testing.md`                                                                                               |
+| テストの追加・変更・削除・検証          | `docs/rules/testing.md`                                                                                               |
 | Git commit・branch・PR                  | `docs/rules/git.md`。いずれもユーザーから明示的な指示があった場合だけ行う                                             |
 
 表のパスはリポジトリルートからの相対パスです。
