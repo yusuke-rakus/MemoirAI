@@ -35,7 +35,7 @@ export const MonthSelector = (props: MonthSelectorProps) => {
       <div className="min-w-0 flex-1">
         <div
           ref={scrollRef}
-          className="flex w-full snap-x space-x-4 overflow-x-auto p-4"
+          className="flex w-full snap-x space-x-4 overflow-x-auto p-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {months.map((month) => {
             const isTargetMonth =
