@@ -81,13 +81,17 @@ export const Calendar = ({
       const viewportHeight =
         window.visualViewport?.height ?? window.innerHeight;
       const top = containerRef.current.getBoundingClientRect().top;
-      const availableHeight = Math.floor(viewportHeight - top - 16);
-      // Reserve at most one cell-width for each visible week so that, after
-      // the weekday header, cells never exceed square.
-      const squareCellHeightLimit = Math.floor(
-        (containerRef.current.clientWidth * getMonthWeekCount(date)) / 7,
+      const availableHeight = Math.floor(
+        viewportHeight - top - (isMobile ? 0 : 16),
       );
-      const nextHeight = Math.min(availableHeight, squareCellHeightLimit);
+      const nextHeight = isMobile
+        ? availableHeight
+        : Math.min(
+            availableHeight,
+            Math.floor(
+              (containerRef.current.clientWidth * getMonthWeekCount(date)) / 7,
+            ),
+          );
 
       if (nextHeight <= 0) {
         return;
@@ -137,7 +141,7 @@ export const Calendar = ({
   return (
     <div
       ref={containerRef}
-      className="mx-auto h-[calc(100svh-12rem)] max-h-[800px] w-full"
+      className="mx-auto h-[calc(100svh-12rem)] max-h-none w-full md:max-h-[800px]"
       style={calendarHeight ? { height: `${calendarHeight}px` } : undefined}
     >
       <FullCalendar
