@@ -39,8 +39,8 @@ export const CalendarView = () => {
   }, [selectedDate, selectedDateDiaries.length]);
 
   return (
-    <div className="mb-10">
-      <div className="pb-10">
+    <div className="mb-0 md:mb-10">
+      <div className="pb-0 md:pb-10">
         <Calendar
           dialies={dialies}
           selectedDate={selectedDate}
@@ -48,7 +48,7 @@ export const CalendarView = () => {
         />
       </div>
       {selectedDate && (
-        <div ref={diariesRef} className="scroll-mt-20">
+        <div ref={diariesRef} className="scroll-mt-20 pt-6 md:pt-0">
           <Diaries dialies={selectedDateDiaries} date={selectedDate} />
         </div>
       )}
