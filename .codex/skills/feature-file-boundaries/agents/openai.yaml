@@ -1,0 +1,6 @@
+interface:
+  display_name: "Feature File Boundaries"
+  short_description: "MemoirAI の責務境界を監査して分割計画を作る"
+  default_prompt: "Use $feature-file-boundaries to audit this MemoirAI code area and propose an evidence-based file-splitting plan."
+policy:
+  allow_implicit_invocation: true
