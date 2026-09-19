@@ -8,6 +8,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { shortcutLabel } from "@/lib/shortcuts";
 
 import type { DiarySaveMode } from "../types";
 
@@ -51,6 +52,7 @@ export const DiarySaveButton = ({
       <Button
         type="button"
         onClick={onSave}
+        title={`${label} (${shortcutLabel("save")})`}
         disabled={isCreating}
         className="h-10 rounded-r-none px-5 font-medium shadow-none transition-all active:scale-[0.98]"
       >

@@ -38,34 +38,40 @@ export const HomePage = () => {
 
   return (
     <CurrentDateProvider initialDate={initialDate}>
-      <div className="mx-auto flex w-full justify-center">
-        <MonthSelector targetDate={initialDate} />
-      </div>
       <Tabs
         value={tabValue}
         onValueChange={setTabValue}
-        className="mx-auto w-full"
+        className="mx-auto w-full gap-0"
       >
-        <TabsList className="mr-auto w-full max-w-xs justify-start rounded-none border-b bg-inherit p-0">
-          {tabs.map((tab) => {
-            return (
-              <TabsTrigger
-                key={tab.value}
-                value={tab.value}
-                onClick={() => handleClickTab(tab.value)}
-                className="h-full rounded-none border-t-0 border-r-0 border-b-2 border-l-0 text-muted-foreground transition-all duration-250 data-[state=active]:border-primary data-[state=active]:bg-inherit data-[state=active]:text-primary data-[state=active]:shadow-none"
-              >
-                <code className="flex items-center gap-1 text-[16px]">
-                  {tab.icon}
-                  {tab.name}
-                </code>
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
+        <div className="sticky top-0 z-20 -mx-2 w-[calc(100%+1rem)] bg-background">
+          <div className="mx-auto flex w-full justify-center">
+            <MonthSelector targetDate={initialDate} />
+          </div>
+          <TabsList className="mr-auto w-full max-w-xs justify-start rounded-none border-b bg-inherit p-0">
+            {tabs.map((tab) => {
+              return (
+                <TabsTrigger
+                  key={tab.value}
+                  value={tab.value}
+                  onClick={() => handleClickTab(tab.value)}
+                  className="h-full rounded-none border-t-0 border-r-0 border-b-2 border-l-0 text-muted-foreground transition-all duration-250 data-[state=active]:border-primary data-[state=active]:bg-inherit data-[state=active]:text-primary data-[state=active]:shadow-none"
+                >
+                  <code className="flex items-center gap-1 text-[16px]">
+                    {tab.icon}
+                    {tab.name}
+                  </code>
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+        </div>
 
         {tabs.map((tab) => (
-          <TabsContent key={tab.value} value={tab.value} className="w-full">
+          <TabsContent
+            key={tab.value}
+            value={tab.value}
+            className="w-full pt-6"
+          >
             {tab.component}
           </TabsContent>
         ))}

@@ -38,6 +38,8 @@ import {
 } from "@/constants/diaryImages";
 import { DefaultTagColor } from "@/constants/tagColors";
 import { useLocalUser } from "@/contexts/LocalUserContext";
+import { useShortcut } from "@/hooks/useShortcut";
+import { shortcutLabel } from "@/lib/shortcuts";
 import type { Diary, DiaryImage, Tag } from "@/types/diary/diary";
 
 import { useDiaryEditImages } from "../hooks/useDiaryEditImages";
@@ -90,6 +92,8 @@ export const DiaryEditDialog = ({
 }: DiaryEditDialogProps) => {
   const { localUser } = useLocalUser();
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const savePending = useRef(false);
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState(false);
   const {
     retainedImages,
@@ -121,15 +125,31 @@ export const DiaryEditDialog = ({
   }, [diary.content, diary.date, diary.tags, diary.title, form, isOpen]);
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    await onSubmit({
-      date: values.date,
-      title: values.title.trim(),
-      content: values.content.trim(),
-      tags: parseTags(values.tagsText, diary.tags),
-      retainedImages,
-      newImageFiles: newImages.map((image) => image.file),
-    });
+    if (savePending.current || isSubmitting) return;
+    savePending.current = true;
+    try {
+      await onSubmit({
+        date: values.date,
+        title: values.title.trim(),
+        content: values.content.trim(),
+        tags: parseTags(values.tagsText, diary.tags),
+        retainedImages,
+        newImageFiles: newImages.map((image) => image.file),
+      });
+    } finally {
+      savePending.current = false;
+    }
   });
+  useShortcut(
+    "save",
+    () => {
+      void handleSubmit().catch(() => undefined);
+    },
+    {
+      enabled: isOpen && !isSubmitting && !isDiscardDialogOpen,
+      scope: () => dialogRef.current,
+    },
+  );
 
   const handleSelectImages = (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
@@ -150,9 +170,10 @@ export const DiaryEditDialog = ({
     }
   };
 
+  const { isDirty } = form.formState;
   const handleOpenChange = (open: boolean) => {
     if (isSubmitting) return;
-    if (!open && form.formState.isDirty) {
+    if (!open && isDirty) {
       setIsDiscardDialogOpen(true);
       return;
     }
@@ -163,7 +184,10 @@ export const DiaryEditDialog = ({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogContent
+          ref={dialogRef}
+          className="max-h-[90vh] overflow-y-auto sm:max-w-2xl"
+        >
           <DialogHeader>
             <DialogTitle>日記を編集</DialogTitle>
           </DialogHeader>
@@ -360,6 +384,7 @@ export const DiaryEditDialog = ({
                 </Button>
                 <Button
                   type="submit"
+                  title={`保存 (${shortcutLabel("save")})`}
                   className="flex-1 sm:flex-none"
                   disabled={isSubmitting}
                 >

@@ -23,7 +23,9 @@
 - 日記の作成・編集は、一般設定でMarkdownエディタを有効にした場合のみshadcn / Radix `Tabs`で本文の入力とMarkdownプレビューを切り替えます。既定では本文入力欄のみを表示します。
 - DropdownからDialogを開く既存例は、menuを閉じて次frameでDialogを開きます。
 - page / section loadingは`LoadingScreen`、一覧・設定はSkeleton、compact操作はSpinnerまたは処理中labelです。
-- Settings Dialogはプロフィール、一般、メモリ、共有した日記、アカウントの5 tabです。共有した日記では公開中の共有コピーを一覧・解除し、0件時は`Empty`を表示します。アカウント削除はnested Dialogで説明・Google再認証を行い、処理中は外側を含めてcloseを抑止します。
+- Settings Dialogはデスクトップでプロフィール、一般、ショートカット、メモリ、共有した日記、アカウントの6 tabを表示します。スマホ幅ではショートカットtabを表示しません。共有した日記では公開中の共有コピーを一覧・解除し、0件時は`Empty`を表示します。アカウント削除はnested Dialogで説明・Google再認証を行い、処理中は外側を含めてcloseを抑止します。
+- ショートカットtabはOS別キー表記と画面別の利用条件を表示します。IME変換中・長押しは無視し、最前面のDialog／menuを優先します。共通操作は新規作成（Mod+Shift+O）、検索（Mod+K）、Sidebar（Mod+B）、デスクトップの解説（?）。作成・編集のMod+Enterは既存保存処理を呼びます。
+- 検索はcombobox/listboxで上下選択・Enterによる遷移を提供し、検索語反映待ちは遷移を抑止します。Escでは閉じません。カレンダーは矢印で日付focusを移し、Enter/Spaceで選択を確定、Tで今日へ移動します。
 
 ## Reference implementations
 

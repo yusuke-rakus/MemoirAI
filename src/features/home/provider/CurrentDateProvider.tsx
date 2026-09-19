@@ -1,4 +1,10 @@
-import { createContext, type ReactNode, useContext, useRef } from "react";
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+} from "react";
 import { useStore } from "zustand";
 import type { StoreApi } from "zustand/vanilla";
 
@@ -21,6 +27,10 @@ export const CurrentDateProvider = ({ initialDate, children }: Props) => {
   if (!storeRef.current && initialDate) {
     storeRef.current = createCurrentDateStore(initialDate);
   }
+
+  useEffect(() => {
+    storeRef.current?.getState().setDate(initialDate);
+  }, [initialDate]);
 
   return (
     <CurrentDateStoreContext.Provider value={storeRef.current}>
