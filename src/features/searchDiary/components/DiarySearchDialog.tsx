@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Search } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { CircleX, Search } from "lucide-react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { DiaryMarkdown } from "@/components/shared/diary/DiaryMarkdown";
@@ -21,6 +21,7 @@ import { tagBgMap } from "@/constants/tagColors";
 import { useLocalUser } from "@/contexts/LocalUserContext";
 import { diaryQueryKeys } from "@/lib/query/queryKeys";
 import { DiaryClient } from "@/lib/service/diaryClient";
+import { matchesShortcut } from "@/lib/shortcuts";
 import { cn } from "@/lib/utils";
 import { useDiarySearchStore } from "@/stores/diarySearchStore";
 import type { Diary } from "@/types/diary/diary";
@@ -37,6 +38,8 @@ export const DiarySearchDialog = () => {
   const { open, setOpen } = useDiarySearchStore();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const resultsId = useId();
   const diariesQuery = useQuery({
     queryKey: diaryQueryKeys.search(localUser.uid),
     enabled: open && Boolean(localUser.uid),
@@ -49,18 +52,10 @@ export const DiarySearchDialog = () => {
     return () => window.clearTimeout(timer);
   }, [query]);
 
-  useEffect(() => {
-    const handleShortcut = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        setOpen(true);
-      }
-    };
-    window.addEventListener("keydown", handleShortcut);
-    return () => window.removeEventListener("keydown", handleShortcut);
-  }, [setOpen]);
-
-  const cachedDiaries = useMemo(() => diariesQuery.data ?? [], [diariesQuery.data]);
+  const cachedDiaries = useMemo(
+    () => diariesQuery.data ?? [],
+    [diariesQuery.data],
+  );
   const frequentTags = useMemo(
     () => (open ? getFrequentTags(cachedDiaries) : []),
     [cachedDiaries, open],
@@ -70,6 +65,20 @@ export const DiarySearchDialog = () => {
     [cachedDiaries, debouncedQuery],
   );
   const visibleResults = results.slice(0, 50);
+  const canOpenResult =
+    open &&
+    query === debouncedQuery &&
+    Boolean(query.trim()) &&
+    !diariesQuery.isFetching &&
+    !diariesQuery.isError &&
+    visibleResults.length > 0;
+  useEffect(() => setSelectedIndex(0), [results, open]);
+  useEffect(() => {
+    if (canOpenResult)
+      document
+        .getElementById(`${resultsId}-${selectedIndex}`)
+        ?.scrollIntoView?.({ block: "nearest" });
+  }, [canOpenResult, resultsId, selectedIndex]);
 
   const openDiary = (diary: Diary) => {
     setOpen(false);
@@ -81,7 +90,10 @@ export const DiarySearchDialog = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-2xl">
+      <DialogContent
+        className="gap-0 overflow-hidden p-0 sm:max-w-2xl"
+        onEscapeKeyDown={(event) => event.preventDefault()}
+      >
         <DialogHeader className="border-b border-border/60 px-5 py-4">
           <DialogTitle>日記を検索</DialogTitle>
           <DialogDescription>
@@ -91,6 +103,31 @@ export const DiarySearchDialog = () => {
         <div className="flex items-center gap-3 border-b border-border/60 px-5 py-3">
           <Search className="size-5 text-muted-foreground" aria-hidden="true" />
           <Input
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={canOpenResult}
+            aria-controls={resultsId}
+            aria-activedescendant={
+              canOpenResult ? `${resultsId}-${selectedIndex}` : undefined
+            }
+            onKeyDown={(event) => {
+              if (!canOpenResult) return;
+              if (matchesShortcut(event.nativeEvent, "resultNext")) {
+                event.preventDefault();
+                setSelectedIndex((index) =>
+                  Math.min(index + 1, visibleResults.length - 1),
+                );
+              } else if (matchesShortcut(event.nativeEvent, "resultPrevious")) {
+                event.preventDefault();
+                setSelectedIndex((index) => Math.max(index - 1, 0));
+              } else if (matchesShortcut(event.nativeEvent, "resultOpen")) {
+                const result = visibleResults[selectedIndex];
+                if (result) {
+                  event.preventDefault();
+                  openDiary(result.diary);
+                }
+              }
+            }}
             autoFocus
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -98,9 +135,19 @@ export const DiarySearchDialog = () => {
             aria-label="日記の検索キーワード"
             className="border-0 px-0 shadow-none focus-visible:ring-0"
           />
-          <kbd className="hidden rounded border bg-muted px-2 py-1 text-xs text-muted-foreground sm:inline-block">
-            Esc
-          </kbd>
+          {query && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-5 p-0 text-muted-foreground [&_svg]:size-5"
+              onClick={() => setQuery("")}
+              disabled={!query}
+              aria-label="検索語を削除"
+            >
+              <CircleX aria-hidden="true" />
+            </Button>
+          )}
         </div>
         {frequentTags.length > 0 && (
           <section
@@ -137,7 +184,12 @@ export const DiarySearchDialog = () => {
           </section>
         )}
         <ScrollArea className="h-[min(60vh,480px)]">
-          <div className="p-3" role="list" aria-label="検索結果">
+          <div
+            id={resultsId}
+            className="p-3"
+            role="listbox"
+            aria-label="検索結果"
+          >
             {diariesQuery.isLoading && !query && (
               <p className="p-6 text-center text-sm text-muted-foreground">
                 日記を読み込んでいます…
@@ -148,11 +200,13 @@ export const DiarySearchDialog = () => {
                 日記を読み込めませんでした。ダイアログを開き直してください。
               </p>
             )}
-            {!diariesQuery.isLoading && !diariesQuery.isError && !debouncedQuery && (
-              <p className="p-6 text-center text-sm text-muted-foreground">
-                思い出したい出来事やタグを入力してください。
-              </p>
-            )}
+            {!diariesQuery.isLoading &&
+              !diariesQuery.isError &&
+              !debouncedQuery && (
+                <p className="p-6 text-center text-sm text-muted-foreground">
+                  思い出したい出来事やタグを入力してください。
+                </p>
+              )}
             {!diariesQuery.isLoading &&
               !diariesQuery.isError &&
               debouncedQuery &&
@@ -162,12 +216,22 @@ export const DiarySearchDialog = () => {
                 </p>
               )}
             {visibleResults.map(({ diary }, index) => (
-              <div key={diary.id} role="listitem">
+              <div key={diary.id}>
                 <Button
+                  id={`${resultsId}-${index}`}
+                  role="option"
+                  aria-selected={canOpenResult && index === selectedIndex}
                   type="button"
                   variant="ghost"
+                  disabled={!canOpenResult}
+                  onFocus={() => setSelectedIndex(index)}
                   onClick={() => openDiary(diary)}
-                  className="h-auto w-full flex-col items-stretch justify-start gap-0 px-3 py-3 text-left font-normal whitespace-normal"
+                  className={cn(
+                    "h-auto w-full flex-col items-stretch justify-start gap-0 px-3 py-3 text-left font-normal whitespace-normal",
+                    canOpenResult &&
+                      index === selectedIndex &&
+                      "bg-accent text-accent-foreground",
+                  )}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <span className="font-medium">{diary.title}</span>

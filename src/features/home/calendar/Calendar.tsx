@@ -4,14 +4,16 @@ import type { EventClickArg } from "@fullcalendar/core/index.js";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import FullCalendar from "@fullcalendar/react";
-import { isSameDay } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import { useEffect, useRef, useState } from "react";
 
 import { useIsMobile } from "@/hooks/use-mobile";
+import { matchesShortcut, shortcutSurfaceAvailable } from "@/lib/shortcuts";
 import { cn } from "@/lib/utils";
 import type { Diary } from "@/types/diary/diary";
 
 import { useCurrentDateStore } from "../provider/CurrentDateProvider";
+import { useCalendarKeyboard } from "./useCalendarKeyboard";
 
 interface Event {
   id: string;
@@ -49,10 +51,16 @@ export const Calendar = ({
 }: CalendarProps) => {
   const [events, setEvents] = useState<Event[]>([]);
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
-  const { date } = useCurrentDateStore();
+  const { date, setDate } = useCurrentDateStore();
   const calendarRef = useRef<FullCalendar>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const keyboard = useCalendarKeyboard(
+    date,
+    setDate,
+    containerRef,
+    onDateSelect,
+  );
 
   useEffect(() => {
     setEvents(
@@ -67,9 +75,14 @@ export const Calendar = ({
   }, [dialies]);
 
   useEffect(() => {
-    if (calendarRef.current && date) {
-      calendarRef.current.getApi().gotoDate(date);
-    }
+    let active = true;
+    // FullCalendar flushes React updates; run outside the effect lifecycle.
+    queueMicrotask(() => {
+      if (active) calendarRef.current?.getApi().gotoDate(date);
+    });
+    return () => {
+      active = false;
+    };
   }, [date]);
 
   useEffect(() => {
@@ -132,7 +145,12 @@ export const Calendar = ({
     element.tabIndex = 0;
     element.setAttribute("role", "button");
     element.addEventListener("keydown", (event) => {
-      if (event.key !== "Enter" && event.key !== " ") return;
+      if (
+        !shortcutSurfaceAvailable() ||
+        (!matchesShortcut(event, "daySelect") &&
+          !matchesShortcut(event, "daySelectSpace"))
+      )
+        return;
       event.preventDefault();
       activate();
     });
@@ -141,6 +159,8 @@ export const Calendar = ({
   return (
     <div
       ref={containerRef}
+      onKeyDown={keyboard.onKeyDown}
+      onFocus={keyboard.onFocus}
       className="mx-auto h-[calc(100svh-12rem)] max-h-none w-full md:max-h-[800px]"
       style={calendarHeight ? { height: `${calendarHeight}px` } : undefined}
     >
@@ -161,11 +181,14 @@ export const Calendar = ({
           if (start) addKeyboardActivation(arg.el, () => onDateSelect?.(start));
         }}
         dayCellDidMount={(arg) => {
+          arg.el.dataset.shortcutDate = format(arg.date, "yyyy-MM-dd");
+          arg.el.setAttribute("role", "button");
+          arg.el.tabIndex = -1;
           arg.el.setAttribute(
             "aria-label",
             arg.date.toLocaleDateString("ja-JP"),
           );
-          addKeyboardActivation(arg.el, () => onDateSelect?.(arg.date));
+          keyboard.syncCells();
         }}
         dayMaxEventRows={2}
         fixedWeekCount={false}

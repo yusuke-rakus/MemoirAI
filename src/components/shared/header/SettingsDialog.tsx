@@ -1,5 +1,12 @@
-import { Brain, Settings, Share2, UserRound, UserRoundX } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import {
+  Brain,
+  Keyboard,
+  Settings,
+  Share2,
+  UserRound,
+  UserRoundX,
+} from "lucide-react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 
 import {
   Dialog,
@@ -10,39 +17,58 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 import { AccountSettingsTab } from "./AccountSettingsTab";
 import { GeneralSettingsSection } from "./GeneralSettingsSection";
 import { MemorySettingsSection } from "./MemorySettingsSection";
 import { ProfileSettingsForm } from "./ProfileSettingsForm";
 import { SharedDiariesSettingsSection } from "./SharedDiariesSettingsSection";
+import { ShortcutSettingsSection } from "./ShortcutSettingsSection";
 
 type Props = {
   uid?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialSection?: "profile" | "shortcuts";
+  returnFocusRef?: RefObject<HTMLElement | null>;
 };
 
 type SettingsSection =
-  "profile" | "general" | "memory" | "shared-diaries" | "account";
+  "profile" | "general" | "shortcuts" | "memory" | "shared-diaries" | "account";
 
-export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
+export const SettingsDialog = ({
+  uid,
+  open,
+  onOpenChange,
+  initialSection = "profile",
+  returnFocusRef,
+}: Props) => {
+  const isMobile = useIsMobile();
   const titleRef = useRef<HTMLHeadingElement>(null);
   const [activeSection, setActiveSection] =
     useState<SettingsSection>("profile");
   const [isAccountDeleting, setIsAccountDeleting] = useState(false);
 
   useEffect(() => {
+    if (open) setActiveSection(initialSection);
     if (!open) {
       setActiveSection("profile");
       setIsAccountDeleting(false);
     }
-  }, [open]);
+  }, [open, initialSection]);
+
+  useEffect(() => {
+    if (isMobile && activeSection === "shortcuts") {
+      setActiveSection("profile");
+    }
+  }, [activeSection, isMobile]);
 
   const handleSectionChange = (section: string) => {
     if (
       section === "profile" ||
       section === "general" ||
+      section === "shortcuts" ||
       section === "memory" ||
       section === "shared-diaries" ||
       section === "account"
@@ -59,6 +85,12 @@ export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
       }}
     >
       <DialogContent
+        onCloseAutoFocus={(event) => {
+          if (returnFocusRef?.current?.isConnected) {
+            event.preventDefault();
+            returnFocusRef.current.focus();
+          }
+        }}
         className="flex h-[min(720px,calc(100dvh-2rem))] flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl"
         onOpenAutoFocus={(event) => {
           event.preventDefault();
@@ -70,7 +102,7 @@ export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
             設定
           </DialogTitle>
           <DialogDescription className="sr-only">
-            プロフィール、表示、メモリ、共有した日記、アカウントに関する設定を変更できます。
+            プロフィール、表示、メモリ、共有した日記、アカウントを確認できます。
           </DialogDescription>
         </DialogHeader>
         <Tabs
@@ -100,6 +132,15 @@ export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
                 <Settings className="size-4" />
                 一般
               </TabsTrigger>
+              {!isMobile && (
+                <TabsTrigger
+                  value="shortcuts"
+                  className="relative h-14 flex-none justify-start rounded-none px-3 text-muted-foreground shadow-none after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:rounded-full after:bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:after:bg-primary sm:h-10 sm:w-full sm:rounded-md sm:after:hidden sm:hover:bg-accent sm:hover:text-accent-foreground sm:data-[state=active]:bg-background sm:data-[state=active]:shadow-sm"
+                >
+                  <Keyboard className="size-4" />
+                  ショートカット
+                </TabsTrigger>
+              )}
               <TabsTrigger
                 value="memory"
                 className="relative h-14 flex-none justify-start rounded-none px-3 text-muted-foreground shadow-none after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:rounded-full after:bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:after:bg-primary sm:h-10 sm:w-full sm:rounded-md sm:after:hidden sm:hover:bg-accent sm:hover:text-accent-foreground sm:data-[state=active]:bg-background sm:data-[state=active]:shadow-sm"
@@ -141,6 +182,7 @@ export const SettingsDialog = ({ uid, open, onOpenChange }: Props) => {
               </ScrollArea>
             </TabsContent>
             <GeneralSettingsSection uid={uid} />
+            {!isMobile && <ShortcutSettingsSection />}
             <MemorySettingsSection
               uid={uid}
               isActive={open && activeSection === "memory"}

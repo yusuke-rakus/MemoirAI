@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Plus, X } from "lucide-react";
-import { type DragEvent, useEffect, useState } from "react";
+import { type DragEvent, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -25,6 +25,7 @@ import {
 import { MAX_DIARY_IMAGE_COUNT } from "@/constants/diaryImages";
 import { PATHS } from "@/constants/path";
 import { useLocalUser } from "@/contexts/LocalUserContext";
+import { useShortcut } from "@/hooks/useShortcut";
 import { cn } from "@/lib/utils";
 
 import { useCreateDiary } from "../hooks/useCreateDiary";
@@ -72,6 +73,10 @@ export const NewDiaryView = () => {
   const placeholderText = useRotatingText(pickRandomMessages);
   const [draggingCardId, setDraggingCardId] = useState<string | null>(null);
   const [saveMode, setSaveMode] = useState<DiarySaveMode>("standard");
+  const savePending = useRef(false);
+  useShortcut("save", () => void handleSave(), {
+    enabled: !isCreating && !hasRestorableDraft && !isNavigationBlocked,
+  });
 
   const customSetDate = (date: Date) => {
     setDate(date);
@@ -85,6 +90,7 @@ export const NewDiaryView = () => {
   }, [date, reset]);
 
   const handleSave = async () => {
+    if (savePending.current || isCreating) return;
     const invalidCard = cards.find(
       (card) =>
         !card.body.trim() && (card.tags.length > 0 || card.images.length > 0),
@@ -111,14 +117,17 @@ export const NewDiaryView = () => {
       }
     }
 
+    savePending.current = true;
     try {
       await onSave(saveMode);
+      await completeDraft();
+      const dateString = format(date, "yyyy-MM-dd");
+      navigate(`${PATHS.diaries.path}/${dateString}`);
     } catch {
       return;
+    } finally {
+      savePending.current = false;
     }
-    await completeDraft();
-    const dateString = format(date, "yyyy-MM-dd");
-    navigate(`${PATHS.diaries.path}/${dateString}`);
   };
 
   const hasDraggedFiles = (event: DragEvent<HTMLElement>) =>
