@@ -7,12 +7,19 @@ import { cn } from "@/lib/utils";
 type MainLayoutProps = {
   title?: string | null;
   headerComponent: ReactElement | null;
+  headerOffsetClassName?: string;
   sidebarComponent: ReactElement | null;
   children: ReactNode;
 };
 
 export const MainLayout = (props: MainLayoutProps) => {
-  const { title, headerComponent, sidebarComponent, children } = props;
+  const {
+    title,
+    headerComponent,
+    headerOffsetClassName,
+    sidebarComponent,
+    children,
+  } = props;
 
   useDocumentTitle(title);
 
@@ -26,7 +33,8 @@ export const MainLayout = (props: MainLayoutProps) => {
           className={cn(
             "flex w-full min-w-0 flex-1 flex-col",
             hasHeader
-              ? "mt-12 transition-[padding] duration-200 ease-linear md:mt-0 md:peer-data-[state=collapsed]:pl-14"
+              ? (headerOffsetClassName ??
+                  "mt-12 transition-[padding] duration-200 ease-linear md:mt-0 md:peer-data-[state=collapsed]:pl-14")
               : "mt-14",
           )}
         >
