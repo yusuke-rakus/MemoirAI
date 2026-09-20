@@ -15,7 +15,7 @@ React.StrictMode
 ```
 
 - `src/main.tsx`がroot routerと最上位Providerを構成します。
-- `src/App.tsx`が実際のRoutesとfeature entryを宣言します。
+- `src/App.tsx`が実際のRoutesとfeature entryを宣言します。各pageは`React.lazy`で画面単位に読み込み、`Suspense`で既存のLoadingScreenを表示します。認証済みshell内のpage読み込みではHeaderとSidebarを維持します。ログイン背景のPixelBlastは独立して遅延読み込みし、本文の表示を妨げません。
 - `AppShellLayout`が認証状態と必須同意versionを確認し、同意済みのshared diaryと認証必須routeで同じ`MainLayout`を維持します。未同意または確認失敗時はapp内容より先にfull-page gateを表示します。`AuthenticatedLayout`は未認証redirectだけを担当します。
 - user settingsの初期化は同意確認後に冪等に実行し、完了するまでapp contentを描画しません。
 - Settings Dialogはデスクトップではプロフィール、一般、ショートカット、メモリ、共有した日記、アカウントの6 tabです。スマホ幅ではショートカットを非表示にします。共有した日記では公開中のコピーを一覧し、共有解除できます。account削除はGoogle再認証後にclient-side gatewayでapp dataを削除し、契約同意記録へ5年TTLを設定してからAuth accountを削除します。
@@ -35,6 +35,8 @@ React.StrictMode
 | `login`       | Google popup login                                           |
 | `legal`       | Markdown管理の公開リーガル文書、初回ログイン後の必須同意gate |
 | `sidebar`     | navigation、paged diary list、paged favorite list            |
+
+- 日記検索は取得データの変更時にタイトル・タグ・本文を正規化した検索索引を作り、検索語の変更時には索引を再利用します。Dialogを閉じている間は検索を実行しません。
 
 ## Detailed snapshots
 

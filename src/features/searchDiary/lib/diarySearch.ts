@@ -15,20 +15,23 @@ export type FrequentTag = Tag & {
 export const normalizeSearchText = (value: string) =>
   value.normalize("NFKC").toLocaleLowerCase().replace(/\s+/g, " ").trim();
 
-export const searchDiaries = (
-  diaries: Diary[],
+export const createDiarySearchIndex = (diaries: Diary[]) =>
+  diaries.map((diary) => ({
+    diary,
+    title: normalizeSearchText(diary.title),
+    tags: normalizeSearchText(diary.tags.map((tag) => tag.name).join(" ")),
+    content: normalizeSearchText(diary.content),
+  }));
+
+export const searchDiaryIndex = (
+  index: ReturnType<typeof createDiarySearchIndex>,
   query: string,
 ): DiarySearchResult[] => {
   const terms = normalizeSearchText(query).split(" ").filter(Boolean);
   if (terms.length === 0) return [];
 
-  return diaries
-    .map((diary) => {
-      const title = normalizeSearchText(diary.title);
-      const tags = normalizeSearchText(
-        diary.tags.map((tag) => tag.name).join(" "),
-      );
-      const content = normalizeSearchText(diary.content);
+  return index
+    .map(({ diary, title, tags, content }) => {
       const matches = terms.every(
         (term) =>
           title.includes(term) || tags.includes(term) || content.includes(term),
@@ -51,6 +54,11 @@ export const searchDiaries = (
       (a, b) =>
         b.score - a.score || b.diary.date.toMillis() - a.diary.date.toMillis(),
     );
+};
+
+export const searchDiaries = (diaries: Diary[], query: string) => {
+  if (!normalizeSearchText(query)) return [];
+  return searchDiaryIndex(createDiarySearchIndex(diaries), query);
 };
 
 export const getFrequentTags = (

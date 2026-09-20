@@ -1,4 +1,5 @@
 import { signOut, type User } from "firebase/auth";
+import { lazy, Suspense } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -11,7 +12,7 @@ import { auth } from "@/firebase/firebase";
 import { useAuthCheck } from "@/hooks/useAuthCheck";
 import { useUserInitialization } from "@/hooks/useUserInitialization";
 
-import { MainLayout } from "./MainLayout";
+const AuthenticatedAppShell = lazy(() => import("./AuthenticatedAppShell"));
 
 export type AppShellOutletContext = {
   user: User | null;
@@ -80,11 +81,19 @@ export const AppShellLayout = () => {
     );
   }
 
-  const outlet = <Outlet context={{ user } satisfies AppShellOutletContext} />;
+  const outlet = (
+    <Suspense fallback={<LoadingScreen />}>
+      <Outlet context={{ user } satisfies AppShellOutletContext} />
+    </Suspense>
+  );
 
   if (!user) {
     return outlet;
   }
 
-  return <MainLayout>{outlet}</MainLayout>;
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <AuthenticatedAppShell>{outlet}</AuthenticatedAppShell>
+    </Suspense>
+  );
 };
