@@ -5,7 +5,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import FullCalendar from "@fullcalendar/react";
 import { format, isSameDay } from "date-fns";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { matchesShortcut, shortcutSurfaceAvailable } from "@/lib/shortcuts";
@@ -49,7 +49,6 @@ export const Calendar = ({
   selectedDate,
   onDateSelect,
 }: CalendarProps) => {
-  const [events, setEvents] = useState<Event[]>([]);
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
   const { date, setDate } = useCurrentDateStore();
   const calendarRef = useRef<FullCalendar>(null);
@@ -62,17 +61,16 @@ export const Calendar = ({
     onDateSelect,
   );
 
-  useEffect(() => {
-    setEvents(
+  const events = useMemo<Event[]>(
+    () =>
       dialies.map((diary) => ({
         id: diary.id,
         title: diary.title,
         date: diary.date.toDate(),
-        // className: "bg-transparent",
         extendedProps: { text: diary.content },
       })),
-    );
-  }, [dialies]);
+    [dialies],
+  );
 
   useEffect(() => {
     let active = true;

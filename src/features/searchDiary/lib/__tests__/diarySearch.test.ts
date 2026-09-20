@@ -5,8 +5,10 @@ import type { Diary, Tag } from "@/types/diary/diary";
 
 import {
   appendSearchTerm,
+  createDiarySearchIndex,
   getFrequentTags,
   searchDiaries,
+  searchDiaryIndex,
 } from "../diarySearch";
 
 type DiaryOptions = {
@@ -64,6 +66,49 @@ describe("searchDiaries", () => {
       "title-match",
       "tag-match",
     ]);
+  });
+});
+
+describe("searchDiaryIndex", () => {
+  it("索引を複数の検索に再利用し、全半角・大小文字・空白を正規化して日付順で返す", () => {
+    const older = createDiary({
+      id: "older",
+      date: new Date(2026, 7, 20),
+      title: "ＴＲＩＰ",
+      content: "海　家族",
+    });
+    const newer = createDiary({
+      id: "newer",
+      date: new Date(2026, 7, 21),
+      title: "Trip",
+      content: "海 家族",
+    });
+    const index = createDiarySearchIndex([older, newer]);
+    expect(
+      searchDiaryIndex(index, " trip　海 ").map(({ diary, score }) => [
+        diary.id,
+        score,
+      ]),
+    ).toEqual([
+      ["newer", 4],
+      ["older", 4],
+    ]);
+    expect(
+      searchDiaryIndex(index, "家族").map(({ diary }) => diary.id),
+    ).toEqual(["newer", "older"]);
+    expect(searchDiaryIndex(index, "山")).toEqual([]);
+    expect(searchDiaryIndex(index, "　 ")).toEqual([]);
+  });
+
+  it("更新後のデータで索引を再構築すると、編集と削除を反映する", () => {
+    const diary = createDiary({ date: new Date(2026, 7, 20), title: "海" });
+    const updated = { ...diary, title: "山" };
+    const index = createDiarySearchIndex([updated]);
+    expect(searchDiaryIndex(index, "海")).toEqual([]);
+    expect(searchDiaryIndex(index, "山")).toEqual([
+      { diary: updated, score: 3 },
+    ]);
+    expect(searchDiaryIndex(createDiarySearchIndex([]), "山")).toEqual([]);
   });
 });
 

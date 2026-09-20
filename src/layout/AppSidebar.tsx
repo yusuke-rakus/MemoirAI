@@ -1,12 +1,11 @@
 import { getAuth, signOut } from "firebase/auth";
 import { Settings } from "lucide-react";
-import { memo, useRef, useState } from "react";
+import { lazy, memo, Suspense, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { AppTooltip } from "@/components/shared/common/AppTooltip";
 import { AvatarMenu } from "@/components/shared/header/AvatarMenu";
-import { SettingsDialog } from "@/components/shared/header/SettingsDialog";
 import { SettingsDropdownItem } from "@/components/shared/header/SettingsDropdownItem";
 import { SidebarSearchButton } from "@/components/shared/sidebar/SidebarSearchButton";
 import { SidebarToggleButton } from "@/components/shared/sidebar/SidebarToggleButton";
@@ -27,6 +26,28 @@ import { useShortcut } from "@/hooks/useShortcut";
 import { shortcutLabel } from "@/lib/shortcuts";
 import { useDiarySearchStore } from "@/stores/diarySearchStore";
 
+const DiarySearchDialog = lazy(() =>
+  import("@/features/searchDiary/components/DiarySearchDialog").then(
+    (module) => ({ default: module.DiarySearchDialog }),
+  ),
+);
+const SettingsDialog = lazy(() =>
+  import("@/components/shared/header/SettingsDialog").then((module) => ({
+    default: module.SettingsDialog,
+  })),
+);
+
+const DialogLoading = () => (
+  <div
+    role="status"
+    aria-live="polite"
+    aria-label="読み込み中"
+    className="fixed inset-0 z-50 grid place-items-center bg-background/80 backdrop-blur-sm"
+  >
+    <span className="size-6 animate-spin rounded-full border-2 border-muted border-t-primary" />
+  </div>
+);
+
 export const AppSidebar = memo(function AppSidebar() {
   const { open, openMobile, isMobile, toggleSidebar } = useSidebar();
   const { localUser, setLocalUser } = useLocalUser();
@@ -40,6 +61,7 @@ export const AppSidebar = memo(function AppSidebar() {
   const navigate = useNavigate();
   const isSidebarOpen = isMobile ? openMobile : open;
 
+  const isDiarySearchOpen = useDiarySearchStore((state) => state.open);
   const setDiarySearchOpen = useDiarySearchStore((state) => state.setOpen);
   const enabled = Boolean(localUser.uid);
   useShortcut("newDiary", () => navigate(PATHS.newDiary.path), { enabled });
@@ -126,13 +148,22 @@ export const AppSidebar = memo(function AppSidebar() {
           </div>
         </SidebarFooter>
       </Sidebar>
-      <SettingsDialog
-        uid={localUser.uid}
-        open={isSettingsDialogOpen}
-        initialSection={settingsSection}
-        returnFocusRef={settingsReturnFocus}
-        onOpenChange={setIsSettingsDialogOpen}
-      />
+      {isDiarySearchOpen && (
+        <Suspense fallback={<DialogLoading />}>
+          <DiarySearchDialog />
+        </Suspense>
+      )}
+      {isSettingsDialogOpen && (
+        <Suspense fallback={<DialogLoading />}>
+          <SettingsDialog
+            uid={localUser.uid}
+            open={isSettingsDialogOpen}
+            initialSection={settingsSection}
+            returnFocusRef={settingsReturnFocus}
+            onOpenChange={setIsSettingsDialogOpen}
+          />
+        </Suspense>
+      )}
     </>
   );
 });

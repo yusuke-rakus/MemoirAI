@@ -1,7 +1,11 @@
 import { useReducedMotion } from "motion/react";
+import { lazy, Suspense } from "react";
 
-import PixelBlast from "@/components/shared/background/PixelBlast";
 import { LegalLinks } from "@/features/legal/components/LegalLinks";
+
+const PixelBlast = lazy(
+  () => import("@/components/shared/background/PixelBlast"),
+);
 
 export const LoginView = () => {
   const shouldReduceMotion = useReducedMotion();
@@ -9,20 +13,22 @@ export const LoginView = () => {
     <div>
       <div className="relative h-full min-h-[500px] w-full overflow-hidden text-foreground">
         <div className="absolute inset-0 z-0">
-          <PixelBlast
-            variant="circle"
-            pixelSize={6}
-            patternScale={3}
-            patternDensity={1.2}
-            edgeFade={0.05}
-            enableRipples={!shouldReduceMotion}
-            liquid={!shouldReduceMotion}
-            transparent
-          />
+          <Suspense fallback={null}>
+            <PixelBlast
+              variant="circle"
+              pixelSize={6}
+              patternScale={3}
+              patternDensity={1.2}
+              edgeFade={0.05}
+              enableRipples={!shouldReduceMotion}
+              liquid={!shouldReduceMotion}
+              transparent
+            />
+          </Suspense>
         </div>
 
         <div className="relative z-10 flex h-full flex-col items-center justify-center p-6 text-center">
-          <div className="animate-in fade-in zoom-in slide-in-from-bottom-10 max-w-3xl space-y-8 duration-1000">
+          <div className="max-w-3xl animate-in space-y-8 duration-1000 slide-in-from-bottom-10 fade-in zoom-in">
             <h1 className="text-4xl font-extrabold tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl">
               <span className="block bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                 Memoir AI

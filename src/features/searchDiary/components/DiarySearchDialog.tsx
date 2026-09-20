@@ -28,8 +28,9 @@ import type { Diary } from "@/types/diary/diary";
 
 import {
   appendSearchTerm,
+  createDiarySearchIndex,
   getFrequentTags,
-  searchDiaries,
+  searchDiaryIndex,
 } from "../lib/diarySearch";
 
 export const DiarySearchDialog = () => {
@@ -60,9 +61,13 @@ export const DiarySearchDialog = () => {
     () => (open ? getFrequentTags(cachedDiaries) : []),
     [cachedDiaries, open],
   );
+  const searchIndex = useMemo(
+    () => createDiarySearchIndex(cachedDiaries),
+    [cachedDiaries],
+  );
   const results = useMemo(
-    () => searchDiaries(cachedDiaries, debouncedQuery),
-    [cachedDiaries, debouncedQuery],
+    () => (open ? searchDiaryIndex(searchIndex, debouncedQuery) : []),
+    [searchIndex, debouncedQuery, open],
   );
   const visibleResults = results.slice(0, 50);
   const canOpenResult =
