@@ -90,7 +90,7 @@ importers:
         specifier: ^0.509.0
         version: 0.509.0(react@19.1.0)
       motion:
-        specifier: ^12.23.24
+        specifier: ^12.23.12
         version: 12.23.24(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       next-themes:
         specifier: ^0.4.6

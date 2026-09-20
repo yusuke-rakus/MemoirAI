@@ -8,6 +8,7 @@ export const LoginPage = () => {
     <MainLayout
       title="login"
       headerComponent={<LoginHeader />}
+      headerOffsetClassName="mt-14"
       sidebarComponent={null}
     >
       <LoginView />

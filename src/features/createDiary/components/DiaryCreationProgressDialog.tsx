@@ -1,6 +1,7 @@
 import { CloudUpload, Image, type LucideIcon, Tags } from "lucide-react";
 
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { ShinyText } from "@/components/ui/shiny-text";
 import { cn } from "@/lib/utils";
 
 import type { DiaryCreationProgress, DiaryCreationStepStatus } from "../types";
@@ -27,15 +28,11 @@ const ProgressStep = ({ status, icon: Icon, labels }: ProgressStepProps) => {
       )}
     >
       <Icon className="size-4 shrink-0" aria-hidden="true" />
-      <span
-        className={cn(
-          "leading-6",
-          isActive &&
-            "animate-loader-shimmer bg-gradient-to-r from-primary via-primary/15 to-primary bg-[length:240%_100%] bg-clip-text font-normal text-transparent drop-shadow-[0_0_8px_color-mix(in_oklab,var(--color-primary)_30%,transparent)] motion-reduce:animate-none motion-reduce:bg-none motion-reduce:text-primary motion-reduce:drop-shadow-none",
-        )}
-      >
-        {labels[status]}
-      </span>
+      {isActive ? (
+        <ShinyText text={labels[status]} speed={2} delay={1} />
+      ) : (
+        <span className="leading-6">{labels[status]}</span>
+      )}
     </li>
   );
 };
@@ -61,7 +58,7 @@ export const DiaryCreationProgressDialog = ({
                 status={progress.metadata}
                 icon={Tags}
                 labels={{
-                  pending: "タイトルとタグを生成予定",
+                  pending: "タイトルとタグを生成",
                   active: "タイトルとタグを生成中",
                   complete: "タイトルとタグを生成しました",
                 }}
@@ -72,7 +69,7 @@ export const DiaryCreationProgressDialog = ({
                   status={progress.illustration}
                   icon={Image}
                   labels={{
-                    pending: "イラストを生成予定",
+                    pending: "イラストを生成",
                     active: "イラストを生成中",
                     complete: "イラストを生成しました",
                   }}
@@ -83,7 +80,7 @@ export const DiaryCreationProgressDialog = ({
                 status={progress.persistence}
                 icon={CloudUpload}
                 labels={{
-                  pending: "日記を保存予定",
+                  pending: "日記を保存",
                   active: "日記を保存中",
                   complete: "日記を保存しました",
                 }}
