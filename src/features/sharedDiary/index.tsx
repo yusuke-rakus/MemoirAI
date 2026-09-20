@@ -18,7 +18,11 @@ export const SharedDiaryPage = () => {
   }
 
   return (
-    <MainLayout headerComponent={<LoginHeader />} sidebarComponent={null}>
+    <MainLayout
+      headerComponent={<LoginHeader />}
+      headerOffsetClassName="mt-14"
+      sidebarComponent={null}
+    >
       {sharedDiaryView}
     </MainLayout>
   );
