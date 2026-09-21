@@ -1,4 +1,11 @@
-import { createContext, type ReactNode, useContext, useState } from "react";
+import {
+  createContext,
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction,
+  useContext,
+  useState,
+} from "react";
 
 import {
   DEFAULT_PRIMARY_COLOR_KEY,
@@ -17,7 +24,7 @@ export type LocalUser = {
 
 type UserContextType = {
   localUser: LocalUser;
-  setLocalUser: (localUser: LocalUser) => void;
+  setLocalUser: Dispatch<SetStateAction<LocalUser>>;
 };
 
 export const defaultLocalUser: LocalUser = {

@@ -9,14 +9,18 @@
 ```text
 React.StrictMode
 └─ RouterProvider (createBrowserRouter, path="*")
-   └─ TooltipProvider
-      └─ UserProvider (LocalUserContext)
-         └─ App → NotificationToaster + Routes
+   └─ QueryClientProvider
+      └─ TooltipProvider
+         └─ UserProvider (LocalUserContext)
+            ├─ UserAppearance（テーマ・配色の適用）
+            └─ QueryCacheSessionBoundary
+               └─ App → NotificationToaster + Routes
 ```
 
 - `src/main.tsx`がroot routerと最上位Providerを構成します。
 - `src/App.tsx`が実際のRoutesとfeature entryを宣言します。各pageは`React.lazy`で画面単位に読み込み、`Suspense`で既存のLoadingScreenを表示します。認証済みshell内のpage読み込みではHeaderとSidebarを維持します。ログイン背景のPixelBlastは独立して遅延読み込みし、本文の表示を妨げません。
 - `AppShellLayout`が認証状態と必須同意versionを確認し、同意済みのshared diaryと認証必須routeで同じ`MainLayout`を維持します。未同意または確認失敗時はapp内容より先にfull-page gateを表示します。`AuthenticatedLayout`は未認証redirectだけを担当します。
+- テーマ・配色は設定Dialogの開閉に依存せず、`UserAppearance`が共有ユーザー設定から適用します。
 - user settingsの初期化は同意確認後に冪等に実行し、完了するまでapp contentを描画しません。
 - Settings Dialogはデスクトップではプロフィール、一般、ショートカット、メモリ、共有した日記、アカウントの6 tabです。スマホ幅ではショートカットを非表示にします。共有した日記では公開中のコピーを一覧し、共有解除できます。account削除はGoogle再認証後にclient-side gatewayでapp dataを削除し、契約同意記録へ5年TTLを設定してからAuth accountを削除します。
 - 認証済みshellの共通ショートカットは`AppSidebar`で登録し、`src/lib/shortcuts.ts`の定義を判定・解説・キー表示で共有します。設定のopen・初期tab・復帰focusは`AppSidebar`が所有し、デスクトップの`?`からショートカットtabを開きます。設定DialogはモバイルSidebarの開閉にかかわらずmountされます。画面固有の保存・検索結果・カレンダー操作は各featureが所有します。

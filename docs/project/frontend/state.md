@@ -17,6 +17,8 @@ snapshot metadataは`../frontend.md`を参照してください。
 
 検索DialogのZustand storeは開閉状態だけを保持します。日記検索結果、sidebarの日記・お気に入り一覧、日別画面の日記配列はQuery cacheが所有し、refresh revision storeは使用しません。
 
+テーマ・配色の設定値は`LocalUserContext`が所有し、変更は共有状態に即時反映します。保存失敗では該当設定を戻し通知します。DOMへの適用はroot配下の`UserAppearance`だけが担当します。
+
 ## Browser draft persistence
 
 - client: `src/lib/service/diaryDraftClient.ts`
