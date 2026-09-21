@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import {
-  DEFAULT_PRIMARY_COLOR_KEY,
   getPrimaryColorOption,
   normalizePrimaryColorKey,
   type PrimaryColorKey,
@@ -47,30 +46,29 @@ export const clearPrimaryColorOverrides = () => {
   });
 };
 
-export const usePrimaryColor = (uid: string) => {
-  const [primaryColor, setPrimaryColor] = useState<PrimaryColorKey>(
-    DEFAULT_PRIMARY_COLOR_KEY,
-  );
-  const [isSavingPrimaryColor, setIsSavingPrimaryColor] = useState(false);
+export const useApplyPrimaryColor = () => {
   const { localUser } = useLocalUser();
-
   useEffect(() => {
-    const colorKey = normalizePrimaryColorKey(localUser.primaryColor);
-
-    setPrimaryColor(colorKey);
-    applyPrimaryColor(colorKey);
+    applyPrimaryColor(normalizePrimaryColorKey(localUser.primaryColor));
   }, [localUser.primaryColor]);
+};
+
+export const usePrimaryColor = (uid: string) => {
+  const { localUser, setLocalUser } = useLocalUser();
+  const primaryColor = normalizePrimaryColorKey(localUser.primaryColor);
+  const [isSavingPrimaryColor, setIsSavingPrimaryColor] = useState(false);
 
   const handlePrimaryColorChange = async (nextKey: PrimaryColorKey) => {
-    if (!uid || isSavingPrimaryColor || nextKey === primaryColor) {
+    if (
+      !uid ||
+      uid !== localUser.uid ||
+      isSavingPrimaryColor ||
+      nextKey === primaryColor
+    )
       return;
-    }
-
     const previousColor = primaryColor;
-    setPrimaryColor(nextKey);
-    applyPrimaryColor(nextKey);
+    setLocalUser((current) => ({ ...current, primaryColor: nextKey }));
     setIsSavingPrimaryColor(true);
-
     try {
       await UserSettingsClient.update(uid, {
         primaryColor: nextKey,
@@ -81,14 +79,16 @@ export const usePrimaryColor = (uid: string) => {
       );
     } catch (error) {
       console.error("Failed to save primary color settings:", error);
-      setPrimaryColor(previousColor);
-      applyPrimaryColor(previousColor);
+      setLocalUser((current) =>
+        current.uid === uid && current.primaryColor === nextKey
+          ? { ...current, primaryColor: previousColor }
+          : current,
+      );
       toast.error("カラー設定の保存に失敗しました");
     } finally {
       setIsSavingPrimaryColor(false);
     }
   };
-
   return {
     primaryColor,
     primaryColorOptions,

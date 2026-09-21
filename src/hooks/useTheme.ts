@@ -1,61 +1,63 @@
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
-import {
-  DEFAULT_THEME_KEY,
-  normalizeThemeKey,
-  type THemeKey,
-} from "@/constants/themes";
+import { normalizeThemeKey, type THemeKey } from "@/constants/themes";
 import { useLocalUser } from "@/contexts/LocalUserContext";
 import { UserSettingsClient } from "@/lib/service/userSettingsClient";
 
-export function useTheme() {
+export const useApplyTheme = () => {
   const { localUser } = useLocalUser();
-  const [theme, setThemeState] = useState<THemeKey>(DEFAULT_THEME_KEY);
-
-  useEffect(() => {
-    setThemeState(normalizeThemeKey(localUser.theme));
-  }, [localUser.theme]);
+  const theme = normalizeThemeKey(localUser.theme);
 
   useEffect(() => {
     const root = document.documentElement;
-    const m = window.matchMedia("(prefers-color-scheme: dark)");
-
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
     const apply = () => {
-      const effective =
-        theme === "system" ? (m.matches ? "dark" : "light") : theme;
-      if (effective === "dark") root.classList.add("dark");
-      else root.classList.remove("dark");
+      root.classList.toggle(
+        "dark",
+        theme === "dark" || (theme === "system" && media.matches),
+      );
     };
-
     apply();
-
-    const onChange = () => {
-      if (theme === "system") apply();
-    };
-
-    m.addEventListener("change", onChange);
-
-    return () => {
-      m.removeEventListener("change", onChange);
-    };
+    media.addEventListener("change", apply);
+    return () => media.removeEventListener("change", apply);
   }, [theme]);
+};
+
+export function useTheme() {
+  const { localUser, setLocalUser } = useLocalUser();
+  const theme = normalizeThemeKey(localUser.theme);
+  const [isSavingTheme, setIsSavingTheme] = useState(false);
 
   const setTheme = useCallback(
-    (nextTheme: THemeKey) => {
-      setThemeState(nextTheme);
-      if (!localUser.uid) {
-        return;
+    async (nextTheme: THemeKey) => {
+      if (!localUser.uid || isSavingTheme || nextTheme === theme) return false;
+      const uid = localUser.uid;
+      setLocalUser((current) => ({ ...current, theme: nextTheme }));
+      setIsSavingTheme(true);
+      try {
+        await UserSettingsClient.update(uid, {
+          theme: nextTheme,
+          updatedAt: new Date(),
+        });
+        return true;
+      } catch (error) {
+        console.error("Failed to save theme settings", error);
+        setLocalUser((current) =>
+          current.uid === uid && current.theme === nextTheme
+            ? { ...current, theme }
+            : current,
+        );
+        toast.error("テーマ設定の保存に失敗しました");
+        return false;
+      } finally {
+        setIsSavingTheme(false);
       }
-
-      void UserSettingsClient.update(localUser.uid, {
-        theme: nextTheme,
-        updatedAt: new Date(),
-      });
     },
-    [localUser.uid],
+    [isSavingTheme, localUser.uid, setLocalUser, theme],
   );
 
-  return { theme, setTheme } as const;
+  return { theme, setTheme, isSavingTheme } as const;
 }
 
 export default useTheme;

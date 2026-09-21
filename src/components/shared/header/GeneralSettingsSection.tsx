@@ -35,7 +35,7 @@ const themeIcons = {
 export const GeneralSettingsSection = ({
   uid,
 }: GeneralSettingsSectionProps) => {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, isSavingTheme } = useTheme();
   const {
     markdownEditorEnabled,
     setMarkdownEditorEnabled,
@@ -48,9 +48,8 @@ export const GeneralSettingsSection = ({
     isSavingPrimaryColor,
   } = usePrimaryColor(uid ?? "");
 
-  const handleThemeChange = (nextTheme: THemeKey) => {
-    if (nextTheme === theme) return;
-    setTheme(nextTheme);
+  const handleThemeChange = async (nextTheme: THemeKey) => {
+    if (!(await setTheme(nextTheme))) return;
     if (nextTheme === "light") {
       toast("ライトテーマに設定しました", { icon: <Sun /> });
     } else if (nextTheme === "dark") {
@@ -98,7 +97,8 @@ export const GeneralSettingsSection = ({
                       isActive &&
                         "border-primary bg-accent text-accent-foreground",
                     )}
-                    onClick={() => handleThemeChange(option.key)}
+                    disabled={isSavingTheme || !uid}
+                    onClick={() => void handleThemeChange(option.key)}
                   >
                     <ThemeIcon className="size-4" />
                     <span className="truncate">{option.label}</span>
