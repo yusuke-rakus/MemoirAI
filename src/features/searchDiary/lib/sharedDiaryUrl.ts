@@ -1,7 +1,9 @@
 import { PATHS } from "@/constants/path";
 
 export type SharedDiaryUrlResult =
-  { kind: "keyword" } | { kind: "invalid" } | { kind: "shared"; path: string };
+  | { kind: "keyword" }
+  | { kind: "invalid" }
+  | { kind: "shared"; path: string; shareId: string };
 
 /** Classify search input without fetching the diary or navigating externally. */
 export function parseSharedDiaryUrl(
@@ -9,6 +11,18 @@ export function parseSharedDiaryUrl(
   origin: string,
 ): SharedDiaryUrlResult {
   const value = input.trim();
+  if (
+    /^share-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(
+      value,
+    )
+  ) {
+    return {
+      kind: "shared",
+      shareId: value,
+      path: `${PATHS.sharedDiary.path}/${value}`,
+    };
+  }
+  if (/^share-/i.test(value)) return { kind: "invalid" };
   if (!/^(?:[a-z][a-z\d+.-]*:|\/\/|\/shared(?:\/|$)|www\.)/i.test(value)) {
     return { kind: "keyword" };
   }
@@ -44,6 +58,7 @@ export function parseSharedDiaryUrl(
     if (!/^\/shared\/[^/]+\/?$/.test(rawPath)) return { kind: "invalid" };
     return {
       kind: "shared",
+      shareId: id,
       path: `${PATHS.sharedDiary.path}/${encodeURIComponent(id)}`,
     };
   } catch {

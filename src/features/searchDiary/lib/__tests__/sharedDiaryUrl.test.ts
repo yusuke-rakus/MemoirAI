@@ -5,12 +5,23 @@ import { parseSharedDiaryUrl } from "../sharedDiaryUrl";
 const origin = "https://memoir.test";
 
 describe("parseSharedDiaryUrl", () => {
+  it("共有ID単体を内部パスへ変換する", () => {
+    const shareId = "share-0e79b318-6695-490c-a680-50c00f34676d";
+
+    expect(parseSharedDiaryUrl(`  ${shareId}  `, origin)).toEqual({
+      kind: "shared",
+      path: `/shared/${shareId}`,
+      shareId,
+    });
+  });
+
   it.each(["share-123", "diary-123"])(
     "新旧の共有ID %s を内部パスへ変換する",
     (id) => {
       expect(parseSharedDiaryUrl(`${origin}/shared/${id}`, origin)).toEqual({
         kind: "shared",
         path: `/shared/${id}`,
+        shareId: id,
       });
     },
   );
@@ -24,6 +35,7 @@ describe("parseSharedDiaryUrl", () => {
     ).toEqual({
       kind: "shared",
       path: "/shared/share-123",
+      shareId: "share-123",
     });
   });
 
@@ -36,6 +48,7 @@ describe("parseSharedDiaryUrl", () => {
     ).toEqual({
       kind: "shared",
       path: "/shared/diary-1",
+      shareId: "diary-1",
     });
   });
 
@@ -49,6 +62,10 @@ describe("parseSharedDiaryUrl", () => {
   });
 
   it.each([
+    "share-123",
+    "share-0e79b318-6695-490c-a680-50c00f34676",
+    "share-0e79b318-6695-490c-a680-50c00f34676g",
+    "SHARE-0E79B318-6695-490C-A680-50C00F34676D",
     "https://other.test/shared/share-1",
     "http://memoir.test/shared/share-1",
     "https://memoir.test:444/shared/share-1",
