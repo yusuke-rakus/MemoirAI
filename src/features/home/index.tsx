@@ -54,7 +54,7 @@ export const HomePage = () => {
                   key={tab.value}
                   value={tab.value}
                   onClick={() => handleClickTab(tab.value)}
-                  className="h-full rounded-none border-t-0 border-r-0 border-b-2 border-l-0 text-muted-foreground transition-all duration-250 data-[state=active]:border-primary data-[state=active]:bg-inherit data-[state=active]:text-primary data-[state=active]:shadow-none"
+                  className="h-full rounded-none border-t-0 border-r-0 border-b-2 border-l-0 text-muted-foreground transition-all duration-250 data-[state=active]:border-foreground data-[state=active]:bg-inherit data-[state=active]:text-foreground data-[state=active]:shadow-none"
                 >
                   <code className="flex items-center gap-1 text-[16px]">
                     {tab.icon}
