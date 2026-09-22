@@ -187,7 +187,7 @@ export const GeneralSettingsSection = ({
             <LegalLinks
               target="_blank"
               className="mt-3 flex-col gap-2"
-              linkClassName="w-fit text-sm text-primary"
+              linkClassName="w-fit text-sm text-foreground"
             />
           </section>
         </div>

@@ -171,9 +171,6 @@ export const SettingsDialog = ({
             >
               <div className="shrink-0 border-b px-5 py-4 sm:px-6">
                 <h2 className="text-lg font-semibold">プロフィール</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  公開されるプロフィール情報を変更できます。
-                </p>
               </div>
               <ScrollArea className="min-h-0 flex-1">
                 <div className="px-5 py-5 sm:px-6">
@@ -193,9 +190,6 @@ export const SettingsDialog = ({
             >
               <div className="shrink-0 border-b px-5 py-4 sm:px-6">
                 <h2 className="text-lg font-semibold">共有した日記</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  共有中の日記を確認し、共有を解除できます。
-                </p>
               </div>
               <ScrollArea className="min-h-0 flex-1">
                 <div className="px-5 py-5 sm:px-6">
