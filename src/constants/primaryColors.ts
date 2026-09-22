@@ -49,6 +49,13 @@ export const primaryColorOptions = [
     primary: "var(--theme-purple)",
     primaryForeground: "var(--theme-purple-foreground)",
   },
+  {
+    key: "pink",
+    label: "ピンク",
+    previewClassName: "bg-theme-pink",
+    primary: "var(--theme-pink)",
+    primaryForeground: "var(--theme-pink-foreground)",
+  },
 ] as const satisfies readonly PrimaryColorOption[];
 
 export type PrimaryColorKey = (typeof primaryColorOptions)[number]["key"];

@@ -4,7 +4,7 @@
 
 ## Theme and layout
 
-- 通常色は`bg-background`、`text-foreground`、`text-muted-foreground`、`border-border`、`bg-primary`、`text-destructive`などを使います。お気に入りのactive iconは`text-favorite` / `fill-favorite`を使います。
+- 通常色は`bg-background`、`text-foreground`、`text-muted-foreground`、`border-border`、`bg-primary`、`text-destructive`などを使います。アクセントカラーはデフォルト、ブルー、グリーン、イエロー、レッド、パープル、ピンクから選べ、`primary`、`sidebar-primary`、`ring` tokenへ反映します。お気に入りのactive iconは`text-favorite` / `fill-favorite`を使います。
 - 日記本文は`react-markdown`と`remark-gfm`で安全に描画します。詳細・共有では見出し、強調、list、引用、code、tableなどを組版し、月一覧・検索結果ではMarkdown記法を除いたplain text相当の抜粋を表示します。HTMLとMarkdown画像は描画せず、通常textの単一改行は維持します。
 - route contentの外枠は`MainLayout`の中央寄せ・最大幅・横paddingです。
 - responsiveは既存の`sm` / `md` breakpointと`useIsMobile`を参照します。

@@ -47,6 +47,8 @@
   --theme-red-foreground: oklch(96.941% 0.01515 12.013);
   --theme-purple: oklch(60.563% 0.21902 292.718);
   --theme-purple-foreground: oklch(96.914% 0.01616 293.61);
+  --theme-pink: oklch(64.5% 0.215 351);
+  --theme-pink-foreground: oklch(97% 0.015 351);
   --sidebar: oklch(0.99 0 0);
   --sidebar-foreground: oklch(0.14 0 285.86);
   --sidebar-primary: oklch(0.21 0.01 285.93);
@@ -241,6 +243,7 @@ button {
   --color-theme-yellow: var(--theme-yellow);
   --color-theme-red: var(--theme-red);
   --color-theme-purple: var(--theme-purple);
+  --color-theme-pink: var(--theme-pink);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -308,6 +311,8 @@ button {
   --theme-red-foreground: oklch(22% 0.03 12.013);
   --theme-purple: oklch(70% 0.2 292.718);
   --theme-purple-foreground: oklch(20% 0.03 293.61);
+  --theme-pink: oklch(72% 0.18 351);
+  --theme-pink-foreground: oklch(22% 0.03 351);
   --sidebar: oklch(0.21 0.01 285.93);
   --sidebar-foreground: oklch(0.99 0 0);
   --sidebar-primary: oklch(0.49 0.24 264.4);
