@@ -1,6 +1,5 @@
 import {
   BookOpen,
-  Check,
   Code2,
   Monitor,
   Moon,
@@ -10,12 +9,21 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { TabsContent } from "@/components/ui/tabs";
-import { type THemeKey, themeOptions } from "@/constants/themes";
+import {
+  getPrimaryColorOption,
+  isPrimaryColorKey,
+} from "@/constants/primaryColors";
+import { isThemeKey, type THemeKey, themeOptions } from "@/constants/themes";
 import { LegalLinks } from "@/features/legal/components/LegalLinks";
 import { useMarkdownEditorSetting } from "@/hooks/useMarkdownEditorSetting";
 import { usePrimaryColor } from "@/hooks/usePrimaryColor";
@@ -59,74 +67,104 @@ export const GeneralSettingsSection = ({
     }
   };
 
+  const selectedPrimaryColor = getPrimaryColorOption(primaryColor);
+
   return (
     <TabsContent value="general" className="m-0 flex min-h-0 flex-1 flex-col">
       <div className="shrink-0 border-b px-5 py-4 sm:px-6">
         <h2 className="text-lg font-semibold">一般</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          表示に関する設定を変更できます。
-        </p>
       </div>
       <ScrollArea className="min-h-0 flex-1">
         <div className="space-y-8 px-5 py-5 sm:px-6">
           <section>
-            <div className="flex items-center gap-2">
-              <SunMoon className="size-4" />
-              <h3 className="text-sm font-semibold">テーマ</h3>
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              画面の明るさを選択します。
-            </p>
-            <div
-              className="mt-3 grid grid-cols-3 gap-2"
-              role="radiogroup"
-              aria-label="テーマ"
-            >
-              {themeOptions.map((option) => {
-                const ThemeIcon = themeIcons[option.key];
-                const isActive = theme === option.key;
-                return (
-                  <Button
-                    key={option.key}
-                    type="button"
-                    variant="outline"
-                    role="radio"
-                    aria-checked={isActive}
-                    className={cn(
-                      "h-auto min-w-0 flex-col gap-1.5 px-2 py-3 shadow-none",
-                      isActive &&
-                        "border-primary bg-accent text-accent-foreground",
-                    )}
-                    disabled={isSavingTheme || !uid}
-                    onClick={() => void handleThemeChange(option.key)}
-                  >
-                    <ThemeIcon className="size-4" />
-                    <span className="truncate">{option.label}</span>
-                  </Button>
-                );
-              })}
+            <div className="flex items-center gap-4">
+              <div className="flex shrink-0 items-center gap-2">
+                <SunMoon className="size-4" />
+                <h3 className="text-sm">テーマ</h3>
+              </div>
+              <Select
+                value={theme}
+                disabled={isSavingTheme || !uid}
+                onValueChange={(nextTheme) => {
+                  if (isThemeKey(nextTheme)) void handleThemeChange(nextTheme);
+                }}
+              >
+                <SelectTrigger
+                  id="theme"
+                  className="ml-auto w-32 shrink-0 text-xs"
+                  aria-label="テーマ"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {themeOptions.map((option) => {
+                    const ThemeIcon = themeIcons[option.key];
+                    return (
+                      <SelectItem key={option.key} value={option.key}>
+                        <ThemeIcon className="size-4" />
+                        {option.label}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
             </div>
           </section>
           <section className="border-t pt-6">
-            <div className="flex items-center gap-2">
-              <Code2 className="size-4" />
-              <h3 className="text-sm font-semibold">Markdownエディタ</h3>
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              日記の作成・編集画面で入力とプレビューの切り替えを表示します。
-            </p>
-            <div className="mt-3 flex items-center justify-between gap-4 rounded-md border px-3 py-2.5">
-              <Label
-                htmlFor="markdown-editor-enabled"
-                className="flex flex-col items-start gap-1"
+            <div className="flex items-center gap-4">
+              <div className="flex shrink-0 items-center gap-2">
+                <Palette className="size-4" />
+                <h3 className="text-sm">アクセントカラー</h3>
+              </div>
+              <Select
+                value={primaryColor}
+                disabled={isSavingPrimaryColor || !uid}
+                onValueChange={(nextKey) => {
+                  if (isPrimaryColorKey(nextKey)) {
+                    void handlePrimaryColorChange(nextKey);
+                  }
+                }}
               >
-                <span>Markdownエディタを表示</span>
-                <span className="text-xs font-normal text-muted-foreground">
-                  {markdownEditorEnabled ? "オン" : "オフ"}
-                </span>
-              </Label>
+                <SelectTrigger
+                  id="primary-color"
+                  className="ml-auto w-32 shrink-0 text-xs"
+                  aria-label="アクセントカラー"
+                >
+                  <SelectValue>
+                    <span
+                      className={cn(
+                        "size-3 shrink-0 rounded-full border border-border",
+                        selectedPrimaryColor.previewClassName,
+                      )}
+                    />
+                    {selectedPrimaryColor.label}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {primaryColorOptions.map((option) => (
+                    <SelectItem key={option.key} value={option.key}>
+                      <span
+                        className={cn(
+                          "size-3 shrink-0 rounded-full border border-border",
+                          option.previewClassName,
+                        )}
+                      />
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </section>
+          <section className="border-t pt-6">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <Code2 className="size-4" />
+                <h3 className="text-sm">Markdownエディタ</h3>
+              </div>
               <Switch
                 id="markdown-editor-enabled"
+                aria-label="Markdownエディタを表示"
                 checked={markdownEditorEnabled}
                 disabled={isSavingMarkdownEditorSetting || !uid}
                 onCheckedChange={(checked) =>
@@ -134,49 +172,9 @@ export const GeneralSettingsSection = ({
                 }
               />
             </div>
-          </section>
-          <section className="border-t pt-6">
-            <div className="flex items-center gap-2">
-              <Palette className="size-4" />
-              <h3 className="text-sm font-semibold">プライマリカラー</h3>
-            </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              ボタンや選択状態に使う色を選択します。
+              日記の作成・編集画面で入力とプレビューの切り替えを表示します。
             </p>
-            <div
-              className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3"
-              role="radiogroup"
-              aria-label="プライマリカラー"
-            >
-              {primaryColorOptions.map((option) => {
-                const isActive = primaryColor === option.key;
-                return (
-                  <Button
-                    key={option.key}
-                    type="button"
-                    variant="outline"
-                    role="radio"
-                    aria-checked={isActive}
-                    disabled={isSavingPrimaryColor}
-                    className={cn(
-                      "h-auto min-w-0 justify-start px-3 py-3 shadow-none",
-                      isActive &&
-                        "border-primary bg-accent text-accent-foreground",
-                    )}
-                    onClick={() => void handlePrimaryColorChange(option.key)}
-                  >
-                    <span
-                      className={cn(
-                        "size-3 shrink-0 rounded-full border border-border",
-                        option.previewClassName,
-                      )}
-                    />
-                    <span className="truncate">{option.label}</span>
-                    {isActive && <Check className="ml-auto size-4 shrink-0" />}
-                  </Button>
-                );
-              })}
-            </div>
           </section>
           <section className="border-t pt-6">
             <div className="flex items-center gap-2">

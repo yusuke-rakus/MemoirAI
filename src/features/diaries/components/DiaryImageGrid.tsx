@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
-import { getDiaryImageAspectRatio } from "@/lib/getDiaryImageAspectRatio";
 import { cn } from "@/lib/utils";
 import type { DiaryImage } from "@/types/diary/diary";
 
@@ -46,7 +45,6 @@ export const DiaryImageGrid = ({ images }: DiaryImageGridProps) => {
   if (!images || images.length === 0) return null;
 
   const hasMultipleImages = images.length > 1;
-  const selectedImage = images[selectedIndex] ?? images[0];
 
   const handleImageClick = (index: number) => {
     setPreviewImageIndex(index);
@@ -62,10 +60,7 @@ export const DiaryImageGrid = ({ images }: DiaryImageGridProps) => {
     <>
       <section className="space-y-2" aria-label="日記の画像">
         <div className="relative">
-          <AspectRatio
-            ratio={getDiaryImageAspectRatio(selectedImage)}
-            className="bg-muted"
-          >
+          <AspectRatio ratio={3 / 2} className="bg-muted">
             <div ref={emblaRef} className="h-full overflow-hidden">
               <div className="flex h-full">
                 {images.map((image, index) => (
@@ -75,15 +70,29 @@ export const DiaryImageGrid = ({ images }: DiaryImageGridProps) => {
                   >
                     <button
                       type="button"
-                      className="block h-full w-full cursor-zoom-in bg-muted text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      className="relative block h-full w-full cursor-zoom-in overflow-hidden bg-muted text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       aria-label={`${index + 1}枚目の画像を拡大表示`}
                       onClick={() => handleImageClick(index)}
                     >
+                      {image.height > image.width && (
+                        <img
+                          src={image.downloadURL}
+                          alt=""
+                          aria-hidden="true"
+                          loading="lazy"
+                          className="absolute inset-0 h-full w-full scale-110 object-cover opacity-50 blur-xl"
+                        />
+                      )}
                       <img
                         src={image.downloadURL}
                         alt={`日記の画像 ${index + 1}`}
                         loading="lazy"
-                        className="h-full w-full object-cover transition-transform hover:scale-[1.01]"
+                        className={cn(
+                          "relative h-full w-full",
+                          image.height > image.width
+                            ? "object-contain"
+                            : "object-cover",
+                        )}
                       />
                     </button>
                   </div>

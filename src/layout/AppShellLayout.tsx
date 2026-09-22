@@ -82,7 +82,7 @@ export const AppShellLayout = () => {
   }
 
   const outlet = (
-    <Suspense fallback={<LoadingScreen />}>
+    <Suspense fallback={<LoadingScreen variant="page" />}>
       <Outlet context={{ user } satisfies AppShellOutletContext} />
     </Suspense>
   );
@@ -92,7 +92,7 @@ export const AppShellLayout = () => {
   }
 
   return (
-    <Suspense fallback={<LoadingScreen />}>
+    <Suspense fallback={<LoadingScreen variant="page" />}>
       <AuthenticatedAppShell>{outlet}</AuthenticatedAppShell>
     </Suspense>
   );
