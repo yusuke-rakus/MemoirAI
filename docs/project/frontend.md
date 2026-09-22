@@ -40,6 +40,7 @@ React.StrictMode
 | `legal`       | Markdown管理の公開リーガル文書、初回ログイン後の必須同意gate |
 | `sidebar`     | navigation、paged diary list、paged favorite list            |
 
+- 日記検索欄は同一オリジンの共有URLも受け付けます。共有URL入力時はボタンまたはEnterで既存の共有日記画面へ遷移し、検索DialogとモバイルSidebarを閉じます。URL形式のエラーは入力欄の近くに表示します。
 - 日記検索は取得データの変更時にタイトル・タグ・本文を正規化した検索索引を作り、検索語の変更時には索引を再利用します。Dialogを閉じている間は検索を実行しません。
 
 ## Detailed snapshots
