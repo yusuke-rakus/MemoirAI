@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -27,13 +26,13 @@ import { cn } from "@/lib/utils";
 import { useDiarySearchStore } from "@/stores/diarySearchStore";
 import type { Diary } from "@/types/diary/diary";
 
+import { useSharedDiarySearch } from "../hooks/useSharedDiarySearch";
 import {
   appendSearchTerm,
   createDiarySearchIndex,
   getFrequentTags,
   searchDiaryIndex,
 } from "../lib/diarySearch";
-import { parseSharedDiaryUrl } from "../lib/sharedDiaryUrl";
 
 export const DiarySearchDialog = () => {
   const navigate = useNavigate();
@@ -45,8 +44,14 @@ export const DiarySearchDialog = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const resultsId = useId();
   const urlErrorId = useId();
-  const sharedUrl = parseSharedDiaryUrl(query, window.location.origin);
-  const isUrlInput = sharedUrl.kind !== "keyword";
+  const sharedSearch = useSharedDiarySearch(
+    query,
+    open,
+    window.location.origin,
+  );
+  const sharedUrl = sharedSearch.url;
+  const canOpenShared = open && Boolean(sharedSearch.diary);
+  const isSharedInput = sharedUrl.kind !== "keyword";
   const diariesQuery = useQuery({
     queryKey: diaryQueryKeys.search(localUser.uid),
     enabled: open && Boolean(localUser.uid),
@@ -73,12 +78,14 @@ export const DiarySearchDialog = () => {
   );
   const results = useMemo(
     () =>
-      open && !isUrlInput ? searchDiaryIndex(searchIndex, debouncedQuery) : [],
-    [searchIndex, debouncedQuery, open, isUrlInput],
+      open && !isSharedInput
+        ? searchDiaryIndex(searchIndex, debouncedQuery)
+        : [],
+    [searchIndex, debouncedQuery, open, isSharedInput],
   );
   const visibleResults = results.slice(0, 50);
   const canOpenResult =
-    !isUrlInput &&
+    !isSharedInput &&
     open &&
     query === debouncedQuery &&
     Boolean(query.trim()) &&
@@ -102,7 +109,7 @@ export const DiarySearchDialog = () => {
   };
 
   const openSharedDiary = () => {
-    if (sharedUrl.kind !== "shared") return;
+    if (sharedUrl.kind !== "shared" || !canOpenShared) return;
     setOpen(false);
     setQuery("");
     setDebouncedQuery("");
@@ -118,27 +125,28 @@ export const DiarySearchDialog = () => {
       >
         <DialogHeader className="border-b border-border/60 px-5 py-4">
           <DialogTitle>日記を検索</DialogTitle>
-          <DialogDescription>
-            日記を検索、または共有URLから開く
-          </DialogDescription>
         </DialogHeader>
         <div className="flex items-center gap-3 border-b border-border/60 px-5 py-3">
           <Search className="size-5 text-muted-foreground" aria-hidden="true" />
           <Input
-            role={isUrlInput ? undefined : "combobox"}
-            aria-autocomplete={isUrlInput ? undefined : "list"}
-            aria-expanded={isUrlInput ? undefined : canOpenResult}
-            aria-controls={isUrlInput ? undefined : resultsId}
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={canOpenShared || canOpenResult}
+            aria-controls={resultsId}
             aria-invalid={sharedUrl.kind === "invalid"}
             aria-describedby={
               sharedUrl.kind === "invalid" ? urlErrorId : undefined
             }
             aria-activedescendant={
-              canOpenResult ? `${resultsId}-${selectedIndex}` : undefined
+              canOpenShared
+                ? `${resultsId}-shared`
+                : canOpenResult
+                  ? `${resultsId}-${selectedIndex}`
+                  : undefined
             }
             onKeyDown={(event) => {
               if (event.nativeEvent.isComposing) return;
-              if (isUrlInput && event.key === "Enter") {
+              if (isSharedInput && event.key === "Enter") {
                 event.preventDefault();
                 openSharedDiary();
                 return;
@@ -163,8 +171,8 @@ export const DiarySearchDialog = () => {
             autoFocus
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="キーワードまたは共有URLを入力"
-            aria-label="日記の検索キーワードまたは共有URL"
+            placeholder="キーワード、共有URLまたは共有IDを入力"
+            aria-label="日記の検索キーワード、共有URLまたは共有ID"
             className="border-0 px-0 shadow-none focus-visible:ring-0"
           />
           {query && (
@@ -181,23 +189,7 @@ export const DiarySearchDialog = () => {
             </Button>
           )}
         </div>
-        {sharedUrl.kind === "invalid" && (
-          <p
-            id={urlErrorId}
-            role="alert"
-            className="px-5 py-3 text-sm text-destructive"
-          >
-            このアプリの共有URLを入力してください。
-          </p>
-        )}
-        {sharedUrl.kind === "shared" && (
-          <div className="px-5 py-4">
-            <Button type="button" onClick={openSharedDiary} className="w-full">
-              共有日記を開く
-            </Button>
-          </div>
-        )}
-        {!isUrlInput && frequentTags.length > 0 && (
+        {frequentTags.length > 0 && (
           <section
             className="min-w-0 border-b border-border/60 px-5 py-3"
             aria-label="よく使うタグ"
@@ -215,6 +207,7 @@ export const DiarySearchDialog = () => {
                   >
                     <button
                       type="button"
+                      disabled={isSharedInput}
                       onClick={() =>
                         setQuery((currentQuery) =>
                           appendSearchTerm(currentQuery, tag.name),
@@ -231,82 +224,146 @@ export const DiarySearchDialog = () => {
             </ScrollArea>
           </section>
         )}
-        {!isUrlInput && (
-          <ScrollArea className="h-[min(60vh,480px)]">
-            <div
-              id={resultsId}
-              className="p-3"
-              role="listbox"
-              aria-label="検索結果"
-            >
-              {diariesQuery.isLoading && !query && (
+        <ScrollArea className="h-[min(60vh,480px)]">
+          <div aria-live="polite">
+            {sharedUrl.kind === "invalid" && (
+              <p id={urlErrorId} className="px-5 py-3 text-sm text-destructive">
+                このアプリの共有URLまたは共有IDを入力してください。
+              </p>
+            )}
+            {sharedSearch.isLoading && (
+              <p
+                role="status"
+                className="p-6 text-center text-sm text-muted-foreground"
+              >
+                読み込み中…
+              </p>
+            )}
+            {sharedSearch.isError && (
+              <div className="p-6 text-center text-sm">
+                <p className="text-destructive">
+                  共有日記を読み込めませんでした。
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={sharedSearch.retry}
+                >
+                  再試行
+                </Button>
+              </div>
+            )}
+            {sharedUrl.kind === "shared" &&
+              !sharedSearch.isLoading &&
+              !sharedSearch.isError &&
+              !sharedSearch.diary && (
                 <p className="p-6 text-center text-sm text-muted-foreground">
-                  日記を読み込んでいます…
+                  共有日記が見つかりません
                 </p>
               )}
-              {!diariesQuery.isLoading && diariesQuery.isError && (
+          </div>
+          <div
+            id={resultsId}
+            className="p-3"
+            role="listbox"
+            aria-label="検索結果"
+          >
+            {sharedSearch.diary && (
+              <Button
+                id={`${resultsId}-shared`}
+                role="option"
+                aria-selected={canOpenShared}
+                type="button"
+                variant="ghost"
+                onClick={openSharedDiary}
+                className="h-auto w-full flex-col items-stretch justify-start gap-0 bg-accent px-3 py-3 text-left font-normal whitespace-normal text-accent-foreground"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <span className="font-medium">
+                    {sharedSearch.diary.title}
+                  </span>
+                  <time className="shrink-0 text-xs text-muted-foreground">
+                    {format(sharedSearch.diary.date.toDate(), "yyyy年M月d日")}
+                  </time>
+                </div>
+                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                  <DiaryMarkdown variant="excerpt">
+                    {sharedSearch.diary.content}
+                  </DiaryMarkdown>
+                </p>
+              </Button>
+            )}
+            {!isSharedInput && diariesQuery.isLoading && !query && (
+              <p className="p-6 text-center text-sm text-muted-foreground">
+                日記を読み込んでいます…
+              </p>
+            )}
+            {!isSharedInput &&
+              !diariesQuery.isLoading &&
+              diariesQuery.isError && (
                 <p className="p-6 text-center text-sm text-destructive">
                   日記を読み込めませんでした。ダイアログを開き直してください。
                 </p>
               )}
-              {!diariesQuery.isLoading &&
-                !diariesQuery.isError &&
-                !debouncedQuery && (
-                  <p className="p-6 text-center text-sm text-muted-foreground">
-                    思い出したい出来事やタグを入力してください。
-                  </p>
-                )}
-              {!diariesQuery.isLoading &&
-                !diariesQuery.isError &&
-                debouncedQuery &&
-                results.length === 0 && (
-                  <p className="p-6 text-center text-sm text-muted-foreground">
-                    一致する日記はありません。
-                  </p>
-                )}
-              {visibleResults.map(({ diary }, index) => (
-                <div key={diary.id}>
-                  <Button
-                    id={`${resultsId}-${index}`}
-                    role="option"
-                    aria-selected={canOpenResult && index === selectedIndex}
-                    type="button"
-                    variant="ghost"
-                    disabled={!canOpenResult}
-                    onFocus={() => setSelectedIndex(index)}
-                    onClick={() => openDiary(diary)}
-                    className={cn(
-                      "h-auto w-full flex-col items-stretch justify-start gap-0 px-3 py-3 text-left font-normal whitespace-normal",
-                      canOpenResult &&
-                        index === selectedIndex &&
-                        "bg-accent text-accent-foreground",
-                    )}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <span className="font-medium">{diary.title}</span>
-                      <time className="shrink-0 text-xs text-muted-foreground">
-                        {format(diary.date.toDate(), "yyyy年M月d日")}
-                      </time>
-                    </div>
-                    <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                      <DiaryMarkdown variant="excerpt">
-                        {diary.content}
-                      </DiaryMarkdown>
-                    </p>
-                  </Button>
-                  {index < visibleResults.length - 1 && (
-                    <Separator className="bg-border/60" />
-                  )}
-                </div>
-              ))}
-              {results.length > 50 && (
-                <p className="border-t border-border/60 px-3 py-2 text-xs text-muted-foreground">
-                  {results.length}件中50件を表示しています。
+            {!isSharedInput &&
+              !diariesQuery.isLoading &&
+              !diariesQuery.isError &&
+              !debouncedQuery && (
+                <p className="p-6 text-center text-sm text-muted-foreground">
+                  思い出したい出来事やタグを入力してください。
                 </p>
               )}
-            </div>
-          </ScrollArea>
-        )}
+            {!isSharedInput &&
+              !diariesQuery.isLoading &&
+              !diariesQuery.isError &&
+              debouncedQuery &&
+              results.length === 0 && (
+                <p className="p-6 text-center text-sm text-muted-foreground">
+                  一致する日記はありません。
+                </p>
+              )}
+            {visibleResults.map(({ diary }, index) => (
+              <div key={diary.id}>
+                <Button
+                  id={`${resultsId}-${index}`}
+                  role="option"
+                  aria-selected={canOpenResult && index === selectedIndex}
+                  type="button"
+                  variant="ghost"
+                  disabled={!canOpenResult}
+                  onFocus={() => setSelectedIndex(index)}
+                  onClick={() => openDiary(diary)}
+                  className={cn(
+                    "h-auto w-full flex-col items-stretch justify-start gap-0 px-3 py-3 text-left font-normal whitespace-normal",
+                    canOpenResult &&
+                      index === selectedIndex &&
+                      "bg-accent text-accent-foreground",
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <span className="font-medium">{diary.title}</span>
+                    <time className="shrink-0 text-xs text-muted-foreground">
+                      {format(diary.date.toDate(), "yyyy年M月d日")}
+                    </time>
+                  </div>
+                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                    <DiaryMarkdown variant="excerpt">
+                      {diary.content}
+                    </DiaryMarkdown>
+                  </p>
+                </Button>
+                {index < visibleResults.length - 1 && (
+                  <Separator className="bg-border/60" />
+                )}
+              </div>
+            ))}
+            {results.length > 50 && (
+              <p className="border-t border-border/60 px-3 py-2 text-xs text-muted-foreground">
+                {results.length}件中50件を表示しています。
+              </p>
+            )}
+          </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
