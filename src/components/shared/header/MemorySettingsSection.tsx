@@ -68,7 +68,7 @@ export const MemorySettingsSection = ({
         variant="ghost"
         size="icon"
         aria-label={`${item.label}を削除`}
-        className="text-destructive"
+        className="text-destructive hover:text-destructive"
         onClick={() => setDeletingItem(item)}
       >
         <Trash2 />
@@ -88,9 +88,6 @@ export const MemorySettingsSection = ({
       <TabsContent value="memory" className="m-0 flex min-h-0 flex-1 flex-col">
         <div className="shrink-0 border-b px-5 py-4 sm:px-6">
           <h2 className="text-lg font-semibold">メモリ</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            内容を編集するか、不要な項目を削除できます。
-          </p>
         </div>
         <ScrollArea className="min-h-0 flex-1">
           <div className="space-y-6 px-5 py-5 sm:px-6">
