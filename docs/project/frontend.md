@@ -45,6 +45,8 @@ React.StrictMode
 
 ## Detailed snapshots
 
+2026-09-23 UI/UX改善時の差分確認: 月選択はカレンダーポップオーバー・前後月・今日ボタンに変更し、不正な年月routeを当月へ正規化します。認証済みshellのpage読み込みは`ContentSkeleton`を使い、初期認証・同意gateの`LoadingScreen`とは区別します。共有操作は公開範囲の確認Dialogから行い、設定の共有一覧では公開日・プレビュー・既存リンクのコピー・共有停止を提供します。
+
 - route、認証境界、parameter fallback: `frontend/routing.md`
 - リーガルMarkdown、version hash、編集手順: `frontend/legal-documents.md`
 - state owner、再取得、browser persistence: `frontend/state.md`
