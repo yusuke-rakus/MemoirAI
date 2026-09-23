@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { Tag } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import { DiaryMarkdown } from "@/components/shared/diary/DiaryMarkdown";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -24,36 +24,42 @@ import { DiaryTag } from "./DiaryTag";
 
 type DiaryItemProps = {
   diary: Diary;
+  compact?: boolean;
 };
 
 export const DiaryItem = (props: DiaryItemProps) => {
-  const { diary } = props;
+  const { diary, compact = false } = props;
   const location = useLocation();
-  const navigate = useNavigate();
   const updatedAt = getDiaryUpdatedAt(diary);
 
-  const handleSearch = () => {
-    const dateStr = format(diary.date.toDate(), "yyyy-MM-dd");
-    const state = {
-      returnTo: location.pathname,
-    } satisfies DiaryDetailNavigationState;
-
-    navigate(`${PATHS.diaries.path}/${dateStr}`, { state });
-  };
+  const dateStr = format(diary.date.toDate(), "yyyy-MM-dd");
+  const state = {
+    returnTo: location.pathname,
+  } satisfies DiaryDetailNavigationState;
 
   return (
-    <CardContent onClick={handleSearch} className="cursor-pointer px-0">
+    <Link
+      to={`${PATHS.diaries.path}/${dateStr}#diary-${diary.id}`}
+      state={state}
+      className="block rounded-sm focus-visible:ring-2 focus-visible:ring-ring"
+    >
       <div className="flex rounded-sm p-2 transition-all hover:bg-ring/10">
         <DayIcon date={diary.date.toDate()} />
-        <div className="mx-2 flex-1">
+        <div className="mx-2 min-w-0 flex-1">
           <CardHeader className="mb-2 w-full p-0">
             <CardTitle className="text-lg">{diary.title}</CardTitle>
           </CardHeader>
           <CardContent className="mb-4 p-0">
-            <p className="line-clamp-4 text-sm leading-relaxed text-foreground/80">
+            <p
+              className={
+                compact
+                  ? "line-clamp-1 text-sm text-muted-foreground"
+                  : "line-clamp-4 text-sm leading-relaxed text-foreground/80"
+              }
+            >
               <DiaryMarkdown variant="excerpt">{diary.content}</DiaryMarkdown>
             </p>
-            {diary.images && diary.images.length > 0 && (
+            {!compact && diary.images && diary.images.length > 0 && (
               <div className="grid grid-cols-3 items-start gap-2 pt-3 sm:grid-cols-4">
                 {diary.images.map((image, index) => (
                   <AspectRatio
@@ -72,7 +78,7 @@ export const DiaryItem = (props: DiaryItemProps) => {
               </div>
             )}
           </CardContent>
-          <CardFooter className="flex items-end gap-3 p-0">
+          <CardFooter className="flex flex-wrap items-end gap-3 p-0">
             {diary.tags && diary.tags.length > 0 && (
               <div className="flex flex-wrap items-center gap-2">
                 <Tag className="h-4 w-4 text-ring" />
@@ -83,13 +89,13 @@ export const DiaryItem = (props: DiaryItemProps) => {
             )}
             <time
               dateTime={updatedAt.toISOString()}
-              className="ml-auto shrink-0 text-xs text-muted-foreground/60"
+              className="ml-auto shrink-0 text-xs text-muted-foreground"
             >
               {formatDiaryUpdatedAt(diary)}
             </time>
           </CardFooter>
         </div>
       </div>
-    </CardContent>
+    </Link>
   );
 };

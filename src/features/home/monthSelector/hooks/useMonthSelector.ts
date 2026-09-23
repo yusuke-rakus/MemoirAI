@@ -1,98 +1,17 @@
-import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { useCurrentDateStore } from "../../provider/CurrentDateProvider";
+export type Month = { label: string; date: Date; isButton: boolean };
 
-export type Month = {
-  label: string;
-  date: Date;
-  isButton: boolean;
-};
-
-/**
- * 年月のスクロールバーを初期化するカスタムフック
- */
-export const useMonths = () => {
-  const [months, setMonths] = useState<Month[]>([]);
-
-  const generateNext12Months = (now: Date) => {
-    const result = [];
-    for (let i = 0; i < 12; i++) {
-      const date = new Date(now.getFullYear(), now.getMonth() - i);
-      const label = `${date.getMonth() + 1}月`;
-      result.push({ label, date, isButton: true });
-      if (date.getMonth() === 0) {
-        result.push({
-          label: date.getFullYear().toString(),
-          date: date,
-          isButton: false,
-        });
-      }
-    }
-    return result.reverse();
-  };
-
-  useEffect(() => {
-    setMonths(generateNext12Months(new Date()));
-  }, []);
-
-  return months;
-};
-
-/**
- * ルートのパスパラメータ `:year` と `:month` を更新するフック。
- * - 現在のパスに `:year` と `:month` が存在する場合は置換する。
- * - 存在しない場合は現在のパスの末尾に `/{year}/{month}` を追加する。
- */
 export const useSetMonthRouteParams = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { setDate } = useCurrentDateStore();
-  const params = useParams<{ year?: string; month?: string }>();
-
-  const setMonthRouteParams = (month: Month, replace = false) => {
-    const targetYear = month.date.getFullYear().toString();
-    const targetMonth = (month.date.getMonth() + 1).toString();
-
-    const currentPath = location.pathname;
-
-    setDate(month.date);
-
-    if (params.year && params.month) {
-      const segments = currentPath.split("/");
-      const newSegments = segments.map((seg) => {
-        if (seg === params.year) return targetYear;
-        if (seg === params.month) return targetMonth;
-        return seg;
-      });
-      const newPath = newSegments.join("/");
-      navigate(newPath, { replace });
-      return;
-    }
-
-    const base = currentPath.endsWith("/")
-      ? currentPath.slice(0, -1)
-      : currentPath;
-    navigate(`${base}/${targetYear}/${targetMonth}`, { replace });
+  return (month: Month, replace = false) => {
+    const base = location.pathname.startsWith("/diaries")
+      ? "/diaries"
+      : "/calendar";
+    navigate(
+      `${base}/${month.date.getFullYear()}/${month.date.getMonth() + 1}`,
+      { replace },
+    );
   };
-
-  return setMonthRouteParams;
-};
-
-/**
- * 現在の月の要素がマウントされた後、月一覧の更新に応じてビューの中央へスクロールするカスタムフック
- * @param months スクロールを再トリガーする月一覧
- */
-export const useScrollToCurrentMonth = (months: Month[]) => {
-  const currentMonthRef = useRef<HTMLButtonElement | null>(null);
-
-  useEffect(() => {
-    currentMonthRef.current?.scrollIntoView({
-      behavior: "smooth",
-      inline: "center",
-      block: "nearest",
-    });
-  }, [months]);
-
-  return { currentMonthRef };
 };

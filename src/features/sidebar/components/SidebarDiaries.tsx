@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { ChevronDown, Loader2, MessageSquareDashed } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import {
   SidebarGroupLabel,
@@ -17,6 +17,7 @@ import { useFetchDiary } from "../hooks/useFetchDiary";
 import { SidebarFavorites } from "./SidebarFavorites";
 
 export const SidebarDiaries = () => {
+  const location = useLocation();
   const { diaries, isLoading, loadMore, hasMore, isLoadingMore } =
     useFetchDiary();
   const { isMobile, setOpenMobile } = useSidebar();
@@ -30,7 +31,7 @@ export const SidebarDiaries = () => {
   return (
     <div className="min-h-0 flex-1 overflow-y-auto">
       <SidebarFavorites />
-      <SidebarGroupLabel>日記の一覧</SidebarGroupLabel>
+      <SidebarGroupLabel>最近の日記</SidebarGroupLabel>
       <SidebarMenuSub>
         {isLoading ? (
           <>
@@ -43,11 +44,14 @@ export const SidebarDiaries = () => {
         ) : diaries.length > 0 ? (
           <>
             {diaries.map((diary) => {
+              const href = `${PATHS.diaries.path}/${format(diary.date.toDate(), "yyyy-MM-dd")}#diary-${diary.id}`;
+              const isActive = `${location.pathname}${location.hash}` === href;
               return (
                 <SidebarMenuSubItem key={diary.id}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild isActive={isActive}>
                     <Link
-                      to={`${PATHS.diaries.path}/${format(diary.date.toDate(), "yyyy-MM-dd")}`}
+                      to={href}
+                      aria-current={isActive ? "page" : undefined}
                       onClick={handleNavigation}
                     >
                       <span className="truncate text-xs">{diary.title}</span>

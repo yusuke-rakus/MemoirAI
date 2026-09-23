@@ -36,6 +36,11 @@
 }
 
 /* Keep the month grid within its fixed height without making it scrollable. */
-.fc .fc-daygrid-body-unbalanced .fc-daygrid-day-events {
+.fc .fc-daygrid-day-events {
   min-height: 0;
+}
+
+/* Prevent event content from stretching rows beyond their allocated height. */
+.fc .fc-daygrid-day-frame {
+  overflow: hidden;
 }

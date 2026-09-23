@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,7 +9,7 @@ import { useCurrentDateStore } from "../provider/CurrentDateProvider";
 import { Diaries } from "./Diaries";
 
 export const DiaryView = () => {
-  const { dialies, loading } = useDiaryList();
+  const { dialies, loading, error, refetch } = useDiaryList();
   const { date } = useCurrentDateStore();
   useDocumentTitle("日記一覧");
 
@@ -25,8 +26,15 @@ export const DiaryView = () => {
             </CardContent>
           ))}
         </Card>
+      ) : error ? (
+        <div role="alert" className="space-y-3">
+          <p>日記を読み込めませんでした。</p>
+          <Button variant="outline" onClick={() => void refetch()}>
+            再試行
+          </Button>
+        </div>
       ) : (
-        <Diaries dialies={dialies} date={date} />
+        <Diaries dialies={dialies} date={date} period="month" />
       )}
     </div>
   );
