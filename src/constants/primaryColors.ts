@@ -36,6 +36,13 @@ export const primaryColorOptions = [
     primaryForeground: "var(--theme-yellow-foreground)",
   },
   {
+    key: "pink",
+    label: "ピンク",
+    previewClassName: "bg-theme-pink",
+    primary: "var(--theme-pink)",
+    primaryForeground: "var(--theme-pink-foreground)",
+  },
+  {
     key: "red",
     label: "レッド",
     previewClassName: "bg-theme-red",
@@ -48,13 +55,6 @@ export const primaryColorOptions = [
     previewClassName: "bg-theme-purple",
     primary: "var(--theme-purple)",
     primaryForeground: "var(--theme-purple-foreground)",
-  },
-  {
-    key: "pink",
-    label: "ピンク",
-    previewClassName: "bg-theme-pink",
-    primary: "var(--theme-pink)",
-    primaryForeground: "var(--theme-pink-foreground)",
   },
 ] as const satisfies readonly PrimaryColorOption[];
 
