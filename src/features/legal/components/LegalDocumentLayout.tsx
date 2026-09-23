@@ -112,6 +112,24 @@ export const LegalDocumentLayout = ({
           </p>
         </header>
 
+        <aside
+          aria-label="利用条件の要点"
+          className="mt-6 rounded-lg border p-4 text-sm leading-relaxed"
+        >
+          <h2 className="font-semibold">利用前に確認する3つのポイント</h2>
+          <ul className="mt-3 list-disc space-y-2 pl-5 text-muted-foreground">
+            <li>日本国内に住む18歳以上の方の、個人・非商用利用向けです。</li>
+            <li>
+              保存時に本文・プロフィール・メモリをAIへ送信します。画像生成は任意です。
+            </li>
+            <li>
+              共有操作をすると、本文・画像・表示名などをリンクを知る人が閲覧できます。
+            </li>
+          </ul>
+          <p className="mt-3 text-muted-foreground">
+            これは要約です。詳しい条件は各文書の全文をご確認ください。
+          </p>
+        </aside>
         <nav aria-label="リーガル文書の目次" className="mt-6 border-y py-3">
           <ol className="grid gap-1 sm:grid-cols-3 sm:gap-4">
             {documents.map((document, index) => (
@@ -154,13 +172,18 @@ export const LegalDocumentLayout = ({
                   {formatLegalEffectiveDate(document.effectiveDate)}版
                 </p>
               </header>
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                components={markdownComponents}
-                skipHtml
-              >
-                {document.body}
-              </ReactMarkdown>
+              <details open>
+                <summary className="mt-4 cursor-pointer py-2 text-sm font-medium">
+                  全文を表示・折りたたむ
+                </summary>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={markdownComponents}
+                  skipHtml
+                >
+                  {document.body}
+                </ReactMarkdown>
+              </details>
             </section>
           ))}
         </article>
