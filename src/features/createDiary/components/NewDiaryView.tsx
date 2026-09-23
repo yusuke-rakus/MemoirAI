@@ -73,6 +73,7 @@ export const NewDiaryView = () => {
   const placeholderText = useRotatingText(pickRandomMessages);
   const [draggingCardId, setDraggingCardId] = useState<string | null>(null);
   const [saveMode, setSaveMode] = useState<DiarySaveMode>("standard");
+  const [bodyErrors, setBodyErrors] = useState<Record<string, string>>({});
   const savePending = useRef(false);
   useShortcut("save", () => void handleSave(), {
     enabled: !isCreating && !hasRestorableDraft && !isNavigationBlocked,
@@ -87,7 +88,15 @@ export const NewDiaryView = () => {
   useEffect(() => {
     reset(date);
     setSaveMode("standard");
+    setBodyErrors({});
   }, [date, reset]);
+
+  useEffect(() => {
+    const firstInvalidId = Object.keys(bodyErrors)[0];
+    if (firstInvalidId) {
+      document.getElementById(`diary-body-${firstInvalidId}`)?.focus();
+    }
+  }, [bodyErrors]);
 
   const handleSave = async () => {
     if (savePending.current || isCreating) return;
@@ -97,12 +106,21 @@ export const NewDiaryView = () => {
     );
     const hasBody = cards.some((card) => card.body.trim());
     if (invalidCard || !hasBody) {
+      setBodyErrors(
+        Object.fromEntries(
+          cards
+            .filter(
+              (card) =>
+                !card.body.trim() &&
+                (!hasBody || card.tags.length > 0 || card.images.length > 0),
+            )
+            .map((card) => [card.id, "本文を入力してください。"]),
+        ),
+      );
       toast.error("本文を入力してください");
-      document
-        .getElementById(`diary-body-${invalidCard?.id ?? cards[0]?.id}`)
-        ?.focus();
       return;
     }
+    setBodyErrors({});
 
     if (saveMode === "illustrated") {
       const fullImageCard = cards.find(
@@ -206,7 +224,7 @@ export const NewDiaryView = () => {
                   aria-label="日付を変更"
                 >
                   <CalendarIcon className="h-5 w-5" />
-                  {format(date, "M月d日")}
+                  {format(date, "yyyy年M月d日")}
                 </Button>
               </PopoverTrigger>
               <PopoverContent
@@ -236,6 +254,9 @@ export const NewDiaryView = () => {
           </div>
         </div>
 
+        <p className="mb-4 text-sm text-muted-foreground">
+          本文を入力すると保存できます。保存時にAIがタイトル・タグを生成し、メモリを更新します。日記は共有するまで非公開です。
+        </p>
         <div className="space-y-6">
           {cards.map((card) => (
             <Card
@@ -279,6 +300,7 @@ export const NewDiaryView = () => {
                 disabled={isCreating}
                 markdownEditorEnabled={localUser.markdownEditorEnabled}
                 placeholder={placeholderText}
+                error={card.body.trim() ? undefined : bodyErrors[card.id]}
                 tagInput={tagInputs[card.id] || ""}
                 onAddImages={(cardId, files) => {
                   const result = addImages(cardId, files);
