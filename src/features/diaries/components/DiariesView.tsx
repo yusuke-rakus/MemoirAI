@@ -3,6 +3,7 @@ import { ChevronLeft } from "lucide-react";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { ContentSkeleton } from "@/components/shared/common/ContentSkeleton";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +28,7 @@ const getReturnTo = (state: unknown) => {
 
 export const DiariesView = () => {
   const { date } = useDiaryDetailStore();
-  const { diaries, refetch } = useFetchDiary();
+  const { diaries, refetch, isLoading, error } = useFetchDiary();
   const location = useLocation();
   const navigate = useNavigate();
   const returnTo = getReturnTo(location.state);
@@ -59,13 +60,23 @@ export const DiariesView = () => {
         </Button>
       )}
       <div className="flex flex-col gap-1">
-        <h2 className="text-3xl font-bold">{format(date, "M月d日")}</h2>
+        <h2 className="text-3xl font-bold">{format(date, "yyyy年M月d日")}</h2>
         <p className="text-sm text-muted-foreground">
-          {diaries.length > 0 && `本日は ${diaries.length} 件の記録があります`}
+          {diaries.length > 0 &&
+            `この日は ${diaries.length} 件の記録があります`}
         </p>
       </div>
       <div>
-        {diaries.length > 0 ? (
+        {isLoading ? (
+          <ContentSkeleton />
+        ) : error ? (
+          <div role="alert" className="space-y-3">
+            <p>日記を読み込めませんでした。通信状態を確認してください。</p>
+            <Button variant="outline" onClick={() => void refetch()}>
+              再試行
+            </Button>
+          </div>
+        ) : diaries.length > 0 ? (
           <div className="space-y-4">
             {diaries.map((diary) => (
               <DiaryPreviewCard

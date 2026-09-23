@@ -3,6 +3,7 @@ import { lazy, Suspense } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
+import { ContentSkeleton } from "@/components/shared/common/ContentSkeleton";
 import { LoadingScreen } from "@/components/shared/common/LoadingScreen";
 import { PATHS } from "@/constants/path";
 import { LegalConsentError } from "@/features/legal/components/LegalConsentError";
@@ -82,7 +83,7 @@ export const AppShellLayout = () => {
   }
 
   const outlet = (
-    <Suspense fallback={<LoadingScreen variant="page" />}>
+    <Suspense fallback={<ContentSkeleton />}>
       <Outlet context={{ user } satisfies AppShellOutletContext} />
     </Suspense>
   );
