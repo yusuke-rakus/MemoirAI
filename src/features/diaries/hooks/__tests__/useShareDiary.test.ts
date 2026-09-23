@@ -12,7 +12,7 @@ import type { Diary } from "@/types/diary/diary";
 
 import { useShareDiary } from "../useShareDiary";
 
-const renderHook = <Result,>(callback: () => Result) =>
+const renderHook = <Result>(callback: () => Result) =>
   baseRenderHook(callback, { wrapper: QueryTestProvider });
 
 vi.mock("@/contexts/LocalUserContext", () => ({
@@ -36,6 +36,7 @@ vi.mock("sonner", () => ({
   toast: {
     success: vi.fn(),
     error: vi.fn(),
+    warning: vi.fn(),
   },
 }));
 
@@ -146,7 +147,7 @@ describe("useShareDiary", () => {
     expect(result.current.isSharing).toBe(false);
   });
 
-  it("clipboard非対応時は作成した共有URLをtoastへ表示する", async () => {
+  it("clipboard非対応時は公開済みであることとコピー方法を通知する", async () => {
     publishMock.mockResolvedValue({ shareId: "share-2" });
     vi.stubGlobal("navigator", {});
 
@@ -156,9 +157,26 @@ describe("useShareDiary", () => {
       await result.current.copyShareLink();
     });
 
-    expect(toastSuccessMock).toHaveBeenCalledWith(
-      "共有リンクを作成しました: https://memoir.test/shared/share-2",
+    expect(toast.warning).toHaveBeenCalledWith(
+      "公開しましたがリンクをコピーできませんでした。共有画面のリンク欄からコピーしてください。",
     );
+  });
+
+  it("clipboard拒否を公開失敗と誤って案内せず公開状態を維持する", async () => {
+    publishMock.mockResolvedValue({ shareId: "share-denied" });
+    vi.stubGlobal("navigator", {
+      clipboard: { writeText: vi.fn().mockRejectedValue(new Error("denied")) },
+    });
+    const { result } = renderHook(() => useShareDiary(diary));
+    await act(async () => {
+      await result.current.copyShareLink();
+    });
+    await waitFor(() =>
+      expect(result.current.activeShareId).toBe("share-denied"),
+    );
+    expect(result.current.isShared).toBe(true);
+    expect(toast.warning).toHaveBeenCalled();
+    expect(toastErrorMock).not.toHaveBeenCalled();
   });
 
   it("LINEアプリの送信先選択画面を安全なpopupで開く", async () => {

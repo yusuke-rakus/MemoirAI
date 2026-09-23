@@ -1,7 +1,8 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { BookOpen, Unlink } from "lucide-react";
+import { BookOpen, Copy, Ellipsis, Eye, Unlink } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -20,8 +21,13 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
-import { sharedDiaryQueryKeys } from "@/lib/query/queryKeys";
+import { diaryQueryKeys, sharedDiaryQueryKeys } from "@/lib/query/queryKeys";
 import {
   SharedDiaryClient,
   type SharedDiaryResult,
@@ -53,6 +59,18 @@ export const SharedDiariesSettingsSection = ({ uid }: Props) => {
     null,
   );
   const [isUnsharing, setIsUnsharing] = useState(false);
+  const copyLink = async (shareId: string) => {
+    try {
+      await navigator.clipboard.writeText(
+        `${window.location.origin}/shared/${shareId}`,
+      );
+      toast.success("共有リンクをコピーしました");
+    } catch {
+      toast.error(
+        "コピーできませんでした。「公開内容を確認」からリンクを開いてコピーしてください。",
+      );
+    }
+  };
 
   const handleUnshare = async () => {
     if (!selectedDiary) return;
@@ -63,6 +81,15 @@ export const SharedDiariesSettingsSection = ({ uid }: Props) => {
       await queryClient.invalidateQueries({
         queryKey: sharedDiaryQueryKeys.byOwner(uid ?? ""),
         refetchType: "all",
+      });
+      await queryClient.invalidateQueries({
+        queryKey: diaryQueryKeys.all(uid ?? ""),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["sharedDiary", "status", uid ?? ""],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: sharedDiaryQueryKeys.byShareId(selectedDiary.sharedDiaryId),
       });
       setSelectedDiary(null);
       toast.success("共有を停止しました");
@@ -119,7 +146,7 @@ export const SharedDiariesSettingsSection = ({ uid }: Props) => {
           {(query.data ?? []).map((sharedDiary) => (
             <div
               key={sharedDiary.sharedDiaryId}
-              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3"
+              className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 px-4 py-3"
             >
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">
@@ -133,16 +160,57 @@ export const SharedDiariesSettingsSection = ({ uid }: Props) => {
                   に共有
                 </time>
               </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="shrink-0"
-                onClick={() => setSelectedDiary(sharedDiary)}
-              >
-                <Unlink />
-                解除
-              </Button>
+              <div className="flex flex-col items-end justify-between gap-3">
+                <Popover modal>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label="共有した日記の操作メニューを開く"
+                    >
+                      <Ellipsis />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    align="end"
+                    collisionPadding={8}
+                    className="w-max max-w-[calc(100vw-1rem)] p-1"
+                  >
+                    <div className="grid grid-cols-1 gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="h-auto min-h-9 min-w-0 justify-start text-left whitespace-normal"
+                        asChild
+                      >
+                        <Link to={`/shared/${sharedDiary.sharedDiaryId}`}>
+                          <Eye />
+                          <span className="min-w-0">公開内容を確認</span>
+                        </Link>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="h-auto min-h-9 min-w-0 justify-start text-left whitespace-normal"
+                        onClick={() => void copyLink(sharedDiary.sharedDiaryId)}
+                      >
+                        <Copy />
+                        <span className="min-w-0">リンクをコピー</span>
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedDiary(sharedDiary)}
+                >
+                  <Unlink />
+                  解除
+                </Button>
+              </div>
             </div>
           ))}
         </div>

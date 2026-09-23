@@ -4,10 +4,7 @@ import { toast } from "sonner";
 
 import { PATHS } from "@/constants/path";
 import { useLocalUser } from "@/contexts/LocalUserContext";
-import {
-  diaryQueryKeys,
-  sharedDiaryQueryKeys,
-} from "@/lib/query/queryKeys";
+import { diaryQueryKeys, sharedDiaryQueryKeys } from "@/lib/query/queryKeys";
 import { SharedDiaryClient } from "@/lib/service/sharedDiaryClient";
 import type { Diary } from "@/types/diary/diary";
 
@@ -18,8 +15,12 @@ const copyToClipboard = async (text: string) => {
     return false;
   }
 
-  await navigator.clipboard.writeText(text);
-  return true;
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    return false;
+  }
 };
 
 const buildShareUrl = (shareId: string) =>
@@ -35,7 +36,7 @@ const buildXShareUrl = (shareUrl: string, title: string) =>
     text: `MemoirAIで「${title}」の日記を共有しました。\n${shareUrl}`,
   }).toString()}`;
 
-export const useShareDiary = (diary: Diary) => {
+export const useShareDiary = (diary: Diary, enabled = false) => {
   const [isSharing, setIsSharing] = useState(false);
   const [isUnsharing, setIsUnsharing] = useState(false);
   const { localUser } = useLocalUser();
@@ -43,7 +44,7 @@ export const useShareDiary = (diary: Diary) => {
   const shareId = diary.shareId ?? diary.id;
   const shareStatusQuery = useQuery({
     queryKey: sharedDiaryQueryKeys.status(diary.uid, diary.id, shareId),
-    enabled: false,
+    enabled,
     queryFn: () => SharedDiaryClient.getActiveShareId(diary),
   });
 
@@ -77,6 +78,14 @@ export const useShareDiary = (diary: Diary) => {
       sharedDiaryQueryKeys.status(diary.uid, diary.id, shareId),
       shareId,
     );
+    queryClient.setQueryData(
+      sharedDiaryQueryKeys.status(
+        diary.uid,
+        diary.id,
+        diary.shareId ?? diary.id,
+      ),
+      shareId,
+    );
     await Promise.all([
       queryClient.invalidateQueries({
         queryKey: diaryQueryKeys.all(diary.uid),
@@ -85,6 +94,9 @@ export const useShareDiary = (diary: Diary) => {
       queryClient.invalidateQueries({
         queryKey: sharedDiaryQueryKeys.byOwner(diary.uid),
         refetchType: "all",
+      }),
+      queryClient.invalidateQueries({
+        queryKey: sharedDiaryQueryKeys.byShareId(shareId),
       }),
     ]);
     return buildShareUrl(shareId);
@@ -128,7 +140,9 @@ export const useShareDiary = (diary: Diary) => {
       if (copied) {
         toast.success("共有リンクをコピーしました");
       } else {
-        toast.success(`共有リンクを作成しました: ${shareUrl}`);
+        toast.warning(
+          "公開しましたがリンクをコピーできませんでした。共有画面のリンク欄からコピーしてください。",
+        );
       }
     } catch (error) {
       console.error("Failed to share diary", error);
@@ -191,6 +205,7 @@ export const useShareDiary = (diary: Diary) => {
   }, [diary.title, publishShareUrl]);
 
   return {
+    activeShareId: shareStatusQuery.data ?? null,
     isSharing,
     isUnsharing,
     isShared: shareStatus === "shared",

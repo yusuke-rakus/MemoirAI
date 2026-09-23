@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import {
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { Views } from "./constants/views";
 import { useInitialDiaryDate } from "./hooks/useInitialDiaryDate";
+import { parseMonthRoute } from "./lib/monthRoute";
 import { MonthSelector } from "./monthSelector/MonthSelector";
 import { CurrentDateProvider } from "./provider/CurrentDateProvider";
 
@@ -12,6 +18,7 @@ export const HomePage = () => {
   const tabs = Views;
   const location = useLocation();
   const initialDate = useInitialDiaryDate();
+  const { year, month } = useParams();
 
   const [tabValue, setTabValue] = useState<string>();
   useEffect(() => {
@@ -36,8 +43,20 @@ export const HomePage = () => {
     );
   };
 
+  if (!parseMonthRoute(year, month)) {
+    const base = location.pathname.startsWith("/diaries")
+      ? "/diaries"
+      : "/calendar";
+    return (
+      <Navigate
+        replace
+        to={`${base}/${initialDate.getFullYear()}/${initialDate.getMonth() + 1}`}
+      />
+    );
+  }
+
   return (
-    <CurrentDateProvider initialDate={initialDate}>
+    <CurrentDateProvider key={`${year}-${month}`} initialDate={initialDate}>
       <Tabs
         value={tabValue}
         onValueChange={setTabValue}
@@ -47,7 +66,10 @@ export const HomePage = () => {
           <div className="mx-auto flex w-full justify-center">
             <MonthSelector targetDate={initialDate} />
           </div>
-          <TabsList className="mr-auto w-full max-w-xs justify-start rounded-none border-b bg-inherit p-0">
+          <TabsList
+            aria-label="日記の表示方法"
+            className="mr-auto w-full max-w-xs justify-start rounded-none border-b bg-inherit p-0"
+          >
             {tabs.map((tab) => {
               return (
                 <TabsTrigger

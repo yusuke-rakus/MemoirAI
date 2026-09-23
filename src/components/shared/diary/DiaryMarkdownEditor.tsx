@@ -11,6 +11,7 @@ type DiaryMarkdownEditorProps = {
   content: string;
   className?: string;
   disabled?: boolean;
+  invalid?: boolean;
   enabled: boolean;
   previewClassName?: string;
   resetKey: string;
@@ -23,6 +24,7 @@ export const DiaryMarkdownEditor = ({
   content,
   className,
   disabled = false,
+  invalid = false,
   enabled,
   previewClassName,
   resetKey,
@@ -39,7 +41,7 @@ export const DiaryMarkdownEditor = ({
 
   return (
     <Tabs
-      value={mode}
+      value={invalid ? "write" : mode}
       onValueChange={(value) => setMode(value as EditorMode)}
       className={className}
     >
@@ -49,7 +51,11 @@ export const DiaryMarkdownEditor = ({
             <PencilLine aria-hidden="true" />
             入力
           </TabsTrigger>
-          <TabsTrigger value="preview" disabled={disabled} className="text-xs">
+          <TabsTrigger
+            value="preview"
+            disabled={disabled || invalid}
+            className="text-xs"
+          >
             <Eye aria-hidden="true" />
             プレビュー
           </TabsTrigger>

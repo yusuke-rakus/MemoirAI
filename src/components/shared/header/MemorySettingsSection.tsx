@@ -91,6 +91,9 @@ export const MemorySettingsSection = ({
         </div>
         <ScrollArea className="min-h-0 flex-1">
           <div className="space-y-6 px-5 py-5 sm:px-6">
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              日記からAIが抽出した情報です。今後のタイトルやタグなどの生成に使われます。誤った内容は編集・削除できます。削除しても、今後の日記から同じ内容が再び抽出される場合があります。
+            </p>
             {isLoading && (
               <div className="space-y-3">
                 <Skeleton className="h-5 w-28" />

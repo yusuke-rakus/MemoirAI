@@ -6,7 +6,7 @@ import {
   UserRound,
   UserRoundX,
 } from "lucide-react";
-import { type RefObject, useEffect, useRef, useState } from "react";
+import { type RefObject, useEffect, useState } from "react";
 
 import {
   Dialog,
@@ -45,7 +45,6 @@ export const SettingsDialog = ({
   returnFocusRef,
 }: Props) => {
   const isMobile = useIsMobile();
-  const titleRef = useRef<HTMLHeadingElement>(null);
   const [activeSection, setActiveSection] =
     useState<SettingsSection>("profile");
   const [isAccountDeleting, setIsAccountDeleting] = useState(false);
@@ -92,15 +91,9 @@ export const SettingsDialog = ({
           }
         }}
         className="flex h-[min(720px,calc(100dvh-2rem))] flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl"
-        onOpenAutoFocus={(event) => {
-          event.preventDefault();
-          titleRef.current?.focus();
-        }}
       >
         <DialogHeader className="shrink-0 border-b px-5 py-5 text-left sm:px-6">
-          <DialogTitle ref={titleRef} tabIndex={-1}>
-            設定
-          </DialogTitle>
+          <DialogTitle>設定</DialogTitle>
           <DialogDescription className="sr-only">
             プロフィール、表示、メモリ、共有した日記、アカウントを確認できます。
           </DialogDescription>

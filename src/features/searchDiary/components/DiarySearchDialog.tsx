@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -84,6 +85,8 @@ export const DiarySearchDialog = () => {
     [searchIndex, debouncedQuery, open, isSharedInput],
   );
   const visibleResults = results.slice(0, 50);
+  const isSearching =
+    !isSharedInput && (query !== debouncedQuery || diariesQuery.isFetching);
   const canOpenResult =
     !isSharedInput &&
     open &&
@@ -103,6 +106,8 @@ export const DiarySearchDialog = () => {
   const openDiary = (diary: Diary) => {
     setOpen(false);
     setQuery("");
+    setDebouncedQuery("");
+    if (isMobile) setOpenMobile(false);
     navigate(
       `/diaries/${format(diary.date.toDate(), "yyyy-MM-dd")}#diary-${diary.id}`,
     );
@@ -125,6 +130,9 @@ export const DiarySearchDialog = () => {
       >
         <DialogHeader className="border-b border-border/60 px-5 py-4">
           <DialogTitle>日記を検索</DialogTitle>
+          <DialogDescription className="sr-only">
+            キーワードやタグで検索し、上下キーとEnterで結果を開けます。
+          </DialogDescription>
         </DialogHeader>
         <div className="flex items-center gap-3 border-b border-border/60 px-5 py-3">
           <Search className="size-5 text-muted-foreground" aria-hidden="true" />
@@ -180,7 +188,7 @@ export const DiarySearchDialog = () => {
               type="button"
               variant="ghost"
               size="icon"
-              className="size-5 p-0 text-muted-foreground [&_svg]:size-5"
+              className="size-9 p-0 text-muted-foreground [&_svg]:size-5"
               onClick={() => setQuery("")}
               disabled={!query}
               aria-label="検索語を削除"
@@ -225,7 +233,20 @@ export const DiarySearchDialog = () => {
           </section>
         )}
         <ScrollArea className="h-[min(60vh,480px)]">
-          <div aria-live="polite">
+          <div aria-live="polite" role="status">
+            {isSearching && (
+              <p className="p-6 text-center text-sm text-muted-foreground">
+                検索中…
+              </p>
+            )}
+            {!isSharedInput &&
+              !isSearching &&
+              !diariesQuery.isError &&
+              debouncedQuery.trim() && (
+                <p className="px-5 pt-3 text-sm text-muted-foreground">
+                  {results.length}件の日記が見つかりました。
+                </p>
+              )}
             {sharedUrl.kind === "invalid" && (
               <p id={urlErrorId} className="px-5 py-3 text-sm text-destructive">
                 このアプリの共有URLまたは共有IDを入力してください。
@@ -293,22 +314,34 @@ export const DiarySearchDialog = () => {
                 </p>
               </Button>
             )}
-            {!isSharedInput && diariesQuery.isLoading && !query && (
-              <p className="p-6 text-center text-sm text-muted-foreground">
-                日記を読み込んでいます…
-              </p>
-            )}
             {!isSharedInput &&
-              !diariesQuery.isLoading &&
-              diariesQuery.isError && (
-                <p className="p-6 text-center text-sm text-destructive">
-                  日記を読み込めませんでした。ダイアログを開き直してください。
+              diariesQuery.isLoading &&
+              !query &&
+              !isSearching && (
+                <p className="p-6 text-center text-sm text-muted-foreground">
+                  日記を読み込んでいます…
                 </p>
               )}
             {!isSharedInput &&
               !diariesQuery.isLoading &&
+              diariesQuery.isError && (
+                <div className="p-6 text-center text-sm">
+                  <p className="text-destructive">
+                    日記を読み込めませんでした。
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => void diariesQuery.refetch()}
+                  >
+                    再試行
+                  </Button>
+                </div>
+              )}
+            {!isSharedInput &&
+              !diariesQuery.isLoading &&
               !diariesQuery.isError &&
-              !debouncedQuery && (
+              !isSearching &&
+              !debouncedQuery.trim() && (
                 <p className="p-6 text-center text-sm text-muted-foreground">
                   思い出したい出来事やタグを入力してください。
                 </p>
@@ -316,47 +349,49 @@ export const DiarySearchDialog = () => {
             {!isSharedInput &&
               !diariesQuery.isLoading &&
               !diariesQuery.isError &&
-              debouncedQuery &&
+              !isSearching &&
+              debouncedQuery.trim() &&
               results.length === 0 && (
                 <p className="p-6 text-center text-sm text-muted-foreground">
-                  一致する日記はありません。
+                  一致する日記はありません。別の言葉やタグで検索してください。
                 </p>
               )}
-            {visibleResults.map(({ diary }, index) => (
-              <div key={diary.id}>
-                <Button
-                  id={`${resultsId}-${index}`}
-                  role="option"
-                  aria-selected={canOpenResult && index === selectedIndex}
-                  type="button"
-                  variant="ghost"
-                  disabled={!canOpenResult}
-                  onFocus={() => setSelectedIndex(index)}
-                  onClick={() => openDiary(diary)}
-                  className={cn(
-                    "h-auto w-full flex-col items-stretch justify-start gap-0 px-3 py-3 text-left font-normal whitespace-normal",
-                    canOpenResult &&
-                      index === selectedIndex &&
-                      "bg-accent text-accent-foreground",
+            {!isSearching &&
+              visibleResults.map(({ diary }, index) => (
+                <div key={diary.id}>
+                  <Button
+                    id={`${resultsId}-${index}`}
+                    role="option"
+                    aria-selected={canOpenResult && index === selectedIndex}
+                    type="button"
+                    variant="ghost"
+                    disabled={!canOpenResult}
+                    onFocus={() => setSelectedIndex(index)}
+                    onClick={() => openDiary(diary)}
+                    className={cn(
+                      "h-auto w-full flex-col items-stretch justify-start gap-0 px-3 py-3 text-left font-normal whitespace-normal",
+                      canOpenResult &&
+                        index === selectedIndex &&
+                        "bg-accent text-accent-foreground",
+                    )}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <span className="font-medium">{diary.title}</span>
+                      <time className="shrink-0 text-xs text-muted-foreground">
+                        {format(diary.date.toDate(), "yyyy年M月d日")}
+                      </time>
+                    </div>
+                    <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                      <DiaryMarkdown variant="excerpt">
+                        {diary.content}
+                      </DiaryMarkdown>
+                    </p>
+                  </Button>
+                  {index < visibleResults.length - 1 && (
+                    <Separator className="bg-border/60" />
                   )}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <span className="font-medium">{diary.title}</span>
-                    <time className="shrink-0 text-xs text-muted-foreground">
-                      {format(diary.date.toDate(), "yyyy年M月d日")}
-                    </time>
-                  </div>
-                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                    <DiaryMarkdown variant="excerpt">
-                      {diary.content}
-                    </DiaryMarkdown>
-                  </p>
-                </Button>
-                {index < visibleResults.length - 1 && (
-                  <Separator className="bg-border/60" />
-                )}
-              </div>
-            ))}
+                </div>
+              ))}
             {results.length > 50 && (
               <p className="border-t border-border/60 px-3 py-2 text-xs text-muted-foreground">
                 {results.length}件中50件を表示しています。
