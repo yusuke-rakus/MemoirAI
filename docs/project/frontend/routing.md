@@ -22,7 +22,7 @@
 
 当月・当日のredirectは`initialDateStore`の現在日を使います。日付routeは通常`yyyy-MM-dd`で、`new Date()`によりparseします。
 
-年月parserは整数yearと1〜12のmonthなら月初を返します。それ以外でもmonth文字列を`new Date(month)`で解釈できれば採用し、`Invalid Date`の場合だけ現在日に戻るため、strict validationではありません。
+年月parserは4桁のyear（1000〜9999）と1〜12のmonthを検証し、月初を返します。不正な年月は当月の正規URLへreplaceします。年月の変更時はProviderを再生成して選択日・一覧の状態を切り替えます。カレンダーポップオーバー（年月選択）、前後月、今日ボタンから移動でき、表示方式のtab切り替えでは年月を維持します。
 
 `HomePage`はpathnameでCalendar / Diary tabを選び、tab変更時に年月付きURLへnavigateします。
 

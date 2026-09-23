@@ -6,7 +6,7 @@ import { LoginView } from "./components/LoginView";
 export const LoginPage = () => {
   return (
     <MainLayout
-      title="login"
+      title="ログイン"
       headerComponent={<LoginHeader />}
       headerOffsetClassName="mt-14"
       sidebarComponent={null}

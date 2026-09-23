@@ -28,6 +28,7 @@ export const MonthSelectorScrollButton = (
       variant="ghost"
       size="icon"
       onClick={onToggle}
+      aria-label={scroll === "left" ? "前の月を表示" : "次の月を表示"}
       className="rounded-full shadow-xs"
     >
       <Icon className="h-10 w-10" />

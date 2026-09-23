@@ -16,6 +16,7 @@ type DiaryCardEditorProps = {
   disabled: boolean;
   markdownEditorEnabled: boolean;
   placeholder: string;
+  error?: string;
   tagInput: string;
   onAddImages: (
     cardId: string,
@@ -42,6 +43,7 @@ export const DiaryCardEditor = ({
   disabled,
   markdownEditorEnabled,
   placeholder,
+  error,
   tagInput,
   onAddImages,
   onAddTag,
@@ -55,19 +57,32 @@ export const DiaryCardEditor = ({
     <DiaryMarkdownEditor
       content={card.body}
       disabled={disabled}
+      invalid={Boolean(error)}
       enabled={markdownEditorEnabled}
       resetKey={`${dateKey}:${card.id}`}
       previewClassName="max-h-[500px] min-h-[300px] border-none shadow"
     >
       <Textarea
         id={`diary-body-${card.id}`}
+        aria-label="日記の本文"
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `diary-body-error-${card.id}` : undefined}
         placeholder={placeholder}
         value={card.body}
         disabled={disabled}
         onChange={(event) => onUpdateBody(card.id, event.target.value)}
-        className="max-h-[500px] min-h-[300px] resize-none overflow-y-auto border-none leading-relaxed shadow placeholder:text-muted-foreground/30 focus-visible:ring-0"
+        className="max-h-[500px] min-h-[240px] resize-y overflow-y-auto leading-relaxed shadow placeholder:text-muted-foreground focus-visible:ring-2"
       />
     </DiaryMarkdownEditor>
+    {error && (
+      <p
+        id={`diary-body-error-${card.id}`}
+        role="alert"
+        className="mt-2 text-sm text-destructive"
+      >
+        {error}
+      </p>
+    )}
 
     <div className="h-px w-full bg-gradient-to-r from-transparent via-border to-transparent opacity-50" />
 
@@ -90,9 +105,10 @@ export const DiaryCardEditor = ({
               type="button"
               variant="ghost"
               size="icon"
+              disabled={disabled}
               onClick={() => onRemoveTag(card.id, tagIndex)}
               aria-label={`${tag.name}タグを削除`}
-              className="size-4 rounded-full hover:bg-transparent hover:text-destructive [&_svg]:size-3"
+              className="size-6 rounded-full hover:bg-transparent hover:text-destructive [&_svg]:size-3"
             >
               <X className="h-3 w-3" />
             </Button>
@@ -103,10 +119,12 @@ export const DiaryCardEditor = ({
       <div className="relative flex min-w-[200px] items-center">
         <Input
           placeholder="タグを追加"
+          aria-label="追加するタグ"
+          disabled={disabled}
           value={tagInput}
           onChange={(event) => onTagInputChange(card.id, event.target.value)}
           onKeyDown={(event) => onTagInputKeyDown(event, card.id)}
-          className="h-8 border-none bg-transparent text-sm shadow placeholder:text-muted-foreground/40 focus-visible:ring-0"
+          className="h-9 bg-transparent text-sm shadow placeholder:text-muted-foreground"
         />
         {tagInput && (
           <Button
@@ -140,6 +158,7 @@ export const DiaryCardEditor = ({
               variant="secondary"
               size="icon"
               disabled={disabled}
+              aria-label={`${image.file.name}の画像を削除`}
               className="absolute top-1 right-1 h-6 w-6 rounded-full shadow-sm"
               onClick={() => onRemoveImage(card.id, image.id)}
             >

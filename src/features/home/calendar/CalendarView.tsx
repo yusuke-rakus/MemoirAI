@@ -1,6 +1,8 @@
 import { isSameDay } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { ContentSkeleton } from "@/components/shared/common/ContentSkeleton";
+import { Button } from "@/components/ui/button";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 import { Diaries } from "../diaryList/Diaries";
@@ -8,7 +10,7 @@ import { useDiaryList } from "../hooks/useDiaryList";
 import { Calendar } from "./Calendar";
 
 export const CalendarView = () => {
-  const { dialies } = useDiaryList();
+  const { dialies, loading, error, refetch } = useDiaryList();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const diariesRef = useRef<HTMLDivElement>(null);
   useDocumentTitle("カレンダー");
@@ -30,13 +32,26 @@ export const CalendarView = () => {
 
     const frameId = window.requestAnimationFrame(() => {
       diariesRef.current?.scrollIntoView({
-        behavior: "smooth",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
         block: "start",
       });
     });
 
     return () => window.cancelAnimationFrame(frameId);
   }, [selectedDate, selectedDateDiaries.length]);
+
+  if (loading) return <ContentSkeleton />;
+  if (error)
+    return (
+      <div role="alert" className="space-y-3">
+        <p>日記を読み込めませんでした。</p>
+        <Button variant="outline" onClick={() => void refetch()}>
+          再試行
+        </Button>
+      </div>
+    );
 
   return (
     <div className="mb-0 md:mb-10">

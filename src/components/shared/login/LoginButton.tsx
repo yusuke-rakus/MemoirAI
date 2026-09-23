@@ -12,7 +12,7 @@ export const LoginButton = (props: LoginButtonProps) => {
   return (
     <Button onClick={handleLogin}>
       <LogIn />
-      ログイン
+      Googleでログイン
     </Button>
   );
 };

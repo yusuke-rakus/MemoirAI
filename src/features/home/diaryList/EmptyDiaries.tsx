@@ -15,9 +15,10 @@ import { PATHS } from "@/constants/path";
 
 interface EmptyDiariesProps {
   date?: Date;
+  period?: "day" | "month";
 }
 
-export function EmptyDiaries({ date }: EmptyDiariesProps) {
+export function EmptyDiaries({ date, period = "day" }: EmptyDiariesProps) {
   const navigate = useNavigate();
   const dateString = format(date ?? new Date(), "yyyy-MM-dd");
 
@@ -27,9 +28,16 @@ export function EmptyDiaries({ date }: EmptyDiariesProps) {
         <EmptyMedia variant="icon">
           <Notebook />
         </EmptyMedia>
-        <EmptyTitle>まだ日記がないようです ✏️</EmptyTitle>
+        <EmptyTitle>
+          {date
+            ? format(date, period === "month" ? "yyyy年M月" : "yyyy年M月d日")
+            : "この日"}
+          の日記はありません
+        </EmptyTitle>
         <EmptyDescription>
-          日々の出来事や気持ちを記録してみましょう。下のボタンから最初の日記を作成できます。
+          {period === "month"
+            ? "別の月を選ぶか、この月の出来事を記録してみましょう。"
+            : "この日の出来事や気持ちを記録してみましょう。"}
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>

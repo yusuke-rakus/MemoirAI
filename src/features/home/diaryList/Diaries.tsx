@@ -8,22 +8,29 @@ import { EmptyDiaries } from "./EmptyDiaries";
 interface DiariesProps {
   dialies: Diary[];
   date?: Date;
+  period?: "day" | "month";
 }
 
-export const Diaries = ({ dialies, date }: DiariesProps) => {
+export const Diaries = ({
+  dialies,
+  date,
+  period = "day",
+}: DiariesProps) => {
   return (
     <>
       {dialies.length > 0 ? (
         <Card className="w-full gap-0 p-4 md:p-3">
           {dialies.map((diary, index) => (
-            <div key={index}>
-              <DiaryItem key={index} diary={diary} />
-              {index < dialies.length - 1 && <Separator className="my-2" />}
+            <div key={diary.id}>
+              <DiaryItem diary={diary} />
+              {index < dialies.length - 1 && (
+                <Separator className="my-2" />
+              )}
             </div>
           ))}
         </Card>
       ) : (
-        <EmptyDiaries date={date} />
+        <EmptyDiaries date={date} period={period} />
       )}
     </>
   );
