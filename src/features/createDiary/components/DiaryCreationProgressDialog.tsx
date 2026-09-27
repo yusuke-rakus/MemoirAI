@@ -24,7 +24,7 @@ const ProgressStep = ({ status, icon: Icon, labels }: ProgressStepProps) => {
       data-status={status}
       className={cn(
         "flex items-center gap-2.5 py-2 text-sm transition-colors motion-reduce:transition-none",
-        isActive ? "text-primary" : "text-muted-foreground",
+        isActive ? "text-foreground" : "text-muted-foreground",
       )}
     >
       <Icon className="size-4 shrink-0" aria-hidden="true" />
