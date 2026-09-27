@@ -254,9 +254,6 @@ export const NewDiaryView = () => {
           </div>
         </div>
 
-        <p className="mb-4 text-sm text-muted-foreground">
-          本文を入力すると保存できます。保存時にAIがタイトル・タグを生成し、メモリを更新します。日記は共有するまで非公開です。
-        </p>
         <div className="space-y-6">
           {cards.map((card) => (
             <Card
@@ -287,7 +284,7 @@ export const NewDiaryView = () => {
                 </div>
               )}
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-foreground">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
                   <Label htmlFor={`diary-body-${card.id}`}>
                     今日の出来事を書き留めよう ✨
                   </Label>
