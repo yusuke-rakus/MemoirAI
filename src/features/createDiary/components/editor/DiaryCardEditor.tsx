@@ -71,7 +71,7 @@ export const DiaryCardEditor = ({
         value={card.body}
         disabled={disabled}
         onChange={(event) => onUpdateBody(card.id, event.target.value)}
-        className="max-h-[500px] min-h-[240px] resize-y overflow-y-auto leading-relaxed shadow placeholder:text-muted-foreground focus-visible:ring-2"
+        className="max-h-[500px] min-h-[240px] resize-y overflow-y-auto leading-relaxed shadow placeholder:text-foreground/30 focus-visible:ring-2"
       />
     </DiaryMarkdownEditor>
     {error && (
