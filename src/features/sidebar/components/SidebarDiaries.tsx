@@ -29,7 +29,7 @@ export const SidebarDiaries = () => {
   };
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto">
+    <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <SidebarFavorites />
       <SidebarGroupLabel>最近の日記</SidebarGroupLabel>
       <SidebarMenuSub>
