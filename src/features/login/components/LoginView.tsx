@@ -1,6 +1,9 @@
 import { useReducedMotion } from "motion/react";
 import { lazy, Suspense } from "react";
+import { Link } from "react-router-dom";
 
+import { Button } from "@/components/ui/button";
+import { PATHS } from "@/constants/path";
 import { LegalLinks } from "@/features/legal/components/LegalLinks";
 
 const PixelBlast = lazy(
@@ -44,6 +47,11 @@ export const LoginView = () => {
               <br className="hidden sm:inline" />
               An AI journal built for fragmented days.
             </p>
+            <Button asChild variant="outline" size="lg">
+              <Link to={PATHS.guestDiary.path}>
+                ログインせずに日記を体験する
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
