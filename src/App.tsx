@@ -19,6 +19,11 @@ const NewDiaryPage = lazy(() =>
     default: module.NewDiaryPage,
   })),
 );
+const GuestDiaryPage = lazy(() =>
+  import("./features/createDiary/GuestDiaryPage").then((module) => ({
+    default: module.GuestDiaryPage,
+  })),
+);
 const DiariesPage = lazy(() =>
   import("./features/diaries").then((module) => ({
     default: module.DiariesPage,
@@ -55,6 +60,7 @@ export const App = () => {
       <Suspense fallback={<LoadingScreen variant="page" />}>
         <Routes>
           <Route element={<AppShellLayout />}>
+            <Route path={PATHS.guestDiary.path} element={<GuestDiaryPage />} />
             <Route element={<AuthenticatedLayout />}>
               <Route
                 path="/"

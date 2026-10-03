@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import type { DiaryCard } from "@/features/createDiary/hooks/useDiaryCard";
+import type { DiaryCard } from "@/types/diaryDraft";
 
 import { DiaryImagePicker } from "../DiaryImagePicker";
 
@@ -14,6 +14,7 @@ type DiaryCardEditorProps = {
   card: DiaryCard;
   dateKey: string;
   disabled: boolean;
+  allowImageUpload?: boolean;
   markdownEditorEnabled: boolean;
   placeholder: string;
   error?: string;
@@ -41,6 +42,7 @@ export const DiaryCardEditor = ({
   card,
   dateKey,
   disabled,
+  allowImageUpload = true,
   markdownEditorEnabled,
   placeholder,
   error,
@@ -87,12 +89,14 @@ export const DiaryCardEditor = ({
     <div className="h-px w-full bg-gradient-to-r from-transparent via-border to-transparent opacity-50" />
 
     <div className="flex flex-wrap items-center gap-3 pt-2">
-      <DiaryImagePicker
-        cardId={card.id}
-        images={card.images}
-        disabled={disabled}
-        onAddImages={onAddImages}
-      />
+      {allowImageUpload && (
+        <DiaryImagePicker
+          cardId={card.id}
+          images={card.images}
+          disabled={disabled}
+          onAddImages={onAddImages}
+        />
+      )}
 
       <div className="flex flex-wrap gap-2">
         {card.tags.map((tag, tagIndex) => (

@@ -20,6 +20,7 @@ export const PATHS: Record<
   | "calendar"
   | "diaries"
   | "newDiary"
+  | "guestDiary"
   | "login"
   | "sharedDiary"
   | "legal"
@@ -41,6 +42,11 @@ export const PATHS: Record<
   newDiary: {
     path: "/new-diary",
     name: "新しい日記",
+    icon: PenSquare,
+  },
+  guestDiary: {
+    path: "/guest/new-diary",
+    name: "日記を体験する",
     icon: PenSquare,
   },
   login: {
