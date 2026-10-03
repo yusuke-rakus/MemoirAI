@@ -34,7 +34,7 @@ path: `users/{uid}/diaries/{diaryId}`、client: `src/lib/service/diaryClient.ts`
 
 ## Writes and callers
 
-- add: `setDoc(users/{uid}/diaries/{id}, data)`。
+- add: `setDoc(users/{uid}/diaries/{id}, data)`。ゲスト引き継ぎの `addIfAbsent` はtransactionで既存documentを確認し、存在する日記を上書きしません。`exists` はdocumentのIDとownerも確認します。
 - update: `setDoc(..., { merge: true })`、delete: document `delete`。
 - 共有開始 / 停止は`SharedDiaryClient`がtransactionで`shareId`を設定 / 除去し、公開copyと同期します。
 - Storageとの順序と失敗挙動は`../firebase/ai-and-operations.md`を参照します。

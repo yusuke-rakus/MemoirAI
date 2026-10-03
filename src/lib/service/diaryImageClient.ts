@@ -15,6 +15,7 @@ type UploadDiaryImageParams = {
   uid: string;
   diaryId: string;
   file: File;
+  imageId?: string;
 };
 
 const isObjectNotFoundError = (error: unknown) =>
@@ -25,8 +26,11 @@ export class DiaryImageClient {
     uid,
     diaryId,
     file,
+    imageId = generateDiaryImageId(),
   }: UploadDiaryImageParams): Promise<DiaryImage> {
-    const imageId = generateDiaryImageId();
+    if (!uid || !diaryId || !imageId || imageId.includes("/")) {
+      throw new Error("uid, diaryId and a valid imageId are required.");
+    }
     const preparedImage = await prepareDiaryImage(file);
     const storagePath = `users/${uid}/diaries/${diaryId}/images/${imageId}.${preparedImage.extension}`;
     const imageRef = ref(storage, storagePath);
