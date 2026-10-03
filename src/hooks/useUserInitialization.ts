@@ -51,25 +51,28 @@ export const useUserInitialization = (
   displayName?: string | null,
   enabled = false,
 ) => {
-  const [status, setStatus] = useState<UserInitializationStatus>("idle");
+  const [state, setState] = useState<{
+    uid?: string;
+    status: UserInitializationStatus;
+  }>({ status: "idle" });
   const [requestId, setRequestId] = useState(0);
 
   useEffect(() => {
     if (!uid || !enabled) {
-      setStatus("idle");
+      setState({ uid, status: "idle" });
       return;
     }
 
     let isCurrent = true;
-    setStatus("loading");
+    setState({ uid, status: "loading" });
 
     void initializeUserSettings(uid, displayName)
       .then(() => {
-        if (isCurrent) setStatus("ready");
+        if (isCurrent) setState({ uid, status: "ready" });
       })
       .catch((error: unknown) => {
         console.error("Failed to initialize user settings", error);
-        if (isCurrent) setStatus("error");
+        if (isCurrent) setState({ uid, status: "error" });
       });
 
     return () => {
@@ -78,7 +81,8 @@ export const useUserInitialization = (
   }, [displayName, enabled, requestId, uid]);
 
   return {
-    status,
+    status:
+      uid && enabled && state.uid === uid ? state.status : ("idle" as const),
     retry: () => setRequestId((current) => current + 1),
   };
 };

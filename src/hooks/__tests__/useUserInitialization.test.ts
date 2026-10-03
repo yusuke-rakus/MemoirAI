@@ -1,6 +1,10 @@
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { initializeUserSettings } from "../useUserInitialization";
+import {
+  initializeUserSettings,
+  useUserInitialization,
+} from "../useUserInitialization";
 
 const mocks = vi.hoisted(() => ({
   getByUid: vi.fn(),
@@ -57,5 +61,34 @@ describe("initializeUserSettings", () => {
     await initializeUserSettings("user-1");
 
     expect(mocks.update).not.toHaveBeenCalled();
+  });
+});
+
+describe("useUserInitialization ownership", () => {
+  it("UID変更直後は新UIDの初期化前に前ユーザーのreadyを返さない", async () => {
+    let finish!: (value: null) => void;
+    mocks.getByUid.mockImplementation((uid: string) =>
+      uid === "user-1"
+        ? Promise.resolve(null)
+        : new Promise<null>((resolve) => {
+            finish = resolve;
+          }),
+    );
+    mocks.update.mockResolvedValue(undefined);
+    mocks.initializeProfile.mockResolvedValue(undefined);
+    const seen: string[] = [];
+    const { result, rerender } = renderHook(
+      ({ uid }) => {
+        const initialization = useUserInitialization(uid, null, true);
+        if (uid === "user-2") seen.push(initialization.status);
+        return initialization;
+      },
+      { initialProps: { uid: "user-1" } },
+    );
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+    rerender({ uid: "user-2" });
+    expect(seen).not.toContain("ready");
+    await act(async () => finish(null));
+    await waitFor(() => expect(result.current.status).toBe("ready"));
   });
 });
