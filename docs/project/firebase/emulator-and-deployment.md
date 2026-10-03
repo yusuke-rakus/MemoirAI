@@ -56,3 +56,7 @@ repository変更だけでは実AI生成を有効化できません。対象proje
 6. GitHub Actionsへ3つのbuild環境変数を登録し、Hostingを再deployする。
 
 Replay protectionとauthenticated-users modeは今回有効化しません。実AI確認は課金が発生し得るため、登録済みdebug tokenを使うBlaze開発projectで明示的に実施します。
+
+## Guest import verification
+
+`pnpm exec tsx scripts/testGuestDiaryRules.ts`はゲスト引き継ぎに使うowner-onlyの日記・画像アクセスと、登録後の編集を引き継ぎretryで上書きしないことを検証します。既定portはFirestore 8080 / Storage 9199です。既存processと競合する場合は一時Firebase configでEmulatorを別portへ起動し、`GUEST_TEST_FIRESTORE_PORT` / `GUEST_TEST_STORAGE_PORT`でtest側も合わせます。test projectは `demo-memoir-ai-guest-diary-rules` 固定です。Storage未起動時はその検証をskipして明示します。
