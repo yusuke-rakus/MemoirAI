@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { MAX_DIARY_IMAGE_COUNT } from "@/constants/diaryImages";
 import type { TagColor } from "@/constants/tagColors";
 import { useLocalUser } from "@/contexts/LocalUserContext";
-import { diaryTitleModel } from "@/firebase/models/createDiarySchema";
 import { memoryExtractionModel } from "@/firebase/models/memoryExtractionSchema";
 import { getDiaryImageErrorMessage } from "@/lib/diaryImageError";
 import { generateDiaryId } from "@/lib/generateId";
@@ -16,6 +15,10 @@ import {
   DiaryIllustrationError,
 } from "@/lib/service/diaryIllustrationClient";
 import { DiaryImageClient } from "@/lib/service/diaryImageClient";
+import {
+  DiaryMetadataClient,
+  mergeDiaryTags,
+} from "@/lib/service/diaryMetadataClient";
 import { UserMemoryClient } from "@/lib/service/userMemoryClient";
 import type { DiaryImage } from "@/types/diary/diary";
 import type {
@@ -47,11 +50,6 @@ type DiaryMeta = {
   tags: Tag[];
 };
 
-type DiaryMetaResponse = {
-  title: string;
-  tags?: Tag[];
-};
-
 type DiaryPreparation = {
   diary: Diary;
   diaryId: string;
@@ -70,26 +68,6 @@ type CreatedDiaryMemoryPayload = {
   memoryPromise: Promise<ExtractedUserMemory | null>;
 };
 
-const generateTitle = async (
-  content: string,
-  selectedTags: string[],
-  memoryContext: ActiveUserMemoryContext | null,
-) => {
-  const aiResponse = await diaryTitleModel.generateContent(
-    JSON.stringify({
-      diaryContent: content,
-      selectedTags,
-      memoryContext,
-    }),
-  );
-  const text = aiResponse.response.text();
-  const json = JSON.parse(text) as DiaryMetaResponse;
-  return {
-    title: json.title,
-    tags: json.tags ?? [],
-  };
-};
-
 const extractDiaryMemory = async (
   content: string,
   memoryContext: ActiveUserMemoryContext | null,
@@ -103,26 +81,6 @@ const extractDiaryMemory = async (
   const text = aiResponse.response.text();
 
   return JSON.parse(text) as ExtractedUserMemory;
-};
-
-const normalizeTagName = (name: string) =>
-  name.trim().toLocaleLowerCase("ja-JP");
-
-const mergeTags = (selectedTags: Tag[], generatedTags: Tag[]): Tag[] => {
-  const tagsByName = new Map<string, Tag>();
-
-  [...selectedTags, ...generatedTags].forEach((tag) => {
-    const name = tag.name.trim();
-    const normalizedName = normalizeTagName(name);
-    if (!normalizedName || tagsByName.has(normalizedName)) return;
-
-    tagsByName.set(normalizedName, {
-      ...tag,
-      name,
-    });
-  });
-
-  return Array.from(tagsByName.values());
 };
 
 const getActiveMemoryContext = async (uid: string) => {
@@ -145,7 +103,7 @@ const prepareDiary = (
     diary,
     diaryId,
     metaPromise: memoryContextPromise.then((memoryContext) =>
-      generateTitle(
+      DiaryMetadataClient.generate(
         diary.content,
         diary.tags.map((tag) => tag.name),
         memoryContext,
@@ -292,7 +250,7 @@ export const useCreateDiary = () => {
         const addPromises = preparedDiaries.map(async (preparation) => {
           const { diary, diaryId, diaryMeta, illustrationFile, memoryPromise } =
             preparation;
-          const mergedTags = mergeTags(diary.tags, diaryMeta.tags);
+          const mergedTags = mergeDiaryTags(diary.tags, diaryMeta.tags);
           const files = [
             ...(illustrationFile ? [illustrationFile] : []),
             ...diary.images.map((image) => image.file),

@@ -33,3 +33,7 @@ introduction: 文書の導入文
 5. 利用目的、外部送信、AI処理、共有範囲等の重要変更では、Markdown更新に加えて`REQUIRED_LEGAL_CONSENT_VERSION`を更新し、再同意を要求します。表現修正だけでは必須同意versionを更新しません。
 
 `legal:check`は3ファイルの存在、front matter schema、document IDとfileの対応、ID重複、日付、version形式、本文hashを検証します。
+
+## Guest notice (2026-10-03)
+
+ゲスト画面は作成ボタン付近に「日記を作成すると、利用規約に同意したものとみなします」と規約linkを表示します。privacy / AI-data-useへのlink、AI送信対象、既存の利用資格も表示します。ゲスト専用の同意checkboxやFirestore同意記録は作成しません。ゲストの利用開始を規約の契約成立・認証要件へ追記し、正式なaccount利用の成人確認・同意gateは維持します。既存accountのAI利用目的・送信先・必須処理は変更しないため、必須同意version `v1` は維持しています。

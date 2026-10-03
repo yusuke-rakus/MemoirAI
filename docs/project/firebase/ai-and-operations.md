@@ -38,3 +38,11 @@ snapshot metadataは`../firebase.md`を参照してください。
 - developmentは`FIREBASE_APPCHECK_DEBUG_TOKEN = true`を初期化前に設定します。browser consoleへ表示されたdebug tokenをFirebase Consoleへ手動登録し、token自体はrepositoryへ保存しません。
 - testはbrowser attestationを実行しません。
 - Firebase ConsoleのFirebase AI LogicではBaseline protectionをenforceします。Replay protectionとauthenticated-users modeはこのsnapshotでは使用しません。
+
+## Guest creation and import (2026-10-03)
+
+ゲスト作成は既存Firebase AI Logicでタイトル・タグと任意の絵日記を生成し、入力tagとAI metadataをruntime validationします。ユーザーmemoryの取得・抽出・保存は行いません。ログイン前にFirestore / Storageへ書き込みません。
+
+引き継ぎは画像upload → Firestoreの存在確認付きtransaction → browser data削除です。画像の存在確認前に日記の存在を確認し、既存日記は再upload・上書きしません。途中失敗ではbrowser内の画像と登録先UIDを保持し、生成済み画像を固定Storage pathへ再uploadして再試行します。クラウド結果が不確かな失敗では画像を削除しません。未完了の引き継ぎには孤児画像が残る可能性があり、同じアカウントでの再試行または既存account削除のStorage整理が対象になります。
+
+公開前に対象Firebase projectのApp Check enforcementとauthenticated-users modeを確認し、認証必須モードがゲスト生成を拒否していないことを確認する必要があります。実Console設定とゲストの実AI生成はsource inspectionでは確認できません。

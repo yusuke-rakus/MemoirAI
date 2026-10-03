@@ -19,6 +19,8 @@ type DiarySaveButtonProps = {
   createPhase: CreatePhase;
   onSaveModeChange: (saveMode: DiarySaveMode) => void;
   onSave: () => void;
+  saveModeLocked?: boolean;
+  idleLabel?: string;
 };
 
 const isDiarySaveMode = (value: string): value is DiarySaveMode =>
@@ -43,9 +45,14 @@ export const DiarySaveButton = ({
   createPhase,
   onSaveModeChange,
   onSave,
+  saveModeLocked = false,
+  idleLabel,
 }: DiarySaveButtonProps) => {
   const isCreating = createPhase !== "idle";
-  const label = getSaveButtonLabel(saveMode, createPhase);
+  const label =
+    !isCreating && idleLabel
+      ? idleLabel
+      : getSaveButtonLabel(saveMode, createPhase);
 
   return (
     <div className="flex items-stretch rounded-md shadow-sm">
@@ -63,7 +70,7 @@ export const DiarySaveButton = ({
         <DropdownMenuTrigger asChild>
           <Button
             type="button"
-            disabled={isCreating}
+            disabled={isCreating || saveModeLocked}
             aria-label="保存方法を選択"
             className="h-10 w-10 rounded-l-none border-l border-primary-foreground/20 px-0 shadow-none"
           >

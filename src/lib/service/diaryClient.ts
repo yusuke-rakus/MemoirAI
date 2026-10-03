@@ -3,11 +3,13 @@ import {
   deleteDoc,
   doc,
   type DocumentData,
+  getDoc,
   getDocs,
   limit,
   orderBy,
   query,
   type QueryDocumentSnapshot,
+  runTransaction,
   setDoc,
   startAfter,
   Timestamp,
@@ -110,6 +112,38 @@ export class DiaryClient {
     if (querySnapshot.empty) return null;
 
     return querySnapshot.docs.map((doc) => doc.data() as T);
+  }
+
+  static async exists(uid: string, id: string): Promise<boolean> {
+    if (!uid || !id) throw new Error("uid and id are required.");
+    const snapshot = await getDoc(doc(db, "users", uid, "diaries", id));
+    if (
+      snapshot.exists() &&
+      (snapshot.data().uid !== uid || snapshot.data().id !== id)
+    ) {
+      throw new Error("Existing diary ownership does not match.");
+    }
+    return snapshot.exists();
+  }
+
+  static async addIfAbsent<
+    T extends DocumentData & { id: string; uid: string },
+  >(data: T): Promise<void> {
+    if (!data.uid || !data.id) throw new Error("uid and id are required.");
+    const reference = doc(db, "users", data.uid, "diaries", data.id);
+    await runTransaction(db, async (transaction) => {
+      const snapshot = await transaction.get(reference);
+      if (snapshot.exists()) {
+        if (
+          snapshot.data().uid !== data.uid ||
+          snapshot.data().id !== data.id
+        ) {
+          throw new Error("Existing diary ownership does not match.");
+        }
+        return;
+      }
+      transaction.set(reference, data);
+    });
   }
 
   static async add<T extends DocumentData & { id: string; uid: string }>(

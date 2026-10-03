@@ -30,7 +30,7 @@
 | `src/stores`                 | cross-feature Zustand store                             |
 | `src/lib/service`            | Firestore、Storage、browser persistence client          |
 | `src/firebase`               | Firebase初期化とAI model                                |
-| `src/lib`                    | 横断utility、env、ID、表示計算、TanStack Query設定・key  |
+| `src/lib`                    | 横断utility、env、ID、表示計算、TanStack Query設定・key |
 | `src/types`                  | featureを跨ぐ共有型・永続化型                           |
 | `src/constants`              | path、theme、画像制約、共有固定値                       |
 | `src/index.css`              | global CSS、theme variable、Tailwind mapping            |
@@ -39,7 +39,7 @@
 
 active featureはhome、createDiary、diaries、searchDiary、sharedDiary、login、legal、sidebarです。legalは`documents/*.md`を正本とする統合公開ページと初回ログイン後の同意gateを持ちます。sidebarは自分の日記とfavorite共有日記のpaged listを持ちます。`src/features/editDiary`に追跡sourceはなく、編集UIはdiaries配下にあります。
 
-createDiaryは通常保存と絵日記保存を持ちます。保存modeはfeature-local state、画像model設定は`src/firebase/models`、生成responseから`File`への変換は`src/lib/service/diaryIllustrationClient.ts`、永続化は既存`DiaryImageClient`の責務です。
+createDiaryは通常保存と絵日記保存、および公開URL `/guest/new-diary` のゲスト1件体験を持ちます。ゲストのeditor stateはfeature hook、端末内保存は `GuestDiaryClient`、ログイン後の引き継ぎはapp-wideの `useGuestDiaryImport` が担当します。保存modeはfeature-local state、画像model設定は`src/firebase/models`、生成responseから`File`への変換は`src/lib/service/diaryIllustrationClient.ts`、永続化は既存`DiaryImageClient`の責務です。
 
 account削除はSettings Dialogのアカウントtabから開始し、`useDeleteAccount`がAuth・browser draft・Firestore・Storageのgatewayを接続します。Firestoreの削除対象レジストリはdiaries、favorites、settings/profile、settings/appearance、settings/memory配下3 collection、user root、本人のshared diaryです。legal acceptanceだけは削除日時と5年後のTTLを付与して保持します。新しいuser-private collectionを追加する場合はaccount削除レジストリも同時に更新します。
 
