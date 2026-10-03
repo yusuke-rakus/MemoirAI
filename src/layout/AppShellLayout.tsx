@@ -1,5 +1,6 @@
+import { format } from "date-fns";
 import { signOut, type User } from "firebase/auth";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -11,6 +12,7 @@ import { LegalConsentGate } from "@/features/legal/components/LegalConsentGate";
 import { useLegalAcceptance } from "@/features/legal/hooks/useLegalAcceptance";
 import { auth } from "@/firebase/firebase";
 import { useAuthCheck } from "@/hooks/useAuthCheck";
+import { useGuestDiaryImport } from "@/hooks/useGuestDiaryImport";
 import { useUserInitialization } from "@/hooks/useUserInitialization";
 
 const AuthenticatedAppShell = lazy(() => import("./AuthenticatedAppShell"));
@@ -27,7 +29,23 @@ export const AppShellLayout = () => {
     user?.displayName,
     legalAcceptance.status === "accepted",
   );
+  const guestImport = useGuestDiaryImport(
+    user?.uid,
+    legalAcceptance.status === "accepted" &&
+      userInitialization.status === "ready",
+  );
   const navigate = useNavigate();
+  const importedDate = guestImport.date;
+  const acknowledgeImport = guestImport.acknowledge;
+  useEffect(() => {
+    if (!importedDate) return;
+    toast.success("体験で作成した日記をアカウントに保存しました");
+    navigate(
+      `${PATHS.diaries.path}/${format(new Date(importedDate), "yyyy-MM-dd")}`,
+      { replace: true },
+    );
+    acknowledgeImport();
+  }, [importedDate, navigate, acknowledgeImport]);
 
   const handleLogout = async () => {
     try {
@@ -80,6 +98,26 @@ export const AppShellLayout = () => {
         onLogout={handleLogout}
       />
     );
+  }
+
+  if (user && userInitialization.status === "ready") {
+    if (
+      guestImport.status === "idle" ||
+      guestImport.status === "loading" ||
+      importedDate
+    ) {
+      return <LoadingScreen variant="page" />;
+    }
+    if (guestImport.status === "error") {
+      return (
+        <LegalConsentError
+          title="体験で作成した日記を保存できませんでした"
+          description={`日記はこのブラウザに保持しています。${guestImport.error ?? "再試行してください。"}`}
+          onRetry={guestImport.retry}
+          onLogout={handleLogout}
+        />
+      );
+    }
   }
 
   const outlet = (
