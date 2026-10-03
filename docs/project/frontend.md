@@ -32,7 +32,7 @@ React.StrictMode
 | Feature       | Current role                                                 |
 | ------------- | ------------------------------------------------------------ |
 | `home`        | 月選択、Calendar、月単位diary list                           |
-| `createDiary` | diary作成、draft、AI、image upload                           |
+| `createDiary` | diary作成、draft、AI、image upload、ゲスト1件体験            |
 | `diaries`     | preview、edit、delete、share、image preview                  |
 | `searchDiary` | app-wide search Dialogとbrowser内検索                        |
 | `sharedDiary` | 公開共有diary、認証済みfavorite・標準shell                   |
