@@ -15,6 +15,7 @@ type DiaryCardEditorProps = {
   dateKey: string;
   disabled: boolean;
   allowImageUpload?: boolean;
+  allowTagEditing?: boolean;
   markdownEditorEnabled: boolean;
   placeholder: string;
   error?: string;
@@ -43,6 +44,7 @@ export const DiaryCardEditor = ({
   dateKey,
   disabled,
   allowImageUpload = true,
+  allowTagEditing = true,
   markdownEditorEnabled,
   placeholder,
   error,
@@ -86,64 +88,73 @@ export const DiaryCardEditor = ({
       </p>
     )}
 
-    <div className="h-px w-full bg-gradient-to-r from-transparent via-border to-transparent opacity-50" />
-
-    <div className="flex flex-wrap items-center gap-3 pt-2">
-      {allowImageUpload && (
-        <DiaryImagePicker
-          cardId={card.id}
-          images={card.images}
-          disabled={disabled}
-          onAddImages={onAddImages}
-        />
-      )}
-
-      <div className="flex flex-wrap gap-2">
-        {card.tags.map((tag, tagIndex) => (
-          <span
-            key={tagIndex}
-            className="inline-flex items-center gap-1.5 rounded-md bg-secondary/50 px-3 py-1 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary"
-          >
-            {tag.name}
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
+    {(allowImageUpload || allowTagEditing) && (
+      <>
+        <div className="h-px w-full bg-gradient-to-r from-transparent via-border to-transparent opacity-50" />
+        <div className="flex flex-wrap items-center gap-3 pt-2">
+          {allowImageUpload && (
+            <DiaryImagePicker
+              cardId={card.id}
+              images={card.images}
               disabled={disabled}
-              onClick={() => onRemoveTag(card.id, tagIndex)}
-              aria-label={`${tag.name}タグを削除`}
-              className="size-6 rounded-full hover:bg-transparent hover:text-destructive [&_svg]:size-3"
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          </span>
-        ))}
-      </div>
+              onAddImages={onAddImages}
+            />
+          )}
 
-      <div className="relative flex min-w-[200px] items-center">
-        <Input
-          placeholder="タグを追加"
-          aria-label="追加するタグ"
-          disabled={disabled}
-          value={tagInput}
-          onChange={(event) => onTagInputChange(card.id, event.target.value)}
-          onKeyDown={(event) => onTagInputKeyDown(event, card.id)}
-          className="h-9 bg-transparent text-sm shadow placeholder:text-muted-foreground"
-        />
-        {tagInput && (
-          <Button
-            type="button"
-            size="icon"
-            variant="ghost"
-            className="ml-2 h-6 w-6"
-            onClick={() => onAddTag(card.id)}
-            aria-label="タグを追加"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        )}
-      </div>
-    </div>
+          {allowTagEditing && (
+            <>
+              <div className="flex flex-wrap gap-2">
+                {card.tags.map((tag, tagIndex) => (
+                  <span
+                    key={tagIndex}
+                    className="inline-flex items-center gap-1.5 rounded-md bg-secondary/50 px-3 py-1 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary"
+                  >
+                    {tag.name}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      disabled={disabled}
+                      onClick={() => onRemoveTag(card.id, tagIndex)}
+                      aria-label={`${tag.name}タグを削除`}
+                      className="size-6 rounded-full hover:bg-transparent hover:text-destructive [&_svg]:size-3"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </span>
+                ))}
+              </div>
+
+              <div className="relative flex min-w-[200px] items-center">
+                <Input
+                  placeholder="タグを追加"
+                  aria-label="追加するタグ"
+                  disabled={disabled}
+                  value={tagInput}
+                  onChange={(event) =>
+                    onTagInputChange(card.id, event.target.value)
+                  }
+                  onKeyDown={(event) => onTagInputKeyDown(event, card.id)}
+                  className="h-9 bg-transparent text-sm shadow placeholder:text-muted-foreground"
+                />
+                {tagInput && (
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    className="ml-2 h-6 w-6"
+                    onClick={() => onAddTag(card.id)}
+                    aria-label="タグを追加"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </>
+    )}
 
     {card.images.length > 0 && (
       <div className="flex flex-wrap gap-3 pt-4">
