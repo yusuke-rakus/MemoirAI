@@ -20,7 +20,7 @@
 ## Other SDK coupling
 
 - `useAuthCheck` → `onAuthStateChanged`
-- `useLogin` → `signInWithPopup` / `getAdditionalUserInfo`
+- `useGoogleLogin` → `signInWithPopup`
 - `src/features/diaries/hooks/useDiaryPreviewActions.ts` → Firestore `Timestamp`
 - `src/features/createDiary/hooks/useCreateDiary.ts` → `src/firebase/models`
 - Auth serviceとfeature向けAI gatewayはありません。

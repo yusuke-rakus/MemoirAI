@@ -23,6 +23,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { PATHS } from "@/constants/path";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { useGoogleLogin } from "@/hooks/useGoogleLogin";
 import { useShortcut } from "@/hooks/useShortcut";
 import type { AppShellOutletContext } from "@/layout/AppShellLayout";
 import { MainLayout } from "@/layout/MainLayout";
@@ -36,11 +37,12 @@ import { useGuestDiary } from "./hooks/useGuestDiary";
 
 const GuestDiaryView = () => {
   const guest = useGuestDiary();
+  const { login, isLoggingIn } = useGoogleLogin();
   const navigate = useNavigate();
   const [previewUrl, setPreviewUrl] = useState<string>();
   const allowNavigation = useRef(false);
   const busy = guest.progress !== null;
-  const frozen = busy || guest.hasPreparedResult;
+  const frozen = busy || guest.hasPreparedResult || isLoggingIn;
   const blocker = useBlocker(
     () =>
       !allowNavigation.current &&
@@ -50,7 +52,11 @@ const GuestDiaryView = () => {
   useDocumentTitle("日記を体験する");
   useShortcut("save", () => void guest.create(), {
     enabled:
-      guest.loaded && !busy && !guest.diary && blocker.state !== "blocked",
+      guest.loaded &&
+      !busy &&
+      !isLoggingIn &&
+      !guest.diary &&
+      blocker.state !== "blocked",
   });
 
   useEffect(() => {
@@ -139,8 +145,8 @@ const GuestDiaryView = () => {
             )}
             <DiaryMarkdown>{guest.diary.content}</DiaryMarkdown>
             <div className="space-y-3 border-t pt-5">
-              <Button onClick={() => void goToLogin()}>
-                Googleでログインして保存
+              <Button disabled={frozen} onClick={() => void login()}>
+                {isLoggingIn ? "ログイン中..." : "Googleでログインして保存"}
               </Button>
             </div>
           </article>
