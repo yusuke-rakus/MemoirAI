@@ -1,5 +1,6 @@
 import { format } from "date-fns";
-import { Tag } from "lucide-react";
+import { ArrowRight, Tag } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
 import { Link } from "react-router-dom";
 
 import { LoadingScreen } from "@/components/shared/common/LoadingScreen";
@@ -39,11 +40,37 @@ type SharedDiaryViewProps = {
 export const SharedDiaryView = ({
   authenticatedUserId,
 }: SharedDiaryViewProps) => {
+  const shouldReduceMotion = useReducedMotion();
   const { diary, sharedDiaryId, isLoading } = useSharedDiary();
   const favorite = useSharedDiaryFavorite({
     uid: authenticatedUserId,
     sharedDiaryId: diary ? sharedDiaryId : null,
   });
+  const guestDiaryLink = !authenticatedUserId && (
+    // <Button asChild variant="outline">
+    <Button asChild>
+      <Link to={PATHS.guestDiary.path}>
+        日記を体験する
+        <motion.span
+          aria-hidden="true"
+          className="inline-flex w-6 shrink-0"
+          initial={false}
+          animate={shouldReduceMotion ? { x: 0 } : { x: [0, 6, 0] }}
+          transition={
+            shouldReduceMotion
+              ? { duration: 0 }
+              : {
+                  duration: 1,
+                  repeat: Infinity,
+                  ease: ["easeIn", "easeOut"],
+                }
+          }
+        >
+          <ArrowRight />
+        </motion.span>
+      </Link>
+    </Button>
+  );
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -63,6 +90,7 @@ export const SharedDiaryView = ({
             <Button asChild>
               <Link to={PATHS.login.path}>ログインページへ</Link>
             </Button>
+            {guestDiaryLink}
           </EmptyContent>
         </Empty>
       </div>
@@ -124,6 +152,9 @@ export const SharedDiaryView = ({
           </CardFooter>
         </CardContent>
       </Card>
+      {guestDiaryLink && (
+        <div className="flex justify-end pt-2">{guestDiaryLink}</div>
+      )}
     </div>
   );
 };
