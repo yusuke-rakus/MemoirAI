@@ -25,6 +25,7 @@ React.StrictMode
 - Settings Dialogはデスクトップではプロフィール、一般、ショートカット、メモリ、共有した日記、アカウントの6 tabです。スマホ幅ではショートカットを非表示にします。共有した日記では公開中のコピーを一覧し、共有解除できます。account削除はGoogle再認証後にclient-side gatewayでapp dataを削除し、契約同意記録へ5年TTLを設定してからAuth accountを削除します。
 - 認証済みshellの共通ショートカットは`AppSidebar`で登録し、`src/lib/shortcuts.ts`の定義を判定・解説・キー表示で共有します。設定のopen・初期tab・復帰focusは`AppSidebar`が所有し、デスクトップの`?`からショートカットtabを開きます。設定DialogはモバイルSidebarの開閉にかかわらずmountされます。画面固有の保存・検索結果・カレンダー操作は各featureが所有します。
 - loginはcustom Headerとsidebarなしの`MainLayout`です。shared diaryは未認証時に同じpublic shell、認証済みでは`AppShellLayout`の標準HeaderとSidebarを使います。
+- Google popupログインは共有hook `useGoogleLogin` を使います。ゲストの作成結果にある「Googleでログインして保存」は画面内で認証を開始し、`AppShellLayout` の同意確認・user初期化・日記引き継ぎへ接続します。ログイン画面からの認証成功時は従来どおり `/` へ移動します。
 - `MainLayout`は`mx-auto max-w-4xl px-2`の共通containerを提供します。
 
 ## Active features
@@ -32,7 +33,7 @@ React.StrictMode
 | Feature       | Current role                                                 |
 | ------------- | ------------------------------------------------------------ |
 | `home`        | 月選択、Calendar、月単位diary list                           |
-| `createDiary` | diary作成、draft、AI、image upload                           |
+| `createDiary` | diary作成、draft、AI、image upload、ゲスト1件体験            |
 | `diaries`     | preview、edit、delete、share、image preview                  |
 | `searchDiary` | app-wide search Dialogとbrowser内検索                        |
 | `sharedDiary` | 公開共有diary、認証済みfavorite・標準shell                   |

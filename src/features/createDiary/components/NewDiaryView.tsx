@@ -1,12 +1,11 @@
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Plus, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { type DragEvent, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { useRotatingText } from "@/components/shared/common/useRotatingText";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
@@ -17,11 +16,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { MAX_DIARY_IMAGE_COUNT } from "@/constants/diaryImages";
 import { PATHS } from "@/constants/path";
 import { useLocalUser } from "@/contexts/LocalUserContext";
@@ -35,6 +29,7 @@ import { usePickMessages } from "../hooks/usePickMessages";
 import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
 import type { DiarySaveMode } from "../types";
 import { DiaryCreationProgressDialog } from "./DiaryCreationProgressDialog";
+import { DiaryDatePicker } from "./DiaryDatePicker";
 import { DiarySaveButton } from "./DiarySaveButton";
 import { DiaryCardEditor } from "./editor/DiaryCardEditor";
 
@@ -214,35 +209,7 @@ export const NewDiaryView = () => {
       <div className="mx-auto max-w-4xl">
         {/* Header Section */}
         <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <div className="text-muted-foreground">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="h-11 gap-3 px-3 text-base font-medium tracking-tight text-muted-foreground hover:text-foreground sm:text-lg"
-                  aria-label="日付を変更"
-                >
-                  <CalendarIcon className="h-5 w-5" />
-                  {format(date, "yyyy年M月d日")}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-fit max-w-[calc(100vw-1rem)] p-0"
-                align="start"
-                sideOffset={8}
-                collisionPadding={8}
-              >
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={customSetDate}
-                  captionLayout="dropdown"
-                  required
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
+          <DiaryDatePicker date={date} onSelect={customSetDate} />
 
           <div className="flex items-center gap-3 self-end sm:self-auto">
             <DiarySaveButton

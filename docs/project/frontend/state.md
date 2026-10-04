@@ -25,3 +25,11 @@ snapshot metadataは`../frontend.md`を参照してください。
 - metadata: localStorage `memoir-ai:draft:v1:{uid}:{date}`
 - image `File`: IndexedDB `memoir-ai-drafts` / `draft-images`
 - browser localだけに保存し、Firebaseへ同期しません。
+
+## Guest diary (2026-10-03)
+
+`/guest/new-diary`は `useGuestDiary` のlocal stateで1件の日付・本文・タグを管理します。手動画像と複数セクションは許可しません。500ms後の下書き保存と作成結果は `GuestDiaryClient` が専用IndexedDB `memoir-ai-guest-diary` の `diary/current` へ保存します。本文・metadata・生成画像Blobは同一transactionでcommitし、復元時にzodで検証します。端末保存だけ失敗した場合は生成結果をmemoryに保持して同じ結果の保存を再試行します。
+
+作成と引き継ぎはWeb Locksの `memoir-ai:guest-diary` で複数タブ間を排他制御します。Web Locks非対応ではゲストの作成・保存を開始せず、最新browserを案内します。作成済み結果がある間は別タブの下書きで上書きしません。
+
+`AppShellLayout`は認証・必須同意・user初期化後に `useGuestDiaryImport` を実行します。初回登録先UIDを端末内に固定し、別UIDへの自動登録を拒否します。固定の日記ID・生成画像IDとFirestore transactionで再試行時の重複を防ぎ、登録済み日記があれば画像uploadを省略します。登録後に端末データを削除し、queryを無効化して日別画面へ移動します。失敗時は端末データを保持してretry/logoutを表示します。下書きだけではクラウド登録しません。

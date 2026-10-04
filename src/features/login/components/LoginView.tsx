@@ -11,6 +11,10 @@ export const LoginView = () => {
   const shouldReduceMotion = useReducedMotion();
   return (
     <div>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_15%_25%,var(--color-purple-400)_0%,transparent_65%),radial-gradient(ellipse_at_85%_75%,var(--color-pink-400)_0%,transparent_65%)] opacity-20"
+      />
       <div className="relative h-full min-h-[500px] w-full overflow-hidden text-foreground">
         <div className="absolute inset-0 z-0">
           <Suspense fallback={null}>
@@ -21,14 +25,14 @@ export const LoginView = () => {
               patternDensity={1.2}
               edgeFade={0.05}
               enableRipples={!shouldReduceMotion}
-              liquid={!shouldReduceMotion}
+              // liquid={!shouldReduceMotion}
               transparent
             />
           </Suspense>
         </div>
 
         <div className="relative z-10 flex h-full flex-col items-center justify-center p-6 text-center">
-          <div className="max-w-3xl animate-in space-y-8 duration-1000 slide-in-from-bottom-10 fade-in zoom-in">
+          <div className="max-w-3xl space-y-8">
             <h1 className="text-4xl font-extrabold tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl">
               <span className="block bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                 Memoir AI
