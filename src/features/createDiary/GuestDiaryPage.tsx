@@ -20,7 +20,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PATHS } from "@/constants/path";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
@@ -30,6 +29,7 @@ import { MainLayout } from "@/layout/MainLayout";
 import type { DiaryCard } from "@/types/diaryDraft";
 
 import { DiaryCreationProgressDialog } from "./components/DiaryCreationProgressDialog";
+import { DiaryDatePicker } from "./components/DiaryDatePicker";
 import { DiarySaveButton } from "./components/DiarySaveButton";
 import { DiaryCardEditor } from "./components/editor/DiaryCardEditor";
 import { useGuestDiary } from "./hooks/useGuestDiary";
@@ -146,25 +146,16 @@ const GuestDiaryView = () => {
           </article>
         ) : (
           <>
-            <div className="max-w-xs space-y-2">
-              <Label htmlFor="guest-diary-date">日記の日付</Label>
-              <Input
-                id="guest-diary-date"
-                type="date"
-                value={format(card.date, "yyyy-MM-dd")}
-                disabled={frozen}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return;
-                  const date = new Date(`${value}T00:00:00`);
-                  if (!Number.isNaN(date.getTime()))
-                    guest.setDraft((draft) => ({
-                      ...draft,
-                      date: date.toISOString(),
-                    }));
-                }}
-              />
-            </div>
+            <DiaryDatePicker
+              date={card.date}
+              disabled={frozen}
+              onSelect={(date) =>
+                guest.setDraft((draft) => ({
+                  ...draft,
+                  date: date.toISOString(),
+                }))
+              }
+            />
             <Card>
               <CardHeader>
                 <CardTitle>
