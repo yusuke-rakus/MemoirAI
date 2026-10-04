@@ -4,7 +4,7 @@ snapshot metadataは`../firebase.md`、route境界は`../frontend/routing.md`を
 
 ## Login and restoration
 
-- main sourceは`useLogin.ts`、`useAuthCheck.ts`、`AppSidebar.tsx`です。
+- main sourceは共有hook `src/hooks/useGoogleLogin.ts`、ログイン画面用の`useLogin.ts`、`useAuthCheck.ts`、`AppSidebar.tsx`です。共有hookはGoogle popup認証・重複実行防止・成功／失敗通知を担当し、画面遷移はcallerが担当します。
 - providerは`GoogleAuthProvider`一つで、追加scopeやpersistence設定はありません。
 - Email / Passwordとanonymous authは使用しません。
 - loginは`signInWithPopup`、auth state監視は`onAuthStateChanged`です。

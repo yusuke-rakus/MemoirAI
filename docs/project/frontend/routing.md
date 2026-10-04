@@ -30,6 +30,7 @@
 
 | Path               | Result                | Notes                                                                               |
 | ------------------ | --------------------- | ----------------------------------------------------------------------------------- |
+| `/guest/new-diary` | `GuestDiaryPage`      | 未認証は1件の作成・端末保存・プレビュー。認証済みは通常作成へredirect               |
 | `/login`           | `LoginPage`           | `LoginHeader`、sidebarなし                                                          |
 | `/shared/:diaryId` | `SharedDiaryPage`     | 公開共有copy。未認証はpage側のpublic shell、認証時は永続する標準shellとfavorite操作 |
 | `/legal`           | `LegalPage`           | Markdown管理の3文書を1ページで公開。認証・同意状態に関係なく閲覧可能                |

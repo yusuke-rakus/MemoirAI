@@ -14,7 +14,10 @@ export const useAuthCheck = () => {
   const auth = getAuth();
 
   useEffect(() => {
+    let revision = 0;
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      const requestRevision = ++revision;
+      setLoading(true);
       try {
         if (!firebaseUser) {
           setLocalUser(defaultLocalUser);
@@ -30,6 +33,7 @@ export const useAuthCheck = () => {
           }>(firebaseUser.uid),
           UserProfileClient.getByUid(firebaseUser.uid),
         ]);
+        if (requestRevision !== revision) return;
         setLocalUser({
           uid: firebaseUser.uid,
           displayName: profile?.displayName ?? firebaseUser.displayName ?? null,
@@ -40,11 +44,14 @@ export const useAuthCheck = () => {
         });
         setUser(firebaseUser);
       } finally {
-        setLoading(false);
+        if (requestRevision === revision) setLoading(false);
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      revision++;
+      unsubscribe();
+    };
   }, [auth, setLocalUser]);
 
   return { loading, user };

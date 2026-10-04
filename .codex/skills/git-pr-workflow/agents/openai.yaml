@@ -1,0 +1,7 @@
+interface:
+  display_name: "Git変更整理とPR作成"
+  short_description: "MemoirAIの変更を規約に沿って論理分割し、検証結果付きPRへ整える"
+  default_prompt: "$git-pr-workflow を使って、MemoirAI の現在の変更を適切なブランチへ整理し、論理単位でコミットして push し、検証結果を記載した PR を作成してください。"
+
+policy:
+  allow_implicit_invocation: true
