@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { FadeContent } from "@/components/ui/fade-content";
 import { Separator } from "@/components/ui/separator";
 import type { Diary } from "@/types/diary/diary";
 
@@ -11,27 +12,21 @@ interface DiariesProps {
   period?: "day" | "month";
 }
 
-export const Diaries = ({
-  dialies,
-  date,
-  period = "day",
-}: DiariesProps) => {
+export const Diaries = ({ dialies, date, period = "day" }: DiariesProps) => {
   return (
-    <>
+    <FadeContent key={date?.getTime()}>
       {dialies.length > 0 ? (
         <Card className="w-full gap-0 p-4 md:p-3">
           {dialies.map((diary, index) => (
             <div key={diary.id}>
               <DiaryItem diary={diary} />
-              {index < dialies.length - 1 && (
-                <Separator className="my-2" />
-              )}
+              {index < dialies.length - 1 && <Separator className="my-2" />}
             </div>
           ))}
         </Card>
       ) : (
         <EmptyDiaries date={date} period={period} />
       )}
-    </>
+    </FadeContent>
   );
 };

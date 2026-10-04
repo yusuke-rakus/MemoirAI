@@ -20,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { FadeContent } from "@/components/ui/fade-content";
 import { Label } from "@/components/ui/label";
 import { PATHS } from "@/constants/path";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
@@ -131,25 +132,29 @@ const GuestDiaryView = () => {
         ) : !guest.loaded ? (
           <LoadingScreen variant="page" />
         ) : guest.diary ? (
-          <article className="space-y-5 rounded-lg border bg-card p-5 sm:p-8">
-            <p className="text-sm text-muted-foreground">
-              {format(new Date(guest.diary.date), "yyyy年M月d日")}
-            </p>
-            <h2 className="text-xl font-semibold">{guest.diary.title}</h2>
-            {previewUrl && (
-              <img
-                src={previewUrl}
-                alt="日記の本文から生成したイラスト"
-                className="mx-auto aspect-[4/3] w-full max-w-lg rounded-lg object-contain"
-              />
-            )}
-            <DiaryMarkdown>{guest.diary.content}</DiaryMarkdown>
-            <div className="space-y-3 border-t pt-5">
-              <Button disabled={frozen} onClick={() => void login()}>
-                {isLoggingIn ? "ログイン中..." : "Googleでログインして保存"}
-              </Button>
-            </div>
-          </article>
+          <FadeContent>
+            <article className="space-y-5 rounded-lg border bg-card p-5 sm:p-8">
+              <p className="text-sm text-muted-foreground">
+                {format(new Date(guest.diary.date), "yyyy年M月d日")}
+              </p>
+              <h2 className="text-xl font-semibold">{guest.diary.title}</h2>
+              {previewUrl && (
+                <FadeContent>
+                  <img
+                    src={previewUrl}
+                    alt="日記の本文から生成したイラスト"
+                    className="mx-auto aspect-[4/3] w-full max-w-lg rounded-lg object-contain"
+                  />
+                </FadeContent>
+              )}
+              <DiaryMarkdown>{guest.diary.content}</DiaryMarkdown>
+              <div className="space-y-3 border-t pt-5">
+                <Button disabled={frozen} onClick={() => void login()}>
+                  {isLoggingIn ? "ログイン中..." : "Googleでログインして保存"}
+                </Button>
+              </div>
+            </article>
+          </FadeContent>
         ) : (
           <>
             <DiaryDatePicker

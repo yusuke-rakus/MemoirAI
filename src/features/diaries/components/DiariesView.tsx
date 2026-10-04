@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { ContentSkeleton } from "@/components/shared/common/ContentSkeleton";
 import { Button } from "@/components/ui/button";
+import { FadeContent } from "@/components/ui/fade-content";
 import { cn } from "@/lib/utils";
 
 import { useFetchDiary } from "../hooks/useFetchDiary";
@@ -77,7 +78,7 @@ export const DiariesView = () => {
             </Button>
           </div>
         ) : diaries.length > 0 ? (
-          <div className="space-y-4">
+          <FadeContent key={format(date, "yyyy-MM-dd")} className="space-y-4">
             {diaries.map((diary) => (
               <DiaryPreviewCard
                 key={diary.id}
@@ -85,7 +86,7 @@ export const DiariesView = () => {
                 onCompleted={refetch}
               />
             ))}
-          </div>
+          </FadeContent>
         ) : (
           <EmptyDiaries />
         )}
