@@ -42,5 +42,5 @@
 - `pnpm seed`は起動済みEmulator専用として維持し、本番credentialへfallbackさせない。
 - Emulator portが使用中なら、他processを無断停止せず一時config / portで検証する。
 - Firestore / Storage Rulesを変更したら、可能な範囲でEmulatorにより対象owner、非owner、未認証のcaseを確認する。
-- rules unit testの採用方針: `No explicit convention found`。
+- 検証範囲は[検証ルール](testing.md)に従い、対象resourceに限定する。
 - deployはHosting、Rules、Functionsを別scopeとして扱い、workflowの現在状態を`../project/firebase.md`で確認する。

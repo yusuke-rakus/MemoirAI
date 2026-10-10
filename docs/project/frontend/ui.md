@@ -6,11 +6,12 @@
 
 - 通常色は`bg-background`、`text-foreground`、`text-muted-foreground`、`border-border`、`bg-primary`、`text-destructive`などを使います。アクセントカラーはデフォルト、ブルー、グリーン、イエロー、レッド、パープル、ピンクから選べ、`primary`、`sidebar-primary`、`ring` tokenへ反映します。お気に入りのactive iconは`text-favorite` / `fill-favorite`を使います。
 - 日記本文は`react-markdown`と`remark-gfm`で安全に描画します。詳細・共有では見出し、強調、list、引用、code、tableなどを組版し、月一覧・検索結果ではMarkdown記法を除いたplain text相当の抜粋を表示します。HTMLとMarkdown画像は描画せず、通常textの単一改行は維持します。
-- route contentの外枠は`MainLayout`の中央寄せ・最大幅・横paddingです。
+- route contentの外枠は`MainLayout`の`mx-auto max-w-4xl px-2`です。
 - responsiveは既存の`sm` / `md` breakpointと`useIsMobile`を参照します。
 - 認証済み画面は`md`未満で48px高のモバイルヘッダーを表示し、`md`以上はサイドバーへ操作を集約する。サイドバー閉鎖時は左上の小型操作群とコンテンツ用の左余白を表示する。
 - diary preview / 共有表示はCard、`DiaryImageGrid`、本文、tagを再利用しますが、app共通card layoutではありません。
 - sidebarのお気に入り欄はshadcn / Radix `Collapsible`で初期閉鎖し、展開時に登録日の新しい順で10件ずつ表示します。favoriteと自分の日記は同じ一覧scroll領域を使います。
+- themeは独自`useTheme`がdocument classを操作します。Sonnerは`next-themes/useTheme`を参照しますが、rootに`ThemeProvider`はありません。CSSはOKLCH・旧HSL・dark tokenが併存し、`tailwind.config.js`にも`hsl(var(...))`が残ります。FullCalendarの`--fc-border-color`は`--border`へ接続済みですが、同CSSに`hsl(var(...))`と`var(...)`が併存します。
 - spacing tokenと正式なtypography scaleは確立していません。
 - Login背景は一般UIとは別のbranding表現です。
 - LoginはGoogleログインを明記し、記録・AI整理・任意共有の3段階と利用条件の折りたたみ要約を表示します。legal画面の要約は全文を置き換えず、文書version・同意境界は維持します。
@@ -31,6 +32,8 @@
 - Settings Dialogはデスクトップでプロフィール、一般、ショートカット、メモリ、共有した日記、アカウントの6 tabを表示します。スマホ幅ではショートカットtabを表示しません。共有した日記では公開中の共有コピーを一覧・解除し、0件時は`Empty`を表示します。アカウント削除はnested Dialogで説明・Google再認証を行い、処理中は外側を含めてcloseを抑止します。
 - ショートカットtabはOS別キー表記と画面別の利用条件を表示します。IME変換中・長押しは無視し、最前面のDialog／menuを優先します。共通操作は新規作成（Mod+Shift+O）、検索（Mod+K）、Sidebar（Mod+B）、デスクトップの解説（?）。作成・編集のMod+Enterは既存保存処理を呼びます。
 - 検索はcombobox/listboxで上下選択・Enterによる遷移を提供し、検索語反映待ちは遷移を抑止します。Escでは閉じません。カレンダーは矢印で日付focusを移し、Enter/Spaceで選択を確定、Tで今日へ移動します。
+
+検索は同一originの共有URL・`share-<UUID>`も受け付けます。結果欄とタグ欄の高さを維持し、200ms後に共有日記を取得してタイトル・日付・本文抜粋を1件表示します。完了後のクリック / Enterで共有画面へ遷移し、DialogとモバイルSidebarを閉じます。形式エラー・loading・未存在・取得失敗は結果欄内で表示し、取得失敗は再試行できます。
 
 ## Reference implementations
 
