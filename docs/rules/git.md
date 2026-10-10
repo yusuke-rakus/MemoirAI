@@ -33,6 +33,9 @@ improve: XXの操作性を改善
 
 ## Pull Request
 
+- 通常の機能・修正・文書変更のbaseは `development`。ユーザーの明示指定がある場合だけ別baseを使う。
+- `main` はGitHubのdefault branchでも通常PR先にしない。baseが存在しない・取得できない場合は停止し、別branchへfallbackしない。
+- branch作成前にbaseを確定し、PR作成時は `--base` を明示する。作成後の `baseRefName` が指定先と一致することを確認する。
 - titleと本文は対象commit・差分から作成する。
 - 変更概要、検証結果、既存failure、未確認項目を必要に応じて記載する。
 - Pull Request templateはありません。
