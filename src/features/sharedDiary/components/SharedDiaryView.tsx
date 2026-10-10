@@ -3,7 +3,6 @@ import { ArrowRight, Tag } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { Link } from "react-router-dom";
 
-import { LoadingScreen } from "@/components/shared/common/LoadingScreen";
 import { DiaryMarkdown } from "@/components/shared/diary/DiaryMarkdown";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,6 +31,7 @@ import { DiaryImageGrid } from "../../diaries/components/DiaryImageGrid";
 import { useSharedDiary } from "../hooks/useSharedDiary";
 import { useSharedDiaryFavorite } from "../hooks/useSharedDiaryFavorite";
 import { SharedDiaryFavoriteButton } from "./SharedDiaryFavoriteButton";
+import { SharedDiarySkeleton } from "./SharedDiarySkeleton";
 
 type SharedDiaryViewProps = {
   authenticatedUserId?: string | null;
@@ -73,7 +73,7 @@ export const SharedDiaryView = ({
   );
 
   if (isLoading) {
-    return <LoadingScreen />;
+    return <SharedDiarySkeleton showGuestLink={!authenticatedUserId} />;
   }
 
   if (!diary) {
