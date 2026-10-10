@@ -16,6 +16,8 @@ popup成功後のmigrationまたはprofile read失敗も「Googleでのログイ
 
 auth observer内のappearance / profile readには専用catchがありません。失敗時はlocal user / `user`を更新せず、loadingだけを解除します。
 
+ゲスト結果の「Googleでログインして保存」も共有`useGoogleLogin`で認証を開始し、`AppShellLayout`の同意確認・user初期化・引き継ぎへ接続します。ログイン画面からの認証成功時は`/`へ移動します。
+
 ## Logout and profile
 
 - logoutはAuth sign-out、primary color override解除、LocalUserContext初期化、`/login` navigateを行います。

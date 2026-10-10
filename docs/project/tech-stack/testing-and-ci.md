@@ -7,7 +7,7 @@ snapshot metadataは`../tech-stack.md`を参照してください。
 - Vitest、jsdom、React Testing Library、user-event、jest-domを使用します。
 - test設定は`vite.config.ts`に統合し、Vite pluginと`@/*` aliasを共有します。
 - setupは`src/test/setup.ts`、testは対象実装と同じ責務ディレクトリ内の`__tests__/`に置く`*.test.ts`または`*.test.tsx`です。
-- 代表testは`useShareDiary`と`DiaryDeleteDialog`を対象にします。
+- 対象指定の実行例: `pnpm exec vitest run src/features/diaries/hooks/__tests__/useShareDiary.test.ts`。範囲の選び方は[検証ルール](../../rules/testing.md)を参照します。
 - coverage、Playwright / Cypressはありません。account削除用Firestore / Storage Rulesは`pnpm test:rules`で起動済みEmulatorに対して検証します。
 - `scripts/seed.ts`は件数を検証しますが、自動test suiteではありません。
 
@@ -17,7 +17,3 @@ snapshot metadataは`../tech-stack.md`を参照してください。
 
 - CIは`pnpm lint`と`pnpm test`を実行しません。
 - deploy対象とcredentialは`../firebase/emulator-and-deployment.md`を正本とします。
-
-## Existing README
-
-`README.md`のsetup、Docker Emulator、`pnpm seed`の説明はcurrent filesと対応します。後半のtype-aware ESLintとReact pluginのsectionはVite template由来の推奨例で、現在のESLint設定ではありません。

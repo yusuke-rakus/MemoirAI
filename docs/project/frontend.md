@@ -1,55 +1,24 @@
-# Current frontend snapshot
+# Frontendの入口
 
-最終確認: 2026-08-14、検証対象のsource snapshot `da479d8`。このmetadataは`frontend/`配下にも適用します。
+従来snapshot確認: 2026-08-14、`da479d8`（配下にも適用）。その後の変更は各詳細文書を参照し、現在状態はコードを優先します。
 
-現在のrouter、Provider、state、frontend依存関係の入口です。目標構造は`../architecture/frontend.md`を参照してください。
+## 起動とProvider
 
-## Bootstrap and providers
+正本は `src/main.tsx` と `src/App.tsx`。
 
 ```text
-React.StrictMode
-└─ RouterProvider (createBrowserRouter, path="*")
-   └─ QueryClientProvider
-      └─ TooltipProvider
-         └─ UserProvider (LocalUserContext)
-            ├─ UserAppearance（テーマ・配色の適用）
-            └─ QueryCacheSessionBoundary
-               └─ App → NotificationToaster + Routes
+StrictMode → RouterProvider → QueryClientProvider → TooltipProvider
+→ UserProvider（UserAppearance + QueryCacheSessionBoundary）→ App（Toaster + Routes）
 ```
 
-- `src/main.tsx`がroot routerと最上位Providerを構成します。
-- `src/App.tsx`が実際のRoutesとfeature entryを宣言します。各pageは`React.lazy`で画面単位に読み込み、`Suspense`で既存のLoadingScreenを表示します。認証済みshell内のpage読み込みではHeaderとSidebarを維持します。ログイン背景のPixelBlastは独立して遅延読み込みし、本文の表示を妨げません。
-- `AppShellLayout`が認証状態と必須同意versionを確認し、同意済みのshared diaryと認証必須routeで同じ`MainLayout`を維持します。未同意または確認失敗時はapp内容より先にfull-page gateを表示します。`AuthenticatedLayout`は未認証redirectだけを担当します。
-- テーマ・配色は設定Dialogの開閉に依存せず、`UserAppearance`が共有ユーザー設定から適用します。
-- user settingsの初期化は同意確認後に冪等に実行し、完了するまでapp contentを描画しません。
-- Settings Dialogはデスクトップではプロフィール、一般、ショートカット、メモリ、共有した日記、アカウントの6 tabです。スマホ幅ではショートカットを非表示にします。共有した日記では公開中のコピーを一覧し、共有解除できます。account削除はGoogle再認証後にclient-side gatewayでapp dataを削除し、契約同意記録へ5年TTLを設定してからAuth accountを削除します。
-- 認証済みshellの共通ショートカットは`AppSidebar`で登録し、`src/lib/shortcuts.ts`の定義を判定・解説・キー表示で共有します。設定のopen・初期tab・復帰focusは`AppSidebar`が所有し、デスクトップの`?`からショートカットtabを開きます。設定DialogはモバイルSidebarの開閉にかかわらずmountされます。画面固有の保存・検索結果・カレンダー操作は各featureが所有します。
-- loginはcustom Headerとsidebarなしの`MainLayout`です。shared diaryは未認証時に同じpublic shell、認証済みでは`AppShellLayout`の標準HeaderとSidebarを使います。
-- Google popupログインは共有hook `useGoogleLogin` を使います。ゲストの作成結果にある「Googleでログインして保存」は画面内で認証を開始し、`AppShellLayout` の同意確認・user初期化・日記引き継ぎへ接続します。ログイン画面からの認証成功時は従来どおり `/` へ移動します。
-- `MainLayout`は`mx-auto max-w-4xl px-2`の共通containerを提供します。
+## 必要な詳細だけを読む
 
-## Active features
+| 対象                                        | 参照先                                         |
+| ------------------------------------------- | ---------------------------------------------- |
+| route・shell・認証 / 同意境界・遅延読み込み | [routing](frontend/routing.md)                 |
+| state・Query cache・下書き・ゲスト引き継ぎ  | [state](frontend/state.md)                     |
+| theme・layout・Dialog・検索・ショートカット | [UI](frontend/ui.md)                           |
+| リーガルMarkdown・編集・version管理         | [legal documents](frontend/legal-documents.md) |
+| 目標architectureからの逸脱                  | [deviations](frontend/deviations.md)           |
 
-| Feature       | Current role                                                 |
-| ------------- | ------------------------------------------------------------ |
-| `home`        | 月選択、Calendar、月単位diary list                           |
-| `createDiary` | diary作成、draft、AI、image upload、ゲスト1件体験            |
-| `diaries`     | preview、edit、delete、share、image preview                  |
-| `searchDiary` | app-wide search Dialogとbrowser内検索                        |
-| `sharedDiary` | 公開共有diary、認証済みfavorite・標準shell                   |
-| `login`       | Google popup login                                           |
-| `legal`       | Markdown管理の公開リーガル文書、初回ログイン後の必須同意gate |
-| `sidebar`     | navigation、paged diary list、paged favorite list            |
-
-- 日記検索欄は同一オリジンの共有URLと`share-<UUID>`形式の共有IDを受け付けます。共有URLまたは共有IDの入力時も結果欄とタグ欄の高さを維持し、200ms後に共有日記を再取得してタイトル・日付・本文の抜粋を1件表示します。取得完了後の結果クリックまたはEnterで既存の共有日記画面へ遷移し、検索DialogとモバイルSidebarを閉じます。入力形式のエラー・読み込み・未存在・取得失敗は結果欄内に表示し、取得失敗時は再試行できます。
-- 日記検索は取得データの変更時にタイトル・タグ・本文を正規化した検索索引を作り、検索語の変更時には索引を再利用します。Dialogを閉じている間は検索を実行しません。
-
-## Detailed snapshots
-
-2026-09-23 UI/UX改善時の差分確認: 月選択はカレンダーポップオーバー・前後月・今日ボタンに変更し、不正な年月routeを当月へ正規化します。認証済みshellのpage読み込みは`ContentSkeleton`を使い、初期認証・同意gateの`LoadingScreen`とは区別します。共有操作は公開範囲の確認Dialogから行い、設定の共有一覧では公開日・プレビュー・既存リンクのコピー・共有停止を提供します。
-
-- route、認証境界、parameter fallback: `frontend/routing.md`
-- リーガルMarkdown、version hash、編集手順: `frontend/legal-documents.md`
-- state owner、再取得、browser persistence: `frontend/state.md`
-- architectureからの依存違反と不足境界: `frontend/deviations.md`
-- 現在のUI token、pattern、参照実装: `frontend/ui.md`
+配置・主要featureは [repository map](repository-map.md)、目標構造は [frontend architecture](../architecture/frontend.md) を参照。

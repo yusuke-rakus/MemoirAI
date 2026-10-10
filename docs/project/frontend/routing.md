@@ -4,11 +4,11 @@
 
 ## Router structure
 
-`src/main.tsx`の`createBrowserRouter`は単一の`path: "*"`へ`App`を置き、実際の分岐を`App`内の`<Routes>`で行います。
+`src/main.tsx`の`createBrowserRouter`は単一の`path: "*"`へ`App`を置き、実際の分岐を`App`内の`<Routes>`で行います。pageは`React.lazy`で遅延読み込みし、初期認証・同意gateは`LoadingScreen`、認証済みshell内はHeader・Sidebarを保った`ContentSkeleton`を表示します。Login背景のPixelBlastも独立して遅延読み込みします。
 
 ### Authenticated routes
 
-`AppShellLayout`がauth確認と必須同意versionの確認、認証済みroute間で維持される標準`MainLayout`を担当します。同意記録がない場合はapp contentを描画せずfull-page gateを表示します。その内側の`AuthenticatedLayout`が未認証ユーザーを`/login`へredirectします。
+`AppShellLayout`がauth確認と必須同意versionの確認、認証済みroute間で維持される標準`MainLayout`を担当します。未同意・確認失敗時はapp contentより先にfull-page gateを表示します。user settingsは同意確認後に冪等に初期化し、完了までapp contentを表示しません。その内側の`AuthenticatedLayout`が未認証ユーザーを`/login`へredirectします。
 
 | Path                        | Result / fallback                       |
 | --------------------------- | --------------------------------------- |
@@ -48,4 +48,4 @@
 - home tab: `src/features/home/constants/views.tsx`
 - detail return state: `src/features/diaries/types.ts`
 
-catch-all 404は`NotFoundPage`で扱います。route-level `errorElement`、loader / action、lazy loading、共通URL schemaはありません。
+catch-all 404は`NotFoundPage`で扱います。route-level `errorElement`、loader / action、共通URL schemaはありません。

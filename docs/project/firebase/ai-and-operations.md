@@ -17,7 +17,7 @@ snapshot metadataは`../firebase.md`を参照してください。
 - active memoryは保存操作ごとに1回取得して全sectionで共有します。取得失敗時は`memoryContext: null`として本文とtagだけで生成を続けます。
 - model system instructionは入力中の命令を無視し、本文を出来事の一次情報として具体的な1場面を日本の文房具・上質なステッカー調のミニマリスト・フラットベクターイラスト（英語プロンプト）で描きます。プロフィール、嗜好、人物関係は配色、雰囲気、服装、背景、モチーフへ反映しますが、本文と矛盾する内容やmemoryだけに存在する人物・出来事は追加しません。画像内文字、caption、写実的な個人再現を避け、4:3固定です。
 - `VITE_DIARY_IMAGE_MODEL`の許可値は`gemini-3.1-flash-lite-image`、`gemini-3.1-flash-image`、`gemini-3-pro-image`です。
-- `VITE_DIARY_IMAGE_SIZE`の対応はLiteが`512|1K`、Flashが`512|1K|2K|4K`、Proが`1K|2K|4K`です。既定値はLite / `1K`です。
+- `VITE_DIARY_IMAGE_SIZE`の対応はLiteが`512|1K`、Flashが`512|1K|2K|4K`、Proが`1K|2K|4K`です。未設定時はLite / `1K`。不明な値・model非対応の組み合わせは起動時の設定エラーです。
 - `DiaryIllustrationClient`が最初のinline imageを取り出し、Base64、MIME（PNG / JPEG / WebP）、空dataを検証して`File`へ変換します。画像なし、安全filter拒否、不正data、model呼び出し失敗は判別可能なerrorです。
 - 本文があるsectionに手動画像が2枚ある場合、生成開始前に全体を止めます。0〜1枚の場合は生成画像を先頭に追加し、既存の`DiaryImageClient`で保存します。
 
@@ -34,7 +34,7 @@ snapshot metadataは`../firebase.md`を参照してください。
 
 ## App Check and protection mode
 
-- Firebase App初期化直後、他service取得前にreCAPTCHA Enterprise App Checkを初期化し、token自動更新を有効にします。
+- Firebase App初期化直後、他service取得前に`VITE_RECAPTCHA_ENTERPRISE_SITE_KEY`必須のreCAPTCHA Enterprise App Checkを初期化し、token自動更新を有効にします。
 - developmentは`FIREBASE_APPCHECK_DEBUG_TOKEN = true`を初期化前に設定します。browser consoleへ表示されたdebug tokenをFirebase Consoleへ手動登録し、token自体はrepositoryへ保存しません。
 - testはbrowser attestationを実行しません。
 - Firebase ConsoleのFirebase AI LogicではBaseline protectionをenforceします。Replay protectionとauthenticated-users modeはこのsnapshotでは使用しません。

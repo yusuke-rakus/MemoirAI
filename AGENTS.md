@@ -1,69 +1,40 @@
-# MemoirAI Agent Context Map
+# MemoirAI Agent Context
 
-このファイルは Codex が最初に読むルーターです。詳細をここへ集約せず、タスクに関係する文書だけを読んでください。
+React / TypeScript / Vite SPA。Firebase（Auth / Firestore / Storage / AI Logic）、shadcn/ui、Radix、Tailwindを使用します。
 
-## Project
+## 読み込み
 
-MemoirAI は React / TypeScript / Vite の SPA です。Firebase Authentication、Cloud Firestore、Cloud Storage、Firebase AI Logic を利用し、UI は shadcn/ui、Radix UI、Tailwind CSS を中心に構成されています。
+- 最初にこの文書と `git status --short` を確認し、既存変更を保護する。
+- コード変更時は `docs/rules/coding.md`、検証時は `docs/rules/testing.md` を読む。
+- 下表から変更に関係する文書だけを選ぶ。索引が必要なら `docs/index.md` を読む。同じ作業中に既読文書を読み直さず、親文書・配下の詳細を一括で読まない。
 
-## Language
+表内のパスは `docs/` からの相対パスです。
 
-- チャット応答とユーザー向け文書は日本語で記述する。
-- コード識別子、型名、ファイル名は既存コードに合わせて英語を使う。
+| 対象                           | 参照先                                                                                        |
+| ------------------------------ | --------------------------------------------------------------------------------------------- |
+| 新機能 / bugfix / refactoring  | 該当する `workflows/feature.md` / `bugfix.md` / `refactoring.md`                              |
+| 配置・責務・state              | `project/repository-map.md`、`architecture/frontend.md`、必要なら `project/frontend/state.md` |
+| UI・フォーム                   | `rules/ui.md`、`project/frontend/ui.md`                                                       |
+| routing・layout・認証境界      | `architecture/frontend.md`、`project/frontend/routing.md`                                     |
+| Firebase・外部I/O              | `rules/firebase.md`、`architecture/data-access.md`、`project/firebase.md` から該当詳細        |
+| Firestore schema・query・Rules | 上記に加え `project/firestore.md` から対象resourceの詳細                                      |
+| dependency・build・CI          | `project/tech-stack.md` から該当詳細                                                          |
+| Git操作                        | `rules/git.md`。commit・push・branch作成・tag・PRは明示依頼時だけ                             |
 
-## Always read
+## 作業方針
 
-1. この `AGENTS.md`
-2. `docs/index.md`
+- 応答・ユーザー向け文書は日本語。識別子・ファイル名は既存の英語命名に合わせる。
+- 現在状態の正本はコード・設定・履歴。未確認の方針は `Not established` / `No explicit convention found`、改善案は `Recommended` と明示する。
+- 近接実装を先に確認し、既存component・hook・gateway・tokenを再利用する。無関係な変更・整形を混ぜない。
+- Firebaseのpath・公開範囲は型・client・Rules・seedで確認し、推測しない。
+- 検証は変更に必要な最小範囲。追加・変更したテストを対象指定し、直接影響する既存テストだけを必要に応じて追加する。全テスト・全体lint・buildを作業終了時に一律実行しない。詳細は `docs/rules/testing.md`。
+- 実行結果と未検証を分け、既存失敗を今回の回帰と扱わない。
 
-コードを変更する場合は`docs/rules/coding.md`も読みます。その後は下記の対応表から必要な文書だけを読み、`docs/`を毎回全件読み込まないでください。
+## 文書の責務と更新
 
-## Task routing
+- `rules/`: 人間が決める実装・運用方針。方針を変更したときだけ更新する。
+- `architecture/`: 合意済みの目標構造・依存方向。実装の逸脱に合わせて暗黙に変更しない。
+- `project/`: 現在の実装snapshot。コードを優先し、構造理解が変わる場合だけ該当文書を更新する。
+- `workflows/`: 作業手順。重複する規則は転載せず参照する。
 
-| タスク                                  | 追加で読む文書                                                                                                        |
-| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| 新機能                                  | `docs/workflows/feature.md`、`docs/project/repository-map.md`、関係領域の rules / architecture / project              |
-| UI・レスポンシブ・フォーム              | `docs/rules/ui.md`、`docs/architecture/frontend.md`、`docs/project/frontend.md`                                       |
-| routing・layout                         | `docs/architecture/frontend.md`、`docs/project/frontend.md`                                                           |
-| state・hooks・component構成             | `docs/rules/coding.md`、`docs/architecture/frontend.md`、`docs/project/frontend.md`、`docs/project/repository-map.md` |
-| Firebase全般・Emulator・AI Logic        | `docs/rules/firebase.md`、`docs/architecture/data-access.md`、`docs/project/firebase.md`                              |
-| Firestore schema・query・Security Rules | 上記に加えて `docs/project/firestore.md`                                                                              |
-| Authentication                          | `docs/rules/firebase.md`、`docs/architecture/data-access.md`、`docs/project/firebase.md`、`docs/project/frontend.md`  |
-| Storage・日記画像                       | `docs/rules/firebase.md`、`docs/architecture/data-access.md`、`docs/project/firebase.md`                              |
-| bugfix                                  | `docs/workflows/bugfix.md`、対象領域の文書                                                                            |
-| refactoring                             | `docs/workflows/refactoring.md`、`docs/architecture/overview.md`、対象領域の文書                                      |
-| dependency・build・CI                   | `docs/project/tech-stack.md`、`docs/rules/testing.md`                                                                 |
-| テストの追加・変更・削除・検証          | `docs/rules/testing.md`                                                                                               |
-| Git commit・branch・PR                  | `docs/rules/git.md`。いずれもユーザーから明示的な指示があった場合だけ行う                                             |
-
-表のパスはリポジトリルートからの相対パスです。
-
-## Working rules
-
-- 最初に `git status --short` を確認し、既存の未コミット変更を保護する。
-- 事実はコード、設定、履歴から確認する。確認できない設計思想は推測で補わず、`Not established` または `No explicit convention found` と扱う。
-- 現状と望ましい設計を混ぜない。改善案を述べる場合は `Recommended` と明示する。
-- 変更対象の近接実装を先に読み、既存 component、hook、service、design token を再利用する。
-- 差分は依頼範囲に限定し、無関係なリファクタリングや整形を混ぜない。
-- Firebase / Firestore の path や公開範囲を推測しない。型、service、rules、seed を照合する。
-- 検証結果と未検証項目を分けて報告する。既存の失敗を今回の回帰として扱わない。
-
-## Documentation maintenance
-
-コード変更がCodexのプロジェクト理解に影響する場合だけ、関連するproject文書を同じ変更で更新してください。architecture文書は、コードが偶然変わったときではなく、合意済みの目標構造や責務を変更したときだけ更新します。
-
-- ディレクトリの責務や主要featureが変わる → `docs/project/repository-map.md`
-- route、Provider、state、公開/認証境界、主要なfrontend依存が変わる → `docs/project/frontend.md`
-- collection、document、主要フィールド、query、rulesが変わる → `docs/project/firestore.md`
-- dependency、scripts、build、Firebaseサービス/Emulator構成が変わる → `docs/project/tech-stack.md` または `docs/project/firebase.md`
-- 合意済みの依存方向、層の責務、状態管理方針を変える → 関連する `docs/architecture/` 文書
-
-些細なファイル追加、内部的なrename、実装詳細だけの変更ではproject文書を更新しません。人間が決める実装・運用規則を変える場合だけ`docs/rules/`を更新してください。
-
-## Source of truth
-
-- 実行コードと設定が現在状態の一次情報です。
-- `docs/rules/` は人間が維持する固定・準固定方針です。
-- `docs/architecture/` は人間が合意した目標構造・責務・依存方向です。現在の実装が逸脱していても、実装に合わせて暗黙に変更しません。
-- `docs/project/` は変動するスナップショットです。実装と食い違う場合は実装を優先し、文書を更新します。
-- `docs/workflows/` は作業手順です。
+projectの更新先: 配置・主要feature → `repository-map.md`、route・Provider・state・認証境界 → `frontend/`、schema・query・Rules → `firestore/`、dependency・scripts・build → `tech-stack/`、Firebase構成 → `firebase/`。内部renameや実装詳細だけの変更では更新不要。
