@@ -7,6 +7,7 @@ import FullCalendar from "@fullcalendar/react";
 import { format, isSameDay } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { Skeleton } from "@/components/ui/skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { matchesShortcut, shortcutSurfaceAvailable } from "@/lib/shortcuts";
 import { cn } from "@/lib/utils";
@@ -31,6 +32,7 @@ interface CalendarProps {
   dialies: Diary[];
   selectedDate?: Date | null;
   onDateSelect?: (date: Date) => void;
+  isLoading?: boolean;
 }
 
 const getMonthWeekCount = (date: Date) => {
@@ -48,6 +50,7 @@ export const Calendar = ({
   dialies,
   selectedDate,
   onDateSelect,
+  isLoading = false,
 }: CalendarProps) => {
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
   const { date, setDate } = useCurrentDateStore();
@@ -157,12 +160,16 @@ export const Calendar = ({
   return (
     <div
       ref={containerRef}
+      inert={isLoading}
+      aria-hidden={isLoading || undefined}
       onKeyDown={keyboard.onKeyDown}
       onFocus={keyboard.onFocus}
       className="mx-auto h-[calc(100svh-12rem)] max-h-none w-full md:max-h-[800px]"
       style={calendarHeight ? { height: `${calendarHeight}px` } : undefined}
     >
       <FullCalendar
+        // Remount custom day content so loading placeholders are removed cleanly.
+        key={isLoading ? "loading" : "loaded"}
         ref={calendarRef}
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
@@ -204,7 +211,21 @@ export const Calendar = ({
               "bg-primary/10",
           )
         }
-        dayCellContent={(arg) => arg.dayNumberText.replace("日", "")}
+        dayCellContent={(arg) =>
+          isLoading ? (
+            <div className="flex w-full flex-col items-center gap-1">
+              <span>{arg.dayNumberText.replace("日", "")}</span>
+              {!arg.isOther && (
+                <div className="space-y-1 px-1">
+                  <Skeleton className="h-3 w-7 bg-muted-foreground/15 sm:h-5 sm:w-16" />
+                  <Skeleton className="h-3 w-5 bg-muted-foreground/15 sm:h-5 sm:w-12" />
+                </div>
+              )}
+            </div>
+          ) : (
+            arg.dayNumberText.replace("日", "")
+          )
+        }
         eventContent={(arg) => {
           return (
             <div

@@ -1,11 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 import { useDiaryList } from "../hooks/useDiaryList";
 import { useCurrentDateStore } from "../provider/CurrentDateProvider";
+import { DiaryListSkeleton } from "./components/DiaryListSkeleton";
 import { Diaries } from "./Diaries";
 
 export const DiaryView = () => {
@@ -13,19 +11,10 @@ export const DiaryView = () => {
   const { date } = useCurrentDateStore();
   useDocumentTitle("日記一覧");
 
-  const skeltonItemCount = 5;
-
   return (
     <div className="mb-10">
       {loading ? (
-        <Card className="w-full items-start gap-0 p-4 md:p-3">
-          {Array.from({ length: skeltonItemCount }).map((_, i) => (
-            <CardContent key={i} className="w-full px-0">
-              <Skeleton className="h-[125px] w-full" />
-              {i < skeltonItemCount - 1 && <Separator className="my-4" />}
-            </CardContent>
-          ))}
-        </Card>
+        <DiaryListSkeleton />
       ) : error ? (
         <div role="alert" className="space-y-3">
           <p>日記を読み込めませんでした。</p>

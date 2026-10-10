@@ -1,7 +1,6 @@
 import { isSameDay } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { ContentSkeleton } from "@/components/shared/common/ContentSkeleton";
 import { Button } from "@/components/ui/button";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
@@ -42,7 +41,6 @@ export const CalendarView = () => {
     return () => window.cancelAnimationFrame(frameId);
   }, [selectedDate, selectedDateDiaries.length]);
 
-  if (loading) return <ContentSkeleton />;
   if (error)
     return (
       <div role="alert" className="space-y-3">
@@ -54,15 +52,21 @@ export const CalendarView = () => {
     );
 
   return (
-    <div className="mb-0 md:mb-10">
+    <div className="mb-0 md:mb-10" aria-busy={loading}>
+      {loading && (
+        <span role="status" className="sr-only">
+          日記を読み込み中です
+        </span>
+      )}
       <div className="pb-0 md:pb-10">
         <Calendar
           dialies={dialies}
           selectedDate={selectedDate}
           onDateSelect={setSelectedDate}
+          isLoading={loading}
         />
       </div>
-      {selectedDate && (
+      {!loading && selectedDate && (
         <div ref={diariesRef} className="scroll-mt-28 pt-6 md:pt-0">
           <Diaries dialies={selectedDateDiaries} date={selectedDate} />
         </div>
