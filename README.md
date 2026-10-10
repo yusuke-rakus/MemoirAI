@@ -1,95 +1,27 @@
-# React + TypeScript + Vite
+# MemoirAI
 
-このテンプレートは、Vite で React を動作させるための最小限のセットアップを提供します（HMR といくつかの ESLint ルールを含みます）。
+React / TypeScript / ViteとFirebaseで構成する日記アプリです。開発にはpnpmを使用します。
 
-現在、2つの公式プラグインが利用可能です：
+## セットアップ
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) [Babel](https://babeljs.io/) を使用した Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) [SWC](https://swc.rs/) を使用した Fast Refresh
-
-## プロジェクトのセットアップ
-
-このプロジェクトではパッケージ管理に `pnpm` を使用しています。
+`.env.example` をGit管理外の `.env` へコピーし、開発用の値を設定します。Emulator・App Checkの条件は [開発環境の詳細](docs/project/firebase/emulator-and-deployment.md) を参照してください。
 
 ```bash
-# 依存関係のインストール
 pnpm install
-
-# Firebase Emulator の起動
 docker compose up -d
-
-# 開発用ユーザーと日記データの投入
 pnpm seed
-
-# アカウント削除用 Firestore / Storage Rules の検証
-pnpm test:rules
-
-# 開発サーバーの起動
 pnpm dev
-
-# 本番用ビルド
-pnpm build
 ```
 
-`pnpm seed` は起動済みの Auth、Firestore、Storage Emulator にのみ接続します。
-Emulator が起動していない場合はデータを投入せず終了します。
-投入内容は `scripts/seedData.json` で編集できます。
-
-シードユーザーは Google アカウントとして Auth Emulator に登録されるため、
-既存のログインボタンで開くポップアップから選択できます。
+`pnpm seed` は起動済みAuth / Firestore / Storage Emulator専用です。投入内容は `scripts/seedData.json` で編集します。シードユーザーはGoogleログインのpopupから選択できます。
 
 - UID: `memoir-ai-development-user`
-- メールアドレス: `developer@memoir-ai.local`
+- メール: `developer@memoir-ai.local`
 
-ユーザーを追加する場合は、`scripts/seedData.json` の `users` 配列へ
-UID とメールアドレスが重複しない要素を追加します。
+ユーザー追加時は `users` 配列でUID・メールの重複を避けます。再seedでは定義したユーザーのAuthデータ、Firestore `users/{uid}` 以下、Storage `users/{uid}/` 以下を削除・再作成します。他ユーザーは削除しません。
 
-シードを再実行すると、`users` 配列に定義された各ユーザーの Auth データ、
-Firestore の `users/{uid}` 以下、Storage の `users/{uid}/` 以下を削除してから
-初期データを作り直します。それ以外のユーザーのデータは削除しません。
+## 検証・ビルド
 
-## ESLint 設定の拡張
+変更したテストは `pnpm exec vitest run <対象.test.ts>` で実行します。全体検証を定型実行せず、[検証ルール](docs/rules/testing.md)から必要な確認を選びます。本番用buildは `pnpm build`。
 
-本番アプリケーションを開発している場合は、型認識（type-aware）Lint ルールを有効にするように設定を更新することを推奨します：
-
-```js
-export default tseslint.config({
-  extends: [
-    // ...tseslint.configs.recommended を削除し、以下に置き換えます
-    ...tseslint.configs.recommendedTypeChecked,
-    // または、より厳格なルールを使用する場合
-    ...tseslint.configs.strictTypeChecked,
-    // オプションで、スタイルに関するルールを追加する場合
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // その他のオプション...
-    parserOptions: {
-      project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-});
-```
-
-また、React 固有の Lint ルールとして [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) と [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) をインストールすることもできます：
-
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
-
-export default tseslint.config({
-  plugins: {
-    // react-x と react-dom プラグインを追加
-    "react-x": reactX,
-    "react-dom": reactDom,
-  },
-  rules: {
-    // その他のルール...
-    // 推奨される TypeScript ルールを有効化
-    ...reactX.configs["recommended-typescript"].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-});
-```
+エージェント向け入口は [AGENTS.md](AGENTS.md)、文書索引は [docs/index.md](docs/index.md)。

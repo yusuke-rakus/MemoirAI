@@ -22,7 +22,7 @@ MemoirAI において、責務が混在したファイルを特定し、挙動�
 ## 調査の準備
 
 1. 最初に `git status --short` を確認して current working tree を把握する。未コミット変更を自動的に対象外にはせず、依頼範囲と実際の差分から調査対象を決める。
-2. `AGENTS.md` と `docs/index.md` を読む。コード変更を伴う提案または実装では、`docs/rules/coding.md` と `docs/workflows/refactoring.md` も読む。
+2. `AGENTS.md` を読み、索引が必要な場合だけ `docs/index.md` を参照する。コード変更を伴う提案または実装では、`docs/rules/coding.md` と `docs/workflows/refactoring.md` も読む。
 3. 対象層に応じて、関連する architecture と project snapshot を読む。配置は `docs/project/repository-map.md`、frontend の責務は `docs/architecture/frontend.md`、外部 I/O は `docs/architecture/data-access.md` を正本とする。
 4. LOC は読む順番を決める目安に留める。対象ファイル、近接実装、consumer、import 方向、公開 props / public method を読んで判断する。
 
