@@ -10,7 +10,7 @@ MemoirAI の作業ツリーをレビュー可能なコミットと GitHub PR に
 ## 準備と対象差分
 
 1. `git status --short` を最初に確認し、`git rev-parse --show-toplevel` で MemoirAI のルートを確認する。別プロジェクトは変更しない。
-2. `AGENTS.md`、`docs/index.md`、`docs/rules/git.md` を読む。検証を行う場合は `docs/rules/testing.md` と `docs/project/tech-stack.md` の必要な詳細を読む。実装の追加修正が必要なら、`docs/rules/coding.md` と対象領域の文書も読む。
+2. `AGENTS.md` と `docs/rules/git.md` を読む。検証時は `docs/rules/testing.md`、索引や設定が必要な場合だけ `docs/index.md` / `docs/project/tech-stack.md` の該当詳細を読む。実装の追加修正が必要なら、`docs/rules/coding.md` と対象領域の文書も読む。
 3. 現在の branch、`git diff`、`git diff --cached`、未追跡ファイル、既存の branch 固有 commit を確認する。未追跡ファイルは内容も確認する。秘密情報の値は出力へ転載しない。
 4. 今回の目的、含める差分、影響範囲、必要な検証を確定する。既存の未コミット変更は依頼範囲と照合し、無断で取り込まない。異なる目的の変更を区別できない場合は、判定が必要な差分を示して確認する。
 
@@ -41,22 +41,8 @@ MemoirAI の作業ツリーをレビュー可能なコミットと GitHub PR に
 
 ## 変更に応じた検証
 
-`package.json`、設定、近接テストを一次情報にして command を選ぶ。次は `Recommended verification workflow` であり、すべての変更への一律必須化ではない。存在しない `typecheck`、API 契約、E2E script を別プロジェクトから持ち込まない。
+検証範囲・command・テスト設計・結果報告は [検証ルール](../../../docs/rules/testing.md) を正本とする。追加・変更したテストと直接影響する確認だけを実行し、全テスト・全体lint・buildを定型実行しない。commit / PRのためだけに成功済みの検証を繰り返さず、実行後の変更や未解決の懸念がある場合だけ再確認する。存在しないscriptを他projectから持ち込まない。
 
-| 変更                     | 検証の目安                                                                                            |
-| ------------------------ | ----------------------------------------------------------------------------------------------------- |
-| TS/TSX                   | `pnpm exec eslint <対象path>` を先に実行                                                              |
-| source/config            | `pnpm lint` と `pnpm build` を独立して実行。build は legal check、TypeScript check、Vite build を含む |
-| UI に依存しない機能契約  | 関連する Vitest を対象指定で実行し、影響範囲に応じて `pnpm test`                                      |
-| UI・routing              | 影響する viewport、theme、操作、認証状態、直接 URL などを実ブラウザで手動確認                         |
-| Firebase・Security Rules | Emulator と対象領域の既存検証手順。`pnpm test:rules` の対象と起動条件を確認して必要な場合だけ実行     |
-| リーガル文書             | `pnpm legal:check`。version 同期が必要なら既存手順に沿い、その変更もレビュー                          |
-| docs/skill のみ          | `pnpm exec prettier --check <対象path>`。アプリ build は不要。スキル検証が利用可能なら実行            |
-
-- 新しい自動テストは `docs/rules/testing.md` の UI 非依存の契約に限定する。UI 表示・操作確認を DOM assertion で代替しない。
-- 検証目的で `pnpm lint:fix` や `pnpm format` を実行しない。必要な修正は対象範囲に限定する。
-- tracked の unstaged 差分は `git diff --check`、staged 差分は `git diff --cached --check` で確認する。未追跡ファイルはこれらに含まれないため、対象 path の format check と直接確認を行う。
-- 実行 command、成功・失敗、warning、未実行理由を記録する。今回の回帰、既存 baseline の失敗、環境要因を分け、source inspection を browser/Emulator での確認済みと書かない。
 - 今回の回帰は依頼範囲内で修正して再検証する。既存・環境由来の失敗は無関係な修正へ広げない。必要な検証が未完了なら Ready PR にせず、原因と残る確認を明示する。ユーザーが Draft PR を依頼している場合は、その状態で作成できる。
 
 ## push と PR
