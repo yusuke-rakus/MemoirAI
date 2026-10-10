@@ -16,9 +16,9 @@ MemoirAI の作業ツリーをレビュー可能なコミットと GitHub PR に
 
 ## base と branch
 
-- PR の base はユーザー指定とリポジトリの最新ルールを優先する。指定がなければ remote の default branch と既存 PR を確認する。`git symbolic-ref refs/remotes/origin/HEAD` や `gh repo view --json defaultBranchRef` を利用し、`develop` を別プロジェクトから引き継がない。base を確認できなければ推測して作成しない。
+- MemoirAI の通常PRの base は `development`（開発ブランチの正式名）。ユーザーの明示指定があれば優先し、それ以外は `docs/rules/git.md` に従う。GitHub の default branch / `origin/HEAD` が `main` でもPR先には採用しない。指定名が実在名と異なる場合はbranch一覧と文脈を確認し、判定できなければ確認する。base が存在しない・取得できない場合は停止し、`main` や別branchへfallbackしない。
 - remote とその接続先を確認し、選んだ remote/base を fetch して比較を更新する。fetch・認証・ネットワークに失敗した場合は、古い ref で最新確認済みと報告せず、依存する操作を止める。
-- 新規 branch は `feature/<english-kebab-case-summary>` または `improve/<english-kebab-case-summary>` とする。機能追加は `feature/`、既存機能の改善・修正やその他の保守は `improve/` を目安に、一つの作業単位を表す具体名を選ぶ。
+- 新規 branch は確定したbaseの最新remote refから作成し、`feature/<english-kebab-case-summary>` または `improve/<english-kebab-case-summary>` とする。機能追加は `feature/`、既存機能の改善・修正やその他の保守は `improve/` を目安に、一つの作業単位を表す具体名を選ぶ。
 - 現在の作業 branch の目的、既存 commit、base との差分が依頼と一致する場合は再利用する。新規 branch 作成の許可がなければ、その操作を追加しない。
 - default/base branch への直接 commit・push はこの PR ワークフローでは行わない。新規 branch が必要な場合は、変更を安全に維持できる方法を選ぶ。退避・復元が必要なら未追跡ファイルも保護し、復元を確認するまで退避を破棄しない。競合したら変更を保持して止める。
 - 同名 branch や無関係な既存 commit があれば目的と履歴を確認する。履歴を勝手に rebase、reset、amend、削除して整えない。対象外 commit を含む PR になる場合は、含め方を確認する。
@@ -47,7 +47,7 @@ MemoirAI の作業ツリーをレビュー可能なコミットと GitHub PR に
 
 ## push と PR
 
-1. push・PR 作成が依頼されていることと `gh auth status` を確認する。対象変更が commit 済みで、base との差分・commit 列に対象外変更や競合がないことを確認する。対象外の未コミット変更は削除せず残してよい。
+1. push・PR 作成が依頼されていることと `gh auth status` を確認する。base が `development` またはユーザーの明示指定先であること、remoteに実在することを再確認する。対象変更が commit 済みで、そのbaseとの差分・commit 列に対象外変更や競合がないことを確認する。対象外の未コミット変更は削除せず残してよい。
 2. `git log <remote>/<base>..HEAD --oneline` と `git diff <remote>/<base>...HEAD` を確認する。正しい head・base・接続先を使い、`git push --set-upstream <remote> <branch>` で通常 push する。force push はしない。
 3. PR タイトルは最終差分全体を表す `type: 日本語の具体的な変更内容` とする。本文は日本語で、次の項目から変更に必要な情報を記す。
 
@@ -65,7 +65,7 @@ MemoirAI の作業ツリーをレビュー可能なコミットと GitHub PR に
 
 4. 本文は一時ファイルへ正確な改行で保存し、`gh pr create --base <base> --head <branch> --title <title> --body-file <file>` を使う。Draft 指定があれば `--draft` を付ける。結果が不明な失敗では既存 PR を再確認してから再試行し、重複を作らない。
 5. 作成した PR は利用可能な `attach_artifact` ツールでこのチャットへ添付する。既存 PR の更新・継続を依頼された場合も添付する。
-6. `gh pr view` で URL・base・head・Draft 状態を確認し、required checks がある場合はすべての成功を確認する。pending は成功と報告しない。PR 向け check がない場合もローカル検証結果を報告する。
+6. `gh pr view` で URL・`baseRefName`・head・Draft 状態を取得し、`baseRefName` が確定したbaseと一致することを確認する。不一致は完了扱いにせず、作成したPRがopenなら `gh pr edit --base <確定したbase>` で訂正して再確認する。merged / closedなら変更せず状況を報告する。required checks がある場合はすべての成功を確認する。pending は成功と報告しない。PR 向け check がない場合もローカル検証結果を報告する。
 
 PR の merge、Ready 状態への変更、branch 削除、deploy は別途明示的に依頼された場合だけ行う。現在の Hosting workflow は `main` への push で deploy するため、PR 作成に伴って merge や直接 push を追加しない。実行時には最新の workflow を確認する。
 

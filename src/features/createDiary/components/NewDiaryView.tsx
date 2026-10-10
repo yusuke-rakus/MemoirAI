@@ -1,10 +1,12 @@
 import { format } from "date-fns";
 import { Plus, X } from "lucide-react";
+import { AnimatePresence } from "motion/react";
 import { type DragEvent, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { useRotatingText } from "@/components/shared/common/useRotatingText";
+import { AnimatedContent } from "@/components/ui/animated-content";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -222,64 +224,67 @@ export const NewDiaryView = () => {
         </div>
 
         <div className="space-y-6">
-          {cards.map((card) => (
-            <Card
-              key={card.id}
-              className={cn(
-                "border-none bg-card/50 shadow-sm transition-all duration-300 hover:bg-card/80",
-                "group relative overflow-visible backdrop-blur-sm",
-                draggingCardId === card.id &&
-                  "bg-accent/30 ring-2 ring-primary/60",
-              )}
-              onDragEnter={(event) => handleCardDragEnter(event, card.id)}
-              onDragOver={(event) => handleCardDragOver(event, card.id)}
-              onDragLeave={handleCardDragLeave}
-              onDrop={(event) => handleCardDrop(event, card.id)}
-            >
-              {/* Card Remove Button (visible on hover or if multiple) */}
-              {cards.length > 1 && (
-                <div className="absolute -top-2 -right-2 z-10 opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeCard(card.id)}
-                    aria-label={`セクション${cards.indexOf(card) + 1}を削除`}
-                    className="h-8 w-8 rounded-full border border-border bg-background shadow-sm transition-colors hover:bg-destructive/10 hover:text-destructive"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-              <CardHeader>
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  <Label htmlFor={`diary-body-${card.id}`}>
-                    今日の出来事を書き留めよう ✨
-                  </Label>
-                </CardTitle>
-              </CardHeader>
+          <AnimatePresence initial={false}>
+            {cards.map((card) => (
+              <AnimatedContent key={card.id}>
+                <Card
+                  className={cn(
+                    "border-none bg-card/50 shadow-sm transition-all duration-300 hover:bg-card/80",
+                    "group relative overflow-visible backdrop-blur-sm",
+                    draggingCardId === card.id &&
+                      "bg-accent/30 ring-2 ring-primary/60",
+                  )}
+                  onDragEnter={(event) => handleCardDragEnter(event, card.id)}
+                  onDragOver={(event) => handleCardDragOver(event, card.id)}
+                  onDragLeave={handleCardDragLeave}
+                  onDrop={(event) => handleCardDrop(event, card.id)}
+                >
+                  {/* Card Remove Button (visible on hover or if multiple) */}
+                  {cards.length > 1 && (
+                    <div className="absolute -top-2 -right-2 z-10 opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeCard(card.id)}
+                        aria-label={`セクション${cards.indexOf(card) + 1}を削除`}
+                        className="h-8 w-8 rounded-full border border-border bg-background shadow-sm transition-colors hover:bg-destructive/10 hover:text-destructive"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                  <CardHeader>
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      <Label htmlFor={`diary-body-${card.id}`}>
+                        今日の出来事を書き留めよう ✨
+                      </Label>
+                    </CardTitle>
+                  </CardHeader>
 
-              <DiaryCardEditor
-                card={card}
-                dateKey={format(date, "yyyy-MM-dd")}
-                disabled={isCreating}
-                markdownEditorEnabled={localUser.markdownEditorEnabled}
-                placeholder={placeholderText}
-                error={card.body.trim() ? undefined : bodyErrors[card.id]}
-                tagInput={tagInputs[card.id] || ""}
-                onAddImages={(cardId, files) => {
-                  const result = addImages(cardId, files);
-                  showAddImagesResult(result);
-                  return result;
-                }}
-                onAddTag={addTag}
-                onRemoveImage={removeImage}
-                onRemoveTag={removeTag}
-                onTagInputChange={handleTagInputChange}
-                onTagInputKeyDown={handleTagInputKeyDown}
-                onUpdateBody={updateCardBody}
-              />
-            </Card>
-          ))}
+                  <DiaryCardEditor
+                    card={card}
+                    dateKey={format(date, "yyyy-MM-dd")}
+                    disabled={isCreating}
+                    markdownEditorEnabled={localUser.markdownEditorEnabled}
+                    placeholder={placeholderText}
+                    error={card.body.trim() ? undefined : bodyErrors[card.id]}
+                    tagInput={tagInputs[card.id] || ""}
+                    onAddImages={(cardId, files) => {
+                      const result = addImages(cardId, files);
+                      showAddImagesResult(result);
+                      return result;
+                    }}
+                    onAddTag={addTag}
+                    onRemoveImage={removeImage}
+                    onRemoveTag={removeTag}
+                    onTagInputChange={handleTagInputChange}
+                    onTagInputKeyDown={handleTagInputKeyDown}
+                    onUpdateBody={updateCardBody}
+                  />
+                </Card>
+              </AnimatedContent>
+            ))}
+          </AnimatePresence>
         </div>
 
         {/* Add Another Section */}

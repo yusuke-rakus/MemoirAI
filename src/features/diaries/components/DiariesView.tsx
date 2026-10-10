@@ -3,8 +3,10 @@ import { ChevronLeft } from "lucide-react";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { ContentSkeleton } from "@/components/shared/common/ContentSkeleton";
+import { DiaryCardSkeleton } from "@/components/shared/diary/DiaryCardSkeleton";
 import { Button } from "@/components/ui/button";
+import { FadeContent } from "@/components/ui/fade-content";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 import { useFetchDiary } from "../hooks/useFetchDiary";
@@ -61,14 +63,21 @@ export const DiariesView = () => {
       )}
       <div className="flex flex-col gap-1">
         <h2 className="text-3xl font-bold">{format(date, "yyyy年M月d日")}</h2>
-        <p className="text-sm text-muted-foreground">
-          {diaries.length > 0 &&
-            `この日は ${diaries.length} 件の記録があります`}
-        </p>
+        {isLoading ? (
+          <Skeleton aria-hidden="true" className="h-5 w-52" />
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            {diaries.length > 0 &&
+              `この日は ${diaries.length} 件の記録があります`}
+          </p>
+        )}
       </div>
       <div>
         {isLoading ? (
-          <ContentSkeleton />
+          <div role="status" aria-label="日記を読み込み中" aria-busy="true">
+            <span className="sr-only">日記を読み込み中です</span>
+            <DiaryCardSkeleton showActions />
+          </div>
         ) : error ? (
           <div role="alert" className="space-y-3">
             <p>日記を読み込めませんでした。通信状態を確認してください。</p>
@@ -77,7 +86,7 @@ export const DiariesView = () => {
             </Button>
           </div>
         ) : diaries.length > 0 ? (
-          <div className="space-y-4">
+          <FadeContent key={format(date, "yyyy-MM-dd")} className="space-y-4">
             {diaries.map((diary) => (
               <DiaryPreviewCard
                 key={diary.id}
@@ -85,7 +94,7 @@ export const DiariesView = () => {
                 onCompleted={refetch}
               />
             ))}
-          </div>
+          </FadeContent>
         ) : (
           <EmptyDiaries />
         )}
