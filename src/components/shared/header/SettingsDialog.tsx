@@ -1,11 +1,4 @@
-import {
-  Brain,
-  Keyboard,
-  Settings,
-  Share2,
-  UserRound,
-  UserRoundX,
-} from "lucide-react";
+import { Brain, Keyboard, Settings, Share2, UserRoundX } from "lucide-react";
 import { type RefObject, useEffect, useState } from "react";
 
 import {
@@ -22,7 +15,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { AccountSettingsTab } from "./AccountSettingsTab";
 import { GeneralSettingsSection } from "./GeneralSettingsSection";
 import { MemorySettingsSection } from "./MemorySettingsSection";
-import { ProfileSettingsForm } from "./ProfileSettingsForm";
 import { SharedDiariesSettingsSection } from "./SharedDiariesSettingsSection";
 import { ShortcutSettingsSection } from "./ShortcutSettingsSection";
 
@@ -30,42 +22,41 @@ type Props = {
   uid?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  initialSection?: "profile" | "shortcuts";
+  initialSection?: "general" | "shortcuts";
   returnFocusRef?: RefObject<HTMLElement | null>;
 };
 
 type SettingsSection =
-  "profile" | "general" | "shortcuts" | "memory" | "shared-diaries" | "account";
+  "general" | "shortcuts" | "memory" | "shared-diaries" | "account";
 
 export const SettingsDialog = ({
   uid,
   open,
   onOpenChange,
-  initialSection = "profile",
+  initialSection = "general",
   returnFocusRef,
 }: Props) => {
   const isMobile = useIsMobile();
   const [activeSection, setActiveSection] =
-    useState<SettingsSection>("profile");
+    useState<SettingsSection>("general");
   const [isAccountDeleting, setIsAccountDeleting] = useState(false);
 
   useEffect(() => {
     if (open) setActiveSection(initialSection);
     if (!open) {
-      setActiveSection("profile");
+      setActiveSection("general");
       setIsAccountDeleting(false);
     }
   }, [open, initialSection]);
 
   useEffect(() => {
     if (isMobile && activeSection === "shortcuts") {
-      setActiveSection("profile");
+      setActiveSection("general");
     }
   }, [activeSection, isMobile]);
 
   const handleSectionChange = (section: string) => {
     if (
-      section === "profile" ||
       section === "general" ||
       section === "shortcuts" ||
       section === "memory" ||
@@ -95,7 +86,7 @@ export const SettingsDialog = ({
         <DialogHeader className="shrink-0 border-b px-5 py-5 text-left sm:px-6">
           <DialogTitle>設定</DialogTitle>
           <DialogDescription className="sr-only">
-            プロフィール、表示、メモリ、共有した日記、アカウントを確認できます。
+            一般でプロフィールや表示を設定し、メモリ、共有した日記、アカウントを確認できます。
           </DialogDescription>
         </DialogHeader>
         <Tabs
@@ -111,13 +102,6 @@ export const SettingsDialog = ({
               className="h-auto min-w-max justify-start rounded-none bg-transparent px-3 py-0 sm:w-full sm:min-w-0 sm:flex-col sm:gap-1 sm:p-0"
               aria-label="設定カテゴリー"
             >
-              <TabsTrigger
-                value="profile"
-                className="relative h-14 flex-none justify-start rounded-none px-3 text-muted-foreground shadow-none after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:rounded-full after:bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:after:bg-primary sm:h-10 sm:w-full sm:rounded-md sm:after:hidden sm:hover:bg-accent sm:hover:text-accent-foreground sm:data-[state=active]:bg-background sm:data-[state=active]:shadow-sm"
-              >
-                <UserRound className="size-4" />
-                プロフィール
-              </TabsTrigger>
               <TabsTrigger
                 value="general"
                 className="relative h-14 flex-none justify-start rounded-none px-3 text-muted-foreground shadow-none after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:rounded-full after:bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:after:bg-primary sm:h-10 sm:w-full sm:rounded-md sm:after:hidden sm:hover:bg-accent sm:hover:text-accent-foreground sm:data-[state=active]:bg-background sm:data-[state=active]:shadow-sm"
@@ -158,19 +142,6 @@ export const SettingsDialog = ({
             </TabsList>
           </nav>
           <section className="flex min-h-0 min-w-0 flex-col">
-            <TabsContent
-              value="profile"
-              className="m-0 flex min-h-0 flex-1 flex-col"
-            >
-              <div className="shrink-0 border-b px-5 py-4 sm:px-6">
-                <h2 className="text-lg font-semibold">プロフィール</h2>
-              </div>
-              <ScrollArea className="min-h-0 flex-1">
-                <div className="px-5 py-5 sm:px-6">
-                  <ProfileSettingsForm uid={uid} />
-                </div>
-              </ScrollArea>
-            </TabsContent>
             <GeneralSettingsSection uid={uid} />
             {!isMobile && <ShortcutSettingsSection />}
             <MemorySettingsSection
