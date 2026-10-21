@@ -6,6 +6,7 @@ import {
   Palette,
   Sun,
   SunMoon,
+  UserRound,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -29,6 +30,8 @@ import { useMarkdownEditorSetting } from "@/hooks/useMarkdownEditorSetting";
 import { usePrimaryColor } from "@/hooks/usePrimaryColor";
 import useTheme from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
+
+import { ProfileSettingsForm } from "./ProfileSettingsForm";
 
 type GeneralSettingsSectionProps = {
   uid?: string;
@@ -77,6 +80,13 @@ export const GeneralSettingsSection = ({
       <ScrollArea className="min-h-0 flex-1">
         <div className="space-y-8 px-5 py-5 sm:px-6">
           <section>
+            <div className="mb-4 flex items-center gap-2">
+              <UserRound className="size-4" />
+              <h3 className="text-sm font-semibold">プロフィール</h3>
+            </div>
+            <ProfileSettingsForm uid={uid} />
+          </section>
+          <section className="border-t pt-6">
             <div className="flex items-center gap-4">
               <div className="flex shrink-0 items-center gap-2">
                 <SunMoon className="size-4" />

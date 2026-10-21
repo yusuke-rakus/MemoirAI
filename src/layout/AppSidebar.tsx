@@ -54,8 +54,8 @@ export const AppSidebar = memo(function AppSidebar() {
   const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [settingsSection, setSettingsSection] = useState<
-    "profile" | "shortcuts"
-  >("profile");
+    "general" | "shortcuts"
+  >("general");
   const settingsReturnFocus = useRef<HTMLElement | null>(null);
   const auth = getAuth();
   const navigate = useNavigate();
@@ -94,7 +94,7 @@ export const AppSidebar = memo(function AppSidebar() {
 
   const handleSettingsSelect = () => {
     settingsReturnFocus.current = null;
-    setSettingsSection("profile");
+    setSettingsSection("general");
     setIsAvatarMenuOpen(false);
     requestAnimationFrame(() => setIsSettingsDialogOpen(true));
   };
