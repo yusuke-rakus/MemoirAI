@@ -17,20 +17,20 @@
   },
   "emulators": {
     "auth": {
-      "port": 9099,
+      "port": 19099,
       "host": "0.0.0.0"
     },
     "firestore": {
-      "port": 8080,
+      "port": 18080,
       "host": "0.0.0.0"
     },
     "storage": {
-      "port": 9199,
+      "port": 19199,
       "host": "0.0.0.0"
     },
     "ui": {
       "enabled": true,
-      "port": 4000,
+      "port": 14000,
       "host": "0.0.0.0"
     }
   }

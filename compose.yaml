@@ -10,10 +10,10 @@ services:
     env_file:
       - .env
     ports:
-      - "4000:4000" # Emulator UI
-      - "8080:8080" # Firestore
-      - "9099:9099" # Auth
-      - "9199:9199" # Storage
+      - "14000:14000" # Emulator UI
+      - "18080:18080" # Firestore
+      - "19099:19099" # Auth
+      - "19199:19199" # Storage
     command: >
       sh -c "firebase emulators:start --only firestore,auth,storage --project $$VITE_PROJECT_ID
       --config /firebase.json"

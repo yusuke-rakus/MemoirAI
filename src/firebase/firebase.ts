@@ -36,11 +36,11 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 if (env.isDev) {
-  connectAuthEmulator(auth, "http://localhost:9099", {
+  connectAuthEmulator(auth, "http://localhost:19099", {
     disableWarnings: true,
   });
-  connectFirestoreEmulator(db, "localhost", 8080);
-  connectStorageEmulator(storage, "localhost", 9199);
+  connectFirestoreEmulator(db, "localhost", 18080);
+  connectStorageEmulator(storage, "localhost", 19199);
 }
 
 const provider = new GoogleAuthProvider();

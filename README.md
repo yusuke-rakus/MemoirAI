@@ -13,6 +13,8 @@ pnpm seed
 pnpm dev
 ```
 
+フロントは http://localhost:13000、Firebase Emulator UIは http://localhost:14000 で開きます。他PJとの同時起動用に、Firestoreは `18080`、Authは `19099`、Storageは `19199` を使用します。
+
 `pnpm seed` は起動済みAuth / Firestore / Storage Emulator専用です。投入内容は `scripts/seedData.json` で編集します。シードユーザーはGoogleログインのpopupから選択できます。
 
 - UID: `memoir-ai-development-user`
