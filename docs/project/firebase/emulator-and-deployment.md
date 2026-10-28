@@ -4,12 +4,12 @@ snapshot metadataは`../firebase.md`を参照してください。
 
 ## Local Emulator
 
-| Emulator  | Port |
-| --------- | ---: |
-| UI        | 4000 |
-| Firestore | 8080 |
-| Auth      | 9099 |
-| Storage   | 9199 |
+| Emulator  |  Port |
+| --------- | ----: |
+| UI        | 14000 |
+| Firestore | 18080 |
+| Auth      | 19099 |
+| Storage   | 19199 |
 
 - `import.meta.env.DEV`時のWeb appは上記Auth / Firestore / Storageへ接続します。
 - Firebase AI LogicとreCAPTCHA EnterpriseのattestationはEmulator対象ではありません。developmentではApp Check debug token modeを使い、実AI確認はBlazeの開発projectへ到達します。
@@ -59,4 +59,4 @@ Replay protectionとauthenticated-users modeは今回有効化しません。実
 
 ## Guest import verification
 
-`pnpm exec tsx scripts/testGuestDiaryRules.ts`はゲスト引き継ぎに使うowner-onlyの日記・画像アクセスと、登録後の編集を引き継ぎretryで上書きしないことを検証します。既定portはFirestore 8080 / Storage 9199です。既存processと競合する場合は一時Firebase configでEmulatorを別portへ起動し、`GUEST_TEST_FIRESTORE_PORT` / `GUEST_TEST_STORAGE_PORT`でtest側も合わせます。test projectは `demo-memoir-ai-guest-diary-rules` 固定です。Storage未起動時はその検証をskipして明示します。
+`pnpm exec tsx scripts/testGuestDiaryRules.ts`はゲスト引き継ぎに使うowner-onlyの日記・画像アクセスと、登録後の編集を引き継ぎretryで上書きしないことを検証します。既定portはFirestore 18080 / Storage 19199です。既存processと競合する場合は一時Firebase configでEmulatorを別portへ起動し、`GUEST_TEST_FIRESTORE_PORT` / `GUEST_TEST_STORAGE_PORT`でtest側も合わせます。test projectは `demo-memoir-ai-guest-diary-rules` 固定です。Storage未起動時はその検証をskipして明示します。

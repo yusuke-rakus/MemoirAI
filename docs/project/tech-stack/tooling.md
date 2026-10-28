@@ -18,7 +18,7 @@ snapshot metadataは`../tech-stack.md`を参照してください。
 
 | Command            | Behavior                                                                   |
 | ------------------ | -------------------------------------------------------------------------- |
-| `pnpm dev`         | Vite、port 3000、`strictPort`なし                                          |
+| `pnpm dev`         | Vite、port 13000、`strictPort: true`（使用中なら起動失敗）                 |
 | `pnpm build`       | `legal:check`、`tsc -b`、production build                                  |
 | `pnpm legal:check` | Markdown front matterと本文version hashを検証                              |
 | `pnpm legal:sync`  | Markdown本文hashをfront matterのversionへ同期                              |
