@@ -5,7 +5,7 @@ description: MemoirAI の変更をプロジェクト規約に沿ったブラン�
 
 # Git変更整理とPR作成
 
-MemoirAI の作業ツリーをレビュー可能なコミットと GitHub PR に整理する。依頼された操作だけを行う。通常の実装依頼やスキルの選択を、branch 作成、commit、push、PR 作成の許可と解釈しない。すでに明示された許可を重ねて確認しない。
+MemoirAI の作業ツリーをレビュー可能なコミットと GitHub PR に整理する。PR作成を依頼された場合は、必要なbranch作成・切り替え、commit、pushも依頼の範囲として実行する。通常の実装依頼やスキルの選択だけをGit操作の許可と解釈せず、すでに明示された許可を重ねて確認しない。
 
 ## 準備と対象差分
 
@@ -18,8 +18,8 @@ MemoirAI の作業ツリーをレビュー可能なコミットと GitHub PR に
 
 - MemoirAI の通常PRの base は `development`（開発ブランチの正式名）。ユーザーの明示指定があれば優先し、それ以外は `docs/rules/git.md` に従う。GitHub の default branch / `origin/HEAD` が `main` でもPR先には採用しない。指定名が実在名と異なる場合はbranch一覧と文脈を確認し、判定できなければ確認する。base が存在しない・取得できない場合は停止し、`main` や別branchへfallbackしない。
 - remote とその接続先を確認し、選んだ remote/base を fetch して比較を更新する。fetch・認証・ネットワークに失敗した場合は、古い ref で最新確認済みと報告せず、依存する操作を止める。
-- 新規 branch は確定したbaseの最新remote refから作成し、`feature/<english-kebab-case-summary>` または `improve/<english-kebab-case-summary>` とする。機能追加は `feature/`、既存機能の改善・修正やその他の保守は `improve/` を目安に、一つの作業単位を表す具体名を選ぶ。
-- 現在の作業 branch の目的、既存 commit、base との差分が依頼と一致する場合は再利用する。新規 branch 作成の許可がなければ、その操作を追加しない。
+- PR作成時は現在のワークツリーを使い、現在のbranchにかかわらず、fetchで最新化したbaseのremote refから新規branchを作成する。別ワークツリーや別cloneは使用しない。新規 branch は`feature/<english-kebab-case-summary>` または `improve/<english-kebab-case-summary>` とする。機能追加は `feature/`、既存機能の改善・修正やその他の保守は `improve/` を目安に、一つの作業単位を表す具体名を選ぶ。
+- 既存PRの更新・継続を依頼された場合は、そのhead branchを確認して再利用する。新規PRのためのbranch作成に別途許可を求めない。
 - default/base branch への直接 commit・push はこの PR ワークフローでは行わない。新規 branch が必要な場合は、変更を安全に維持できる方法を選ぶ。退避・復元が必要なら未追跡ファイルも保護し、復元を確認するまで退避を破棄しない。競合したら変更を保持して止める。
 - 同名 branch や無関係な既存 commit があれば目的と履歴を確認する。履歴を勝手に rebase、reset、amend、削除して整えない。対象外 commit を含む PR になる場合は、含め方を確認する。
 - PR 作成前に、対象リポジトリを指定した `gh pr list --head <branch> --state open` で重複を確認する。同じ head/base の PR は再利用して URL を報告し、本文更新は依頼範囲内の場合だけ行う。異なる base の既存 PR は勝手に宛先を変更しない。
