@@ -42,7 +42,7 @@ export const AppShellLayout = () => {
     toast.success("体験で作成した日記をアカウントに保存しました");
     navigate(
       `${PATHS.diaries.path}/${format(new Date(importedDate), "yyyy-MM-dd")}`,
-      { replace: true },
+      { replace: true, state: { diarySaved: true } },
     );
     acknowledgeImport();
   }, [importedDate, navigate, acknowledgeImport]);

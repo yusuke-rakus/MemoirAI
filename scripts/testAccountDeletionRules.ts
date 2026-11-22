@@ -19,12 +19,12 @@ const testEnvironment = await initializeTestEnvironment({
   projectId: PROJECT_ID,
   firestore: {
     host: "127.0.0.1",
-    port: 8080,
+    port: 18080,
     rules: readFileSync("firebase/firestore.rules", "utf8"),
   },
   storage: {
     host: "127.0.0.1",
-    port: 9199,
+    port: 19199,
     rules: readFileSync("firebase/storage.rules", "utf8"),
   },
 });

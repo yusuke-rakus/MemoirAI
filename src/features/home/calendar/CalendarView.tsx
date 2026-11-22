@@ -67,7 +67,7 @@ export const CalendarView = () => {
         />
       </div>
       {!loading && selectedDate && (
-        <div ref={diariesRef} className="scroll-mt-28 pt-6 md:pt-0">
+        <div ref={diariesRef} className="scroll-mt-28 pt-6 pb-6 md:py-0">
           <Diaries dialies={selectedDateDiaries} date={selectedDate} />
         </div>
       )}

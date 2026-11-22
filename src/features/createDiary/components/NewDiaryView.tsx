@@ -5,7 +5,6 @@ import { type DragEvent, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-import { useRotatingText } from "@/components/shared/common/useRotatingText";
 import { AnimatedContent } from "@/components/ui/animated-content";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,10 +23,13 @@ import { useLocalUser } from "@/contexts/LocalUserContext";
 import { useShortcut } from "@/hooks/useShortcut";
 import { cn } from "@/lib/utils";
 
-import { useCreateDiary } from "../hooks/useCreateDiary";
+import {
+  getDiarySaveErrorMessage,
+  useCreateDiary,
+} from "../hooks/useCreateDiary";
 import { useDiaryCard } from "../hooks/useDiaryCard";
 import { useDiaryDraft } from "../hooks/useDiaryDraft";
-import { usePickMessages } from "../hooks/usePickMessages";
+import { useDiaryWritingPrompt } from "../hooks/useDiaryWritingPrompt";
 import { useDiaryDetailStore } from "../provider/DiaryDetailProvider";
 import type { DiarySaveMode } from "../types";
 import { DiaryCreationProgressDialog } from "./DiaryCreationProgressDialog";
@@ -38,7 +40,9 @@ import { DiaryCardEditor } from "./editor/DiaryCardEditor";
 export const NewDiaryView = () => {
   const { localUser } = useLocalUser();
   const navigate = useNavigate();
-  const { date, setDate } = useDiaryDetailStore();
+  const { date } = useDiaryDetailStore();
+  const dateKey = format(date, "yyyy-MM-dd");
+  const writingPrompt = useDiaryWritingPrompt();
   const { createPhase, creationProgress, isCreating, onSave } =
     useCreateDiary();
   const {
@@ -56,6 +60,7 @@ export const NewDiaryView = () => {
     reset,
   } = useDiaryCard();
   const {
+    status: draftStatus,
     hasRestorableDraft,
     isNavigationBlocked,
     restoreDraft,
@@ -66,26 +71,31 @@ export const NewDiaryView = () => {
     stay,
   } = useDiaryDraft(date);
 
-  const { pickRandomMessages } = usePickMessages();
-  const placeholderText = useRotatingText(pickRandomMessages);
   const [draggingCardId, setDraggingCardId] = useState<string | null>(null);
   const [saveMode, setSaveMode] = useState<DiarySaveMode>("standard");
   const [bodyErrors, setBodyErrors] = useState<Record<string, string>>({});
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [isFinishing, setIsFinishing] = useState(false);
+  const [isActingOnDraft, setIsActingOnDraft] = useState(false);
+  const editorRef = useRef<HTMLDivElement>(null);
+  const restoreButtonRef = useRef<HTMLButtonElement>(null);
+  const saveButtonRef = useRef<HTMLButtonElement>(null);
   const savePending = useRef(false);
+  const isSaving = isCreating || isFinishing;
+  const editorDisabled = isSaving || draftStatus === "restoring";
   useShortcut("save", () => void handleSave(), {
-    enabled: !isCreating && !hasRestorableDraft && !isNavigationBlocked,
+    enabled: !editorDisabled && !hasRestorableDraft && !isNavigationBlocked,
   });
 
-  const customSetDate = (date: Date) => {
-    setDate(date);
-    const dateString = format(date, "yyyy-MM-dd");
-    navigate(`${PATHS.newDiary.path}/${dateString}`);
+  const changeDate = (nextDate: Date) => {
+    const nextDateKey = format(nextDate, "yyyy-MM-dd");
+    if (nextDateKey !== dateKey) {
+      navigate(`${PATHS.newDiary.path}/${nextDateKey}`);
+    }
   };
 
   useEffect(() => {
     reset(date);
-    setSaveMode("standard");
-    setBodyErrors({});
   }, [date, reset]);
 
   useEffect(() => {
@@ -96,7 +106,8 @@ export const NewDiaryView = () => {
   }, [bodyErrors]);
 
   const handleSave = async () => {
-    if (savePending.current || isCreating) return;
+    if (savePending.current || editorDisabled) return;
+    setSaveError(null);
     const invalidCard = cards.find(
       (card) =>
         !card.body.trim() && (card.tags.length > 0 || card.images.length > 0),
@@ -114,7 +125,6 @@ export const NewDiaryView = () => {
             .map((card) => [card.id, "本文を入力してください。"]),
         ),
       );
-      toast.error("本文を入力してください");
       return;
     }
     setBodyErrors({});
@@ -126,22 +136,43 @@ export const NewDiaryView = () => {
       );
 
       if (fullImageCard) {
-        toast.error("生成画像を追加するには画像を1枚削除してください");
-        document.getElementById(`diary-body-${fullImageCard.id}`)?.focus();
+        setSaveError("イラストを追加するには、写真を1枚削除してください。");
         return;
       }
     }
 
     savePending.current = true;
     try {
-      await onSave(saveMode);
-      await completeDraft();
-      const dateString = format(date, "yyyy-MM-dd");
-      navigate(`${PATHS.diaries.path}/${dateString}`);
-    } catch {
-      return;
+      try {
+        await onSave(saveMode);
+      } catch (error) {
+        setSaveError(getDiarySaveErrorMessage(error));
+        return;
+      }
+
+      setIsFinishing(true);
+      try {
+        await completeDraft();
+      } catch (error) {
+        console.error("Failed to clear draft after saving diary", error);
+        toast.error("日記は保存しましたが、下書きを削除できませんでした。");
+      }
+      navigate(`${PATHS.diaries.path}/${dateKey}`, {
+        state: { diarySaved: true },
+      });
     } finally {
       savePending.current = false;
+      setIsFinishing(false);
+    }
+  };
+
+  const runDraftAction = async (action: () => Promise<void>) => {
+    if (isActingOnDraft) return;
+    setIsActingOnDraft(true);
+    try {
+      await action();
+    } finally {
+      setIsActingOnDraft(false);
     }
   };
 
@@ -162,7 +193,7 @@ export const NewDiaryView = () => {
     event: DragEvent<HTMLElement>,
     cardId: string,
   ) => {
-    if (!hasDraggedFiles(event)) return;
+    if (editorDisabled || !hasDraggedFiles(event)) return;
 
     event.preventDefault();
     setDraggingCardId(cardId);
@@ -175,8 +206,8 @@ export const NewDiaryView = () => {
     if (!hasDraggedFiles(event)) return;
 
     event.preventDefault();
-    event.dataTransfer.dropEffect = isCreating ? "none" : "copy";
-    setDraggingCardId(cardId);
+    event.dataTransfer.dropEffect = editorDisabled ? "none" : "copy";
+    if (!editorDisabled) setDraggingCardId(cardId);
   };
 
   const handleCardDragLeave = (event: DragEvent<HTMLElement>) => {
@@ -198,7 +229,7 @@ export const NewDiaryView = () => {
     event.preventDefault();
     setDraggingCardId(null);
 
-    if (isCreating) return;
+    if (editorDisabled) return;
 
     const files = Array.from(event.dataTransfer.files);
     if (files.length === 0) return;
@@ -207,30 +238,24 @@ export const NewDiaryView = () => {
   };
 
   return (
-    <div className="min-h-screen px-4 pt-8 pb-32 sm:px-6">
-      <div className="mx-auto max-w-4xl">
-        {/* Header Section */}
-        <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <DiaryDatePicker date={date} onSelect={customSetDate} />
+    <div className="mx-auto max-w-2xl px-2 pt-4 pb-8 sm:px-0 sm:pt-8">
+      <div ref={editorRef} className="space-y-3">
+        <header className="flex flex-wrap items-center justify-between gap-1">
+          <h1 className="!text-2xl font-semibold">日記を書く</h1>
+          <DiaryDatePicker
+            date={date}
+            disabled={editorDisabled}
+            onSelect={changeDate}
+          />
+        </header>
 
-          <div className="flex items-center gap-3 self-end sm:self-auto">
-            <DiarySaveButton
-              saveMode={saveMode}
-              createPhase={createPhase}
-              onSaveModeChange={setSaveMode}
-              onSave={() => void handleSave()}
-            />
-          </div>
-        </div>
-
-        <div className="space-y-6">
+        <div className="space-y-3">
           <AnimatePresence initial={false}>
-            {cards.map((card) => (
+            {cards.map((card, index) => (
               <AnimatedContent key={card.id}>
                 <Card
                   className={cn(
-                    "border-none bg-card/50 shadow-sm transition-all duration-300 hover:bg-card/80",
-                    "group relative overflow-visible backdrop-blur-sm",
+                    "relative gap-3 py-4",
                     draggingCardId === card.id &&
                       "bg-accent/30 ring-2 ring-primary/60",
                   )}
@@ -239,34 +264,42 @@ export const NewDiaryView = () => {
                   onDragLeave={handleCardDragLeave}
                   onDrop={(event) => handleCardDrop(event, card.id)}
                 >
-                  {/* Card Remove Button (visible on hover or if multiple) */}
-                  {cards.length > 1 && (
-                    <div className="absolute -top-2 -right-2 z-10 opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
+                  <CardHeader className="flex items-center justify-between gap-2 px-4 sm:px-5">
+                    <CardTitle className="min-w-0 text-sm leading-snug font-medium">
+                      {index === 0 && writingPrompt ? (
+                        <p id={`diary-body-${card.id}-prompt`}>
+                          {writingPrompt}
+                        </p>
+                      ) : (
+                        <Label htmlFor={`diary-body-${card.id}`}>
+                          {cards.length > 1 ? `本文 ${index + 1}` : "本文"}
+                        </Label>
+                      )}
+                    </CardTitle>
+                    {cards.length > 1 && (
                       <Button
                         variant="ghost"
                         size="icon"
+                        disabled={editorDisabled}
                         onClick={() => removeCard(card.id)}
-                        aria-label={`セクション${cards.indexOf(card) + 1}を削除`}
-                        className="h-8 w-8 rounded-full border border-border bg-background shadow-sm transition-colors hover:bg-destructive/10 hover:text-destructive"
+                        aria-label={`セクション${index + 1}を削除`}
+                        className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
                       >
-                        <X className="h-4 w-4" />
+                        <X aria-hidden="true" />
                       </Button>
-                    </div>
-                  )}
-                  <CardHeader>
-                    <CardTitle className="text-sm font-medium text-muted-foreground">
-                      <Label htmlFor={`diary-body-${card.id}`}>
-                        今日の出来事を書き留めよう ✨
-                      </Label>
-                    </CardTitle>
+                    )}
                   </CardHeader>
 
                   <DiaryCardEditor
                     card={card}
-                    dateKey={format(date, "yyyy-MM-dd")}
-                    disabled={isCreating}
+                    dateKey={dateKey}
+                    disabled={editorDisabled}
                     markdownEditorEnabled={localUser.markdownEditorEnabled}
-                    placeholder={placeholderText}
+                    writingPromptId={
+                      index === 0 && writingPrompt
+                        ? `diary-body-${card.id}-prompt`
+                        : undefined
+                    }
                     error={card.body.trim() ? undefined : bodyErrors[card.id]}
                     tagInput={tagInputs[card.id] || ""}
                     onAddImages={(cardId, files) => {
@@ -287,14 +320,41 @@ export const NewDiaryView = () => {
           </AnimatePresence>
         </div>
 
-        {/* Add Another Section */}
-        <div className="mt-8 flex justify-center">
+        <div className="space-y-2">
+          <DiarySaveButton
+            buttonRef={saveButtonRef}
+            disabled={editorDisabled}
+            saveMode={saveMode}
+            createPhase={isFinishing ? "saving" : createPhase}
+            idleLabel={saveError ? "保存を再試行" : undefined}
+            onSaveModeChange={(mode) => {
+              setSaveMode(mode);
+              setSaveError(null);
+            }}
+            onSave={() => void handleSave()}
+          />
+          {saveError && (
+            <p role="alert" className="text-sm text-destructive">
+              <span className="block">{saveError}</span>
+              入力内容は保持されています。
+            </p>
+          )}
+          <p aria-live="polite" className="text-sm text-muted-foreground">
+            {draftStatus === "saved" && "下書きをこのブラウザに保存しました。"}
+            {draftStatus === "error" &&
+              "下書きの保存状態を確認できませんでした。"}
+          </p>
+        </div>
+
+        <div className="border-t pt-2">
           <Button
+            type="button"
             onClick={addCard}
-            variant="outline"
-            className="group h-auto rounded-full border-dashed border-border px-6 py-6 transition-all hover:border-primary/50 hover:bg-accent/5"
+            disabled={editorDisabled}
+            variant="ghost"
+            className="h-10 px-2 text-muted-foreground"
           >
-            <Plus className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
+            <Plus aria-hidden="true" />
             セクションを追加
           </Button>
         </div>
@@ -304,70 +364,97 @@ export const NewDiaryView = () => {
         <DialogContent
           className="sm:max-w-md [&>button]:hidden"
           onEscapeKeyDown={(event) => event.preventDefault()}
+          onOpenAutoFocus={(event) => {
+            event.preventDefault();
+            restoreButtonRef.current?.focus();
+          }}
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            editorRef.current?.querySelector("textarea")?.focus();
+          }}
         >
           <DialogHeader>
-            <DialogTitle>保存された下書きがあります</DialogTitle>
+            <DialogTitle>下書きから続けますか？</DialogTitle>
             <DialogDescription>
-              この端末に残っている本文・タグ・画像を復元できます。
+              {format(date, "M月d日")}
+              の本文・タグ・写真がこのブラウザに残っています。
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex-row gap-2 sm:gap-0">
             <Button
               type="button"
               variant="outline"
+              disabled={isActingOnDraft}
               className="flex-1 sm:flex-none"
-              onClick={() => void discardDraft()}
+              onClick={() => void runDraftAction(discardDraft)}
             >
-              破棄する
+              下書きを破棄
             </Button>
             <Button
+              ref={restoreButtonRef}
               type="button"
+              disabled={isActingOnDraft}
               className="flex-1 sm:flex-none"
-              onClick={() => void restoreDraft()}
+              onClick={() => void runDraftAction(restoreDraft)}
             >
-              復元する
+              下書きから続ける
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       <Dialog
-        open={isNavigationBlocked}
+        open={isNavigationBlocked && !isSaving}
         onOpenChange={(open) => {
-          if (!open) stay?.();
+          if (!open && !isActingOnDraft) stay?.();
         }}
       >
         <DialogContent
           className="sm:max-w-md"
-          onEscapeKeyDown={(event) => event.preventDefault()}
+          onEscapeKeyDown={(event) => {
+            if (isActingOnDraft) event.preventDefault();
+          }}
         >
           <DialogHeader>
             <DialogTitle>作成中の日記があります</DialogTitle>
             <DialogDescription>
-              移動する前に、入力内容を下書きとして残すか、破棄してください。
+              入力内容をこのブラウザに下書きとして残してから移動できます。
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex-row gap-2 sm:gap-0">
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button
               type="button"
               variant="outline"
-              className="border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive"
-              onClick={() => void discardAndLeave()}
+              disabled={isActingOnDraft}
+              onClick={stay}
             >
-              破棄
+              書き続ける
             </Button>
             <Button
               type="button"
-              className="flex-1 sm:flex-none"
-              onClick={() => void leaveWithDraft()}
+              variant="ghost"
+              disabled={isActingOnDraft}
+              className="text-destructive hover:text-destructive"
+              onClick={() => void runDraftAction(discardAndLeave)}
             >
-              下書きを残す
+              破棄して移動
+            </Button>
+            <Button
+              type="button"
+              disabled={isActingOnDraft}
+              onClick={() => void runDraftAction(leaveWithDraft)}
+            >
+              下書きを残して移動
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      <DiaryCreationProgressDialog progress={creationProgress} />
+      <DiaryCreationProgressDialog
+        progress={creationProgress}
+        destination="account"
+        returnFocusRef={saveButtonRef}
+      />
     </div>
   );
 };

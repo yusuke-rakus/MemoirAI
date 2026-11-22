@@ -10,8 +10,8 @@ import {
   initializeTestEnvironment,
 } from "@firebase/rules-unit-testing";
 
-const firestorePort = Number(process.env.GUEST_TEST_FIRESTORE_PORT ?? 8080);
-const storagePort = Number(process.env.GUEST_TEST_STORAGE_PORT ?? 9199);
+const firestorePort = Number(process.env.GUEST_TEST_FIRESTORE_PORT ?? 18080);
+const storagePort = Number(process.env.GUEST_TEST_STORAGE_PORT ?? 19199);
 
 const storageAvailable = await new Promise<boolean>((resolve) => {
   const socket = createConnection({ host: "127.0.0.1", port: storagePort });
@@ -86,25 +86,31 @@ try {
     const imagePath =
       "users/guest-import-owner/diaries/guest-import-diary/images/generated.png";
     await assertSucceeds(
-      owner
-        .storage()
-        .ref(imagePath)
-        .putString("test image", "raw", { contentType: "image/png" }),
+      Promise.resolve(
+        owner
+          .storage()
+          .ref(imagePath)
+          .putString("test image", "raw", { contentType: "image/png" }),
+      ),
     );
     await assertSucceeds(owner.storage().ref(imagePath).getMetadata());
     await assertFails(other.storage().ref(imagePath).getMetadata());
     await assertFails(guest.storage().ref(imagePath).getMetadata());
     await assertFails(
-      other
-        .storage()
-        .ref(imagePath)
-        .putString("test image", "raw", { contentType: "image/png" }),
+      Promise.resolve(
+        other
+          .storage()
+          .ref(imagePath)
+          .putString("test image", "raw", { contentType: "image/png" }),
+      ),
     );
     await assertFails(
-      guest
-        .storage()
-        .ref(imagePath)
-        .putString("test image", "raw", { contentType: "image/png" }),
+      Promise.resolve(
+        guest
+          .storage()
+          .ref(imagePath)
+          .putString("test image", "raw", { contentType: "image/png" }),
+      ),
     );
     console.log(
       "Storage: owner image access, non-owner and unauthenticated denial passed.",

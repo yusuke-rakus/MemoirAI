@@ -1,6 +1,6 @@
 import { format } from "date-fns";
-import { ChevronLeft } from "lucide-react";
-import { useEffect } from "react";
+import { CheckCircle2, ChevronLeft } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { DiaryCardSkeleton } from "@/components/shared/diary/DiaryCardSkeleton";
@@ -34,6 +34,12 @@ export const DiariesView = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const returnTo = getReturnTo(location.state);
+  const diarySaved = location.state?.diarySaved === true;
+  const saveConfirmation = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    if (diarySaved) saveConfirmation.current?.focus();
+  }, [diarySaved, location.key]);
 
   useEffect(() => {
     if (!window.location.hash || diaries.length === 0) return;
@@ -49,6 +55,16 @@ export const DiariesView = () => {
         returnTo ? "pt-4" : "pt-8",
       )}
     >
+      {diarySaved && (
+        <p
+          ref={saveConfirmation}
+          tabIndex={-1}
+          className="flex items-center gap-2 rounded-lg border border-primary/25 bg-accent px-4 py-3 text-sm font-medium text-accent-foreground"
+        >
+          <CheckCircle2 aria-hidden="true" className="size-5 shrink-0" />
+          日記をアカウントに保存しました
+        </p>
+      )}
       {returnTo && (
         <Button
           type="button"

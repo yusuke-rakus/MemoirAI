@@ -9,18 +9,18 @@ import developmentSeedDataJson from "./seedData.json";
 
 const EMULATORS = {
   auth: {
-    host: "127.0.0.1:9099",
-    url: "http://127.0.0.1:9099",
+    host: "127.0.0.1:19099",
+    url: "http://127.0.0.1:19099",
     label: "Auth Emulator",
   },
   firestore: {
-    host: "127.0.0.1:8080",
-    url: "http://127.0.0.1:8080",
+    host: "127.0.0.1:18080",
+    url: "http://127.0.0.1:18080",
     label: "Firestore Emulator",
   },
   storage: {
-    host: "127.0.0.1:9199",
-    url: "http://127.0.0.1:9199",
+    host: "127.0.0.1:19199",
+    url: "http://127.0.0.1:19199",
     label: "Storage Emulator",
   },
 } as const;
