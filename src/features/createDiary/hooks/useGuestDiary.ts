@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 
 import { mergeDiaryTags } from "@/lib/diaryMetadata";
 import { generateDiaryId, generateDiaryImageId } from "@/lib/generateId";
@@ -59,8 +58,10 @@ export const useGuestDiary = () => {
   }));
   const [diary, setDiary] = useState<GuestDiary | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [loadError, setLoadError] = useState(false);
+  const [restoredDraft, setRestoredDraft] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [draftError, setDraftError] = useState<string | null>(null);
+  const [createError, setCreateError] = useState<string | null>(null);
   const [progress, setProgress] = useState<DiaryCreationProgress | null>(null);
   const [saveMode, setSaveMode] = useState<DiarySaveMode>("standard");
   const [reload, setReload] = useState(0);
@@ -73,21 +74,22 @@ export const useGuestDiary = () => {
   useEffect(() => {
     let active = true;
     mounted.current = true;
-    setLoadError(false);
+    setLoadError(null);
     setLoaded(false);
     void GuestDiaryClient.load()
       .then((record) => {
         if (!active) return;
         if (record) setDraft(record.draft);
+        setRestoredDraft(
+          Boolean(!record?.diary && record?.draft.content.trim()),
+        );
         setDiary(record?.diary ?? null);
         setLoaded(true);
-        setError(null);
       })
       .catch(() => {
         if (active) {
-          setLoadError(true);
-          setError(
-            "端末の日記を読み込めませんでした。保存データを保持しています。再試行してください。",
+          setLoadError(
+            "このブラウザの日記を読み込めませんでした。保存データを保持しています。",
           );
         }
       });
@@ -99,17 +101,21 @@ export const useGuestDiary = () => {
 
   const flushDraft = useCallback(async () => {
     if (!loaded || diary || pending.current || prepared.current) return;
-    await GuestDiaryClient.saveDraft(latest.current, () => mounted.current);
+    try {
+      await GuestDiaryClient.saveDraft(latest.current, () => mounted.current);
+      setDraftError(null);
+    } catch (error) {
+      setDraftError(
+        "このブラウザに下書きを保存できませんでした。入力内容を保持しています。",
+      );
+      throw error;
+    }
   }, [loaded, diary]);
 
   useEffect(() => {
     if (!loaded || diary || progress || prepared.current) return;
     const timer = setTimeout(() => {
-      void flushDraft().catch(() =>
-        setError(
-          "下書きを端末に保存できませんでした。通信やブラウザの設定を確認してください。",
-        ),
-      );
+      void flushDraft().catch(() => undefined);
     }, 500);
     return () => clearTimeout(timer);
   }, [draft, diary, loaded, progress, flushDraft]);
@@ -125,19 +131,16 @@ export const useGuestDiary = () => {
   }, [diary, draft.content]);
 
   const create = async () => {
-    if (pending.current || diary || !loaded) return;
-    if (!draft.content.trim()) {
-      setError("本文を入力してください");
-      return;
-    }
+    if (pending.current || diary || !loaded || !draft.content.trim()) return;
     pending.current = true;
-    setError(null);
+    setCreateError(null);
     const mode = saveMode;
+    const generationStatus = prepared.current ? "complete" : "active";
     setProgress({
       saveMode: mode,
-      metadata: "active",
-      illustration: mode === "illustrated" ? "active" : null,
-      persistence: "pending",
+      metadata: generationStatus,
+      illustration: mode === "illustrated" ? generationStatus : null,
+      persistence: prepared.current ? "active" : "pending",
     });
     try {
       await GuestDiaryClient.exclusive(async () => {
@@ -147,31 +150,28 @@ export const useGuestDiary = () => {
           setDiary(existing.diary);
           return;
         }
-        if (!prepared.current)
+        if (!prepared.current) {
           await GuestDiaryClient.write({ version: 1, draft });
-        // Keep the generated result in memory if the IndexedDB commit fails.
-        const result =
-          prepared.current ?? (await prepareGuestDiary(draft, mode));
-        prepared.current = result;
-        setProgress({
-          saveMode: mode,
-          metadata: "complete",
-          illustration: mode === "illustrated" ? "complete" : null,
-          persistence: "active",
-        });
+          // Keep the generated result in memory if the IndexedDB commit fails.
+          prepared.current = await prepareGuestDiary(draft, mode);
+          setProgress({
+            saveMode: mode,
+            metadata: "complete",
+            illustration: mode === "illustrated" ? "complete" : null,
+            persistence: "active",
+          });
+        }
+        const result = prepared.current;
         await GuestDiaryClient.write({ version: 1, draft, diary: result });
         prepared.current = null;
         setDiary(result);
       });
-      toast.success(
-        "日記を作成しました。ログインするとアカウントに保存できます。",
-      );
     } catch (cause) {
       console.error("Failed to create guest diary", cause);
-      setError(
+      setCreateError(
         prepared.current
-          ? "作成結果を端末に保存できませんでした。同じ結果で再試行できます。"
-          : "日記を作成できませんでした。再試行するか、通常保存に切り替えてください。",
+          ? "このブラウザに日記を保存できませんでした。同じ結果で保存を再試行できます。"
+          : "日記を保存できませんでした。入力内容を保持しています。",
       );
     } finally {
       pending.current = false;
@@ -184,8 +184,10 @@ export const useGuestDiary = () => {
     setDraft,
     diary,
     loaded,
-    error,
+    restoredDraft,
     loadError,
+    draftError,
+    createError,
     progress,
     saveMode,
     setSaveMode,

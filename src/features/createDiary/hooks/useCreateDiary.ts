@@ -1,6 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
-import { toast } from "sonner";
 
 import { MAX_DIARY_IMAGE_COUNT } from "@/constants/diaryImages";
 import type { TagColor } from "@/constants/tagColors";
@@ -67,6 +66,12 @@ type CreatedDiaryMemoryPayload = {
   uid: string;
   memoryPromise: Promise<ExtractedUserMemory | null>;
 };
+
+export const getDiarySaveErrorMessage = (error: unknown) =>
+  getDiaryImageErrorMessage(error) ??
+  (error instanceof DiaryIllustrationError
+    ? "画像を生成できませんでした。再試行するか、通常保存に切り替えてください"
+    : "日記の作成に失敗しました");
 
 const extractDiaryMemory = async (
   content: string,
@@ -326,20 +331,7 @@ export const useCreateDiary = () => {
   );
 
   const onSave = useCallback(
-    async (saveMode: DiarySaveMode) => {
-      try {
-        await createDiaries(diariesToCreate, saveMode);
-        toast.success("日記を作成しました🎊");
-      } catch (error) {
-        toast.error(
-          getDiaryImageErrorMessage(error) ??
-            (error instanceof DiaryIllustrationError
-              ? "画像を生成できませんでした。再試行するか、通常保存に切り替えてください"
-              : "日記の作成に失敗しました"),
-        );
-        throw error;
-      }
-    },
+    (saveMode: DiarySaveMode) => createDiaries(diariesToCreate, saveMode),
     [createDiaries, diariesToCreate],
   );
 

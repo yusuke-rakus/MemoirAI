@@ -20,7 +20,7 @@
 | `/new-diary`                | 当日の`/new-diary/:date`へreplace       |
 | `/new-diary/:date`          | `NewDiaryPage`。parse失敗時は現在日     |
 
-当月・当日のredirectは`initialDateStore`の現在日を使います。日付routeは通常`yyyy-MM-dd`で、`new Date()`によりparseします。
+当月・当日のredirectは`initialDateStore`の現在日を使います。作成routeの`yyyy-MM-dd`は端末のローカル日付として解釈し、遷移確定後に日付単位で作成用Providerを再生成します。日別一覧routeのparseには`new Date()`を使います。
 
 年月parserは4桁のyear（1000〜9999）と1〜12のmonthを検証し、月初を返します。不正な年月は当月の正規URLへreplaceします。年月の変更時はProviderを再生成して選択日・一覧の状態を切り替えます。カレンダーポップオーバー（年月選択）、前後月、今日ボタンから移動でき、表示方式のtab切り替えでは年月を維持します。
 

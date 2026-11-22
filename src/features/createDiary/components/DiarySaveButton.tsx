@@ -1,4 +1,5 @@
 import { ChevronDown } from "lucide-react";
+import type { Ref } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +22,8 @@ type DiarySaveButtonProps = {
   onSave: () => void;
   saveModeLocked?: boolean;
   idleLabel?: string;
+  buttonRef?: Ref<HTMLButtonElement>;
+  disabled?: boolean;
 };
 
 const isDiarySaveMode = (value: string): value is DiarySaveMode =>
@@ -37,7 +40,7 @@ const getSaveButtonLabel = (
   }
   if (createPhase === "saving") return "保存中...";
 
-  return saveMode === "illustrated" ? "絵日記で保存" : "保存";
+  return saveMode === "illustrated" ? "絵日記で保存" : "日記を保存";
 };
 
 export const DiarySaveButton = ({
@@ -47,6 +50,8 @@ export const DiarySaveButton = ({
   onSave,
   saveModeLocked = false,
   idleLabel,
+  buttonRef,
+  disabled = false,
 }: DiarySaveButtonProps) => {
   const isCreating = createPhase !== "idle";
   const label =
@@ -55,13 +60,14 @@ export const DiarySaveButton = ({
       : getSaveButtonLabel(saveMode, createPhase);
 
   return (
-    <div className="flex items-stretch rounded-md shadow-sm">
+    <div className="flex w-full items-stretch rounded-md shadow-sm sm:w-fit">
       <Button
+        ref={buttonRef}
         type="button"
         onClick={onSave}
         title={`${label} (${shortcutLabel("save")})`}
-        disabled={isCreating}
-        className="h-10 rounded-r-none px-5 font-medium shadow-none transition-all active:scale-[0.98]"
+        disabled={disabled || isCreating}
+        className="h-11 flex-1 rounded-r-none px-4 font-semibold shadow-none focus-visible:z-10 sm:flex-initial sm:px-6"
       >
         <span aria-live="polite">{label}</span>
       </Button>
@@ -70,9 +76,9 @@ export const DiarySaveButton = ({
         <DropdownMenuTrigger asChild>
           <Button
             type="button"
-            disabled={isCreating || saveModeLocked}
+            disabled={disabled || isCreating || saveModeLocked}
             aria-label="保存方法を選択"
-            className="h-10 w-10 rounded-l-none border-l border-primary-foreground/20 px-0 shadow-none"
+            className="h-11 w-11 shrink-0 rounded-l-none border-l border-primary-foreground/20 px-0 shadow-none focus-visible:z-10"
           >
             <ChevronDown className="size-4" />
           </Button>
