@@ -150,7 +150,11 @@ export const useDiaryDraft = (date: Date) => {
   }, [cards, dateKey, localUser.uid]);
 
   const leaveWithDraft = useCallback(async () => {
-    await saveDraft().catch(() => undefined);
+    try {
+      await saveDraft();
+    } catch {
+      return;
+    }
     allowNavigationRef.current = true;
     setAllowNavigation(true);
     blocker.proceed?.();

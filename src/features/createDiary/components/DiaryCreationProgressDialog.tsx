@@ -1,4 +1,11 @@
-import { CloudUpload, Image, type LucideIcon, Tags } from "lucide-react";
+import {
+  CloudUpload,
+  HardDrive,
+  Image,
+  type LucideIcon,
+  Tags,
+} from "lucide-react";
+import type { RefObject } from "react";
 
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { ShinyText } from "@/components/ui/shiny-text";
@@ -8,6 +15,8 @@ import type { DiaryCreationProgress, DiaryCreationStepStatus } from "../types";
 
 type DiaryCreationProgressDialogProps = {
   progress: DiaryCreationProgress | null;
+  destination: "account" | "browser";
+  returnFocusRef: RefObject<HTMLButtonElement | null>;
 };
 
 type ProgressStepProps = {
@@ -39,8 +48,12 @@ const ProgressStep = ({ status, icon: Icon, labels }: ProgressStepProps) => {
 
 export const DiaryCreationProgressDialog = ({
   progress,
+  destination,
+  returnFocusRef,
 }: DiaryCreationProgressDialogProps) => {
   const isOpen = progress !== null;
+  const saveDestination =
+    destination === "browser" ? "このブラウザ" : "アカウント";
 
   return (
     <Dialog open={isOpen}>
@@ -49,9 +62,13 @@ export const DiaryCreationProgressDialog = ({
         className="max-w-sm p-5 [&>button]:hidden"
         onEscapeKeyDown={(event) => event.preventDefault()}
         onInteractOutside={(event) => event.preventDefault()}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          returnFocusRef.current?.focus();
+        }}
       >
-        <DialogTitle className="sr-only">日記を作成中</DialogTitle>
-        <div role="status" aria-live="polite" aria-busy={isOpen}>
+        <DialogTitle className="text-base">日記を作成中</DialogTitle>
+        <div role="status">
           {progress && (
             <ol className="space-y-1">
               <ProgressStep
@@ -78,11 +95,11 @@ export const DiaryCreationProgressDialog = ({
 
               <ProgressStep
                 status={progress.persistence}
-                icon={CloudUpload}
+                icon={destination === "browser" ? HardDrive : CloudUpload}
                 labels={{
-                  pending: "日記を保存",
-                  active: "日記を保存中",
-                  complete: "日記を保存しました",
+                  pending: `${saveDestination}に保存`,
+                  active: `${saveDestination}に保存中`,
+                  complete: `${saveDestination}に保存しました`,
                 }}
               />
             </ol>

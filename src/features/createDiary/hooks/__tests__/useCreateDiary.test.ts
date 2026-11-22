@@ -1,13 +1,17 @@
-import { act, renderHook as baseRenderHook, waitFor } from "@testing-library/react";
+import {
+  act,
+  renderHook as baseRenderHook,
+  waitFor,
+} from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createDiaryImageError } from "@/lib/diaryImageError";
 import { QueryTestProvider } from "@/test/QueryTestProvider";
 import type { ActiveUserMemoryContext } from "@/types/memory";
 
-import { useCreateDiary } from "../useCreateDiary";
+import { getDiarySaveErrorMessage, useCreateDiary } from "../useCreateDiary";
 
-const renderHook = <Result,>(callback: () => Result) =>
+const renderHook = <Result>(callback: () => Result) =>
   baseRenderHook(callback, { wrapper: QueryTestProvider });
 
 const mocks = vi.hoisted(() => ({
@@ -30,8 +34,6 @@ const mocks = vi.hoisted(() => ({
   getMemory: vi.fn(),
   mergeMemory: vi.fn(),
   generateId: vi.fn(),
-  toastSuccess: vi.fn(),
-  toastError: vi.fn(),
 }));
 
 vi.mock("@/contexts/LocalUserContext", () => ({
@@ -74,13 +76,6 @@ vi.mock("@/lib/service/userMemoryClient", () => ({
   UserMemoryClient: {
     getActiveMemoryContext: mocks.getMemory,
     mergeExtractedMemory: mocks.mergeMemory,
-  },
-}));
-
-vi.mock("sonner", () => ({
-  toast: {
-    success: mocks.toastSuccess,
-    error: mocks.toastError,
   },
 }));
 
@@ -261,7 +256,6 @@ describe("useCreateDiary", () => {
 
     expect(mocks.generateIllustration).not.toHaveBeenCalled();
     expect(mocks.add).toHaveBeenCalledTimes(2);
-    expect(mocks.toastSuccess).toHaveBeenCalledWith("日記を作成しました🎊");
   });
 
   it("本文のある各セクションに1枚生成する", async () => {
@@ -384,22 +378,21 @@ describe("useCreateDiary", () => {
     expect(mocks.add).not.toHaveBeenCalled();
   });
 
-  it("生成失敗時はStorage・Firestoreと完了通知を実行しない", async () => {
+  it("生成失敗時はFirestore・Storageへ書き込まずエラーを返す", async () => {
     mocks.cards = [createCard("桜を見ました")];
-    mocks.generateIllustration.mockRejectedValue(
-      new Error("generation failed"),
-    );
+    const error = new Error("generation failed");
+    mocks.generateIllustration.mockRejectedValue(error);
     const { result } = renderHook(() => useCreateDiary());
 
     await expect(
       act(async () => {
         await result.current.onSave("illustrated");
       }),
-    ).rejects.toThrow("generation failed");
+    ).rejects.toBe(error);
 
     expect(mocks.upload).not.toHaveBeenCalled();
     expect(mocks.add).not.toHaveBeenCalled();
-    expect(mocks.toastError).toHaveBeenCalledWith("日記の作成に失敗しました");
+    expect(getDiarySaveErrorMessage(error)).toBe("日記の作成に失敗しました");
     expect(result.current.creationProgress).toBeNull();
   });
 
@@ -461,7 +454,7 @@ describe("useCreateDiary", () => {
   });
 });
 
-describe("画像エラー通知", () => {
+describe("画像保存失敗", () => {
   it.each([
     [
       createDiaryImageError(
@@ -481,7 +474,7 @@ describe("画像エラー通知", () => {
       "画像を保存可能なサイズまで圧縮できませんでした。画像を小さくして追加してください",
     ],
     [new Error("network failed"), "日記の作成に失敗しました"],
-  ])("%sを通知し入力を維持する", async (error, message) => {
+  ])("%sを表示用の文言に変換し入力を維持する", async (error, message) => {
     const files = [
       new File(["first"], "first.jpg", { type: "image/jpeg" }),
       new File(["second"], "second.heic", { type: "image/heic" }),
@@ -494,10 +487,9 @@ describe("画像エラー通知", () => {
     await act(async () => {
       await expect(result.current.onSave("standard")).rejects.toBe(error);
     });
-    expect(mocks.toastError).toHaveBeenCalledWith(message);
+    expect(getDiarySaveErrorMessage(error)).toBe(message);
     expect(mocks.deleteMany).toHaveBeenCalledExactlyOnceWith([uploaded]);
     expect(mocks.add).not.toHaveBeenCalled();
-    expect(mocks.toastSuccess).not.toHaveBeenCalled();
     expect(mocks.cards).toBe(originalCards);
     expect(mocks.cards[0].images.map((image) => image.file)).toEqual(files);
     expect(result.current.creationProgress).toBeNull();

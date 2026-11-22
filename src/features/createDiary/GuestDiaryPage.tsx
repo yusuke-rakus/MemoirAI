@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { CircleCheck } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
   Navigate,
@@ -23,7 +24,6 @@ import {
 import { FadeContent } from "@/components/ui/fade-content";
 import { Label } from "@/components/ui/label";
 import { PATHS } from "@/constants/path";
-import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { useGoogleLogin } from "@/hooks/useGoogleLogin";
 import { useShortcut } from "@/hooks/useShortcut";
 import type { AppShellOutletContext } from "@/layout/AppShellLayout";
@@ -34,24 +34,42 @@ import { DiaryCreationProgressDialog } from "./components/DiaryCreationProgressD
 import { DiaryDatePicker } from "./components/DiaryDatePicker";
 import { DiarySaveButton } from "./components/DiarySaveButton";
 import { DiaryCardEditor } from "./components/editor/DiaryCardEditor";
+import { useDiaryWritingPrompt } from "./hooks/useDiaryWritingPrompt";
 import { useGuestDiary } from "./hooks/useGuestDiary";
 
 const GuestDiaryView = () => {
   const guest = useGuestDiary();
+  const writingPrompt = useDiaryWritingPrompt(guest.loaded && !guest.diary);
   const { login, isLoggingIn } = useGoogleLogin();
   const navigate = useNavigate();
   const [previewUrl, setPreviewUrl] = useState<string>();
+  const [bodyInvalid, setBodyInvalid] = useState(false);
   const allowNavigation = useRef(false);
+  const saveButtonRef = useRef<HTMLButtonElement>(null);
+  const resultHeading = useRef<HTMLHeadingElement>(null);
+  const saveRequested = useRef(false);
   const busy = guest.progress !== null;
   const frozen = busy || guest.hasPreparedResult || isLoggingIn;
+  const saveError = guest.createError ?? guest.draftError;
+  const saveLabel = guest.saveMode === "illustrated" ? "絵日記" : "日記";
   const blocker = useBlocker(
     () =>
       !allowNavigation.current &&
       !guest.diary &&
       Boolean(guest.draft.content.trim()),
   );
-  useDocumentTitle("日記を体験する");
-  useShortcut("save", () => void guest.create(), {
+  const handleSave = () => {
+    if (busy || isLoggingIn) return;
+    if (!guest.draft.content.trim()) {
+      setBodyInvalid(true);
+      document.getElementById("diary-body-guest")?.focus();
+      return;
+    }
+    saveRequested.current = true;
+    void guest.create();
+  };
+
+  useShortcut("save", handleSave, {
     enabled:
       guest.loaded &&
       !busy &&
@@ -66,6 +84,13 @@ const GuestDiaryView = () => {
     setPreviewUrl(url);
     return () => URL.revokeObjectURL(url);
   }, [guest.diary?.image]);
+
+  useEffect(() => {
+    if (guest.diary && saveRequested.current) {
+      resultHeading.current?.focus();
+      saveRequested.current = false;
+    }
+  }, [guest.diary]);
 
   const goToLogin = async () => {
     if (frozen) return;
@@ -102,6 +127,7 @@ const GuestDiaryView = () => {
 
   return (
     <MainLayout
+      title={guest.diary ? "日記を保存しました" : "日記を書く"}
       sidebarComponent={null}
       headerOffsetClassName="mt-14"
       headerComponent={
@@ -109,7 +135,7 @@ const GuestDiaryView = () => {
           <span className="text-xl font-bold">MemoirAI</span>
           <Button
             variant="outline"
-            disabled={frozen || guest.loadError}
+            disabled={frozen || Boolean(guest.loadError)}
             onClick={() => void goToLogin()}
           >
             ログイン
@@ -117,15 +143,40 @@ const GuestDiaryView = () => {
         </header>
       }
     >
-      <div className="space-y-6 px-2 py-8 sm:px-6">
-        <h1 className="!text-2xl leading-tight font-bold sm:!text-3xl">
-          あなたの一日を、日記にしてみよう
-        </h1>
+      <div className="mx-auto max-w-2xl space-y-3 px-2 pt-4 pb-8 sm:px-0 sm:pt-8">
+        {guest.diary ? (
+          <h1
+            ref={resultHeading}
+            tabIndex={-1}
+            className="flex items-center gap-2 !text-xl leading-tight font-semibold sm:!text-2xl"
+          >
+            <CircleCheck aria-hidden="true" className="size-5 shrink-0" />
+            このブラウザに日記を保存しました
+          </h1>
+        ) : (
+          <div className="flex flex-wrap items-center justify-between gap-1">
+            <h1 className="!text-2xl leading-tight font-semibold">
+              日記を書く
+            </h1>
+            {guest.loaded && (
+              <DiaryDatePicker
+                date={card.date}
+                disabled={frozen}
+                onSelect={(date) =>
+                  guest.setDraft((draft) => ({
+                    ...draft,
+                    date: date.toISOString(),
+                  }))
+                }
+              />
+            )}
+          </div>
+        )}
 
         {guest.loadError ? (
           <div className="space-y-3">
             <p role="alert" className="text-sm text-destructive">
-              {guest.error}
+              {guest.loadError}
             </p>
             <Button onClick={guest.retryLoad}>読み込みを再試行</Button>
           </div>
@@ -148,31 +199,31 @@ const GuestDiaryView = () => {
                 </FadeContent>
               )}
               <DiaryMarkdown>{guest.diary.content}</DiaryMarkdown>
-              <div className="space-y-3 border-t pt-5">
-                <Button disabled={frozen} onClick={() => void login()}>
-                  {isLoggingIn ? "ログイン中..." : "Googleでログインして保存"}
+              <div className="space-y-2 border-t pt-4">
+                <p className="text-sm text-muted-foreground">
+                  ログインすると、アカウントでもこの日記を見返せます。
+                </p>
+                <Button
+                  variant="outline"
+                  className="h-11"
+                  disabled={frozen}
+                  onClick={() => void login()}
+                >
+                  {isLoggingIn ? "ログイン中…" : "Googleでログインして引き継ぐ"}
                 </Button>
               </div>
             </article>
           </FadeContent>
         ) : (
           <>
-            <DiaryDatePicker
-              date={card.date}
-              disabled={frozen}
-              onSelect={(date) =>
-                guest.setDraft((draft) => ({
-                  ...draft,
-                  date: date.toISOString(),
-                }))
-              }
-            />
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  <Label htmlFor="diary-body-guest">
-                    今日の出来事を書き留めよう
-                  </Label>
+            <Card className="gap-3 py-4">
+              <CardHeader className="px-4 sm:px-5">
+                <CardTitle className="text-sm leading-snug font-medium">
+                  {writingPrompt ? (
+                    <p id="diary-body-guest-prompt">{writingPrompt}</p>
+                  ) : (
+                    <Label htmlFor="diary-body-guest">本文</Label>
+                  )}
                 </CardTitle>
               </CardHeader>
               <DiaryCardEditor
@@ -182,7 +233,10 @@ const GuestDiaryView = () => {
                 allowImageUpload={false}
                 allowTagEditing={false}
                 markdownEditorEnabled={false}
-                placeholder="今日はどんな一日でしたか？"
+                writingPromptId={
+                  writingPrompt ? "diary-body-guest-prompt" : undefined
+                }
+                error={bodyInvalid ? "本文を一言入力してください。" : undefined}
                 tagInput=""
                 onAddImages={() => ({
                   addedCount: 0,
@@ -194,18 +248,15 @@ const GuestDiaryView = () => {
                 onRemoveTag={() => undefined}
                 onTagInputChange={() => undefined}
                 onTagInputKeyDown={() => undefined}
-                onUpdateBody={(_, content) =>
-                  guest.setDraft((draft) => ({ ...draft, content }))
-                }
+                onUpdateBody={(_, content) => {
+                  if (content.trim()) setBodyInvalid(false);
+                  guest.setDraft((draft) => ({ ...draft, content }));
+                }}
               />
             </Card>
-            {guest.error && (
-              <p role="alert" className="text-sm text-destructive">
-                {guest.error}
-              </p>
-            )}
-            <div className="flex">
+            <div className="space-y-2">
               <DiarySaveButton
+                buttonRef={saveButtonRef}
                 saveMode={guest.saveMode}
                 createPhase={
                   !busy
@@ -218,18 +269,32 @@ const GuestDiaryView = () => {
                 idleLabel={
                   guest.hasPreparedResult
                     ? "端末への保存を再試行"
-                    : guest.saveMode === "illustrated"
-                      ? "絵日記を作成"
-                      : "日記を作成"
+                    : guest.createError
+                      ? `${saveLabel}の保存を再試行`
+                      : `${saveLabel}を端末に保存`
                 }
                 onSaveModeChange={guest.setSaveMode}
-                onSave={() => void guest.create()}
+                onSave={handleSave}
               />
+              {saveError && (
+                <p role="alert" className="text-sm text-destructive">
+                  {saveError}
+                </p>
+              )}
+              {guest.restoredDraft && (
+                <p className="text-sm text-muted-foreground">
+                  このブラウザの下書きを復元しました
+                </p>
+              )}
             </div>
           </>
         )}
       </div>
-      <DiaryCreationProgressDialog progress={guest.progress} />
+      <DiaryCreationProgressDialog
+        progress={guest.progress}
+        destination="browser"
+        returnFocusRef={saveButtonRef}
+      />
       <Dialog
         open={blocker.state === "blocked"}
         onOpenChange={(open) => {

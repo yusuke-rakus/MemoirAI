@@ -19,19 +19,21 @@ export const DiaryDatePicker = ({
   date,
   onSelect,
   disabled = false,
-}: DiaryDatePickerProps) => (
-  <div className="text-muted-foreground">
+}: DiaryDatePickerProps) => {
+  const dateLabel = format(date, "yyyy年M月d日");
+
+  return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
           type="button"
           variant="ghost"
-          className="h-11 gap-3 px-3 text-base font-medium tracking-tight text-muted-foreground hover:text-foreground sm:text-lg"
-          aria-label="日付を変更"
+          className="h-11 gap-2 px-2 font-medium text-muted-foreground hover:text-foreground"
+          aria-label={`日付を変更（${dateLabel}）`}
           disabled={disabled}
         >
-          <CalendarIcon className="h-5 w-5" />
-          {format(date, "yyyy年M月d日")}
+          <CalendarIcon aria-hidden="true" />
+          {dateLabel}
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -50,5 +52,5 @@ export const DiaryDatePicker = ({
         />
       </PopoverContent>
     </Popover>
-  </div>
-);
+  );
+};
