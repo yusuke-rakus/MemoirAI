@@ -14,7 +14,7 @@
 - themeは独自`useTheme`がdocument classを操作します。Sonnerは`next-themes/useTheme`を参照しますが、rootに`ThemeProvider`はありません。CSSはOKLCH・旧HSL・dark tokenが併存し、`tailwind.config.js`にも`hsl(var(...))`が残ります。FullCalendarの`--fc-border-color`は`--border`へ接続済みですが、同CSSに`hsl(var(...))`と`var(...)`が併存します。
 - spacing tokenと正式なtypography scaleは確立していません。
 - Login背景は一般UIとは別のbranding表現です。
-- LoginはGoogleログインを明記し、記録・AI整理・任意共有の3段階と利用条件の折りたたみ要約を表示します。legal画面の要約は全文を置き換えず、文書version・同意境界は維持します。
+- LoginはGoogleログイン、ゲスト作成、利用規約への導線を表示します。Walter名義の作例で本文の入力とAIによるタイトル・タグ付けを紹介し、カレンダーと月別一覧のプレビューをタブで切り替えられます。
 - キーボードfocusは`focus-visible`で表示し、reduced-motion時は装飾animationとsmooth scrollを抑止します。
 
 ## Interaction patterns
