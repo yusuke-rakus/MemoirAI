@@ -1,6 +1,6 @@
 # Firebase rules
 
-この文書はFirebase変更時の固定・準固定方針です。現在のサービス構成は`../project/firebase.md`、Firestore pathとfieldは`../project/firestore.md`を参照してください。
+この文書はFirebase変更時の固定・準固定方針です。現在のサービス構成は [Firebaseの入口](../project/firebase.md)、Firestoreのpathとfieldは [Firestoreの索引](../project/firestore.md) を参照してください。
 
 ## Initialization and access boundaries
 
@@ -23,15 +23,16 @@
 ## Security and data changes
 
 - user private dataはowner境界を明示し、Security Rulesで認証UIDとowner UIDを照合する。
-- 未認証公開は明示したresourceだけに限定し、公開範囲を推測で拡張しない。現在のpathとaccess matrixは`../project/firestore.md`を正本とする。
-- collection、document path、必須field、ownership、公開範囲を変える場合は、client、型、Firestore Rules、Storage Rules、seed、`../project/firestore.md`を一緒に確認する。
+- 未認証公開は明示したresourceだけに限定し、公開範囲は [Firestore Rules](../../firebase/firestore.rules) または [Storage Rules](../../firebase/storage.rules) で確認する。
+- collection、document path、必須field、ownership、公開範囲を変える場合は、client、型、Firestore Rules、Storage Rules、seedと [対象リソースの文書](../project/firestore.md#detailed-snapshots) を一緒に確認する。
+- 新しいユーザー専用コレクションを追加する場合は、[アカウント削除処理](../../src/lib/service/userAccountDataClient.ts) の `PRIVATE_COLLECTION_PATHS` に登録し、アカウント削除で対象のドキュメントが消えることを確認する。
 - Storage path、MIME、size制約を変える場合はclient-side validationとStorage Rulesを同期する。
 - 非正規化dataを変更する場合は、作成時だけでなく既存copyの同期・legacy fallback・削除時の扱いを確認する。
 - 本番data migrationの方式: `Not established`。migrationが必要なら既存dataの互換性とrollbackを先に設計する。
 
 ## Authentication
 
-- 認証必須routeと公開routeの境界を保ち、変更時は`../project/frontend.md`も確認する。
+- 認証必須routeと公開routeの境界を保ち、変更時は [routing](../project/frontend/routing.md) も確認する。
 - display nameなどAuthとFirestoreの両方に存在し得る値は、現在の優先順位を確認してから変更する。
 - display nameは一意なidentifierではなく重複可能な表示値として扱う。同期先をFirebase AuthやAI memoryへ広げる場合は、明示要件とmigration境界を先に確認する。
 - login/logout failureはユーザーへtoastで通知し、local user stateとtheme overrideのcleanupも確認する。
@@ -43,4 +44,4 @@
 - Emulator portが使用中なら、他processを無断停止せず一時config / portで検証する。
 - Firestore / Storage Rulesを変更したら、可能な範囲でEmulatorにより対象owner、非owner、未認証のcaseを確認する。
 - 検証範囲は[検証ルール](testing.md)に従い、対象resourceに限定する。
-- deployはHosting、Rules、Functionsを別scopeとして扱い、workflowの現在状態を`../project/firebase.md`で確認する。
+- deployはHosting、Rules、Functionsを別scopeとして扱い、workflowの現在状態は [Emulatorとデプロイ](../project/firebase/emulator-and-deployment.md#functions-and-deployment) で確認する。

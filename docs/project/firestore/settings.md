@@ -2,7 +2,7 @@
 
 snapshot metadataは`../firestore.md`を参照してください。
 
-clientsは`src/lib/service/userSettingsClient.ts`と`src/lib/service/userProfileClient.ts`です。
+実装は [UserSettingsClient](../../../src/lib/service/userSettingsClient.ts) と [UserProfileClient](../../../src/lib/service/userProfileClient.ts) を参照してください。
 
 ## `users/{uid}/settings/appearance`
 
@@ -17,7 +17,7 @@ clientsは`src/lib/service/userSettingsClient.ts`と`src/lib/service/userProfile
 
 `UserSettingsClient`はgeneric `Record<string, unknown>`をmergeし、`uid`を常に追加します。Rulesにfield / type制限はなく、存在しないdocumentへの部分updateで一部fieldだけのdocumentを作成できます。
 
-auth state復元でtheme / primary color / Markdown editor表示設定を読み、new-user migrationが欠損fieldをdefaultで補います。migration、`useTheme`、`usePrimaryColor`、`useMarkdownEditorSetting`がwriteします。`markdownEditorEnabled`の既定値は`false`です。
+[認証状態の復元](../../../src/hooks/useAuthCheck.ts) でtheme、primary color、Markdown editorの表示設定を読みます。[同意確認後の初期化](../firebase/auth.md#login-and-restoration) で欠損項目を補い、`markdownEditorEnabled` の既定値は `false` です。設定変更時は `useTheme`、`usePrimaryColor`、`useMarkdownEditorSetting` が書き込みます。
 
 ## `users/{uid}/settings/profile`
 
@@ -28,7 +28,6 @@ auth state復元でtheme / primary color / Markdown editor表示設定を読み�
 | `createdAt`   | date / timestamp | initializeまたは初回update                   |
 | `updatedAt`   | date / timestamp | initialize / update                          |
 
-- auth復元、login welcome、profile formでreadします。
-- new-user loginとProfileSettingsFormがwriteします。
-- display name更新は同じUIDのshared copiesも更新します。
-- Firebase Authの`displayName`は更新しません。
+- 認証状態の復元時に読み、[プロフィールフォーム](../../../src/components/shared/header/ProfileSettingsForm.tsx) は `LocalUserContext` の表示名を使用します。
+- 同意確認後の初期化で、profileがなければFirebase Authの表示名を元に作成します。
+- プロフィールフォームから表示名を変更すると、Firestoreのprofileと同じUIDの共有日記を更新します。Firebase Authの `displayName` は更新対象外です。

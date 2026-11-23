@@ -4,9 +4,9 @@
 
 ## Execution boundary
 
-- commit、branch作成、Pull Request作成は、ユーザーから明示的な指示があった場合だけ行う。
-- 指示を受けたら対象差分を確認し、依頼された操作だけを行う。
-- 実装完了をGit操作の許可と解釈しない。
+- branchの作成・切り替え、commit、push、PRの作成・更新、tag操作は、ユーザーが明示した作業範囲で行う。複数の操作をまとめて依頼された場合は、その範囲内で続けて実行する。
+- PR作成だけを依頼された場合は、公開済みのhead branchから作成する。準備に追加のbranch作成・切り替え、commit、pushが必要なら、その操作の依頼を受けてから実行する。
+- 作業は開始時のワークツリーで進める。別ワークツリーの作成・利用には明示的な依頼が必要。
 
 ## Commit
 
@@ -27,7 +27,7 @@ improve: XXの操作性を改善
 ## Branch
 
 - 1 branchは一つの機能・改善など、一つの作業単位にする。
-- branch名は`feature/*`または`improve/*`を使い、`*`は英語のkebab-caseにする。
+- branch名は `feature/*` または `improve/*` を使い、`*` は英語のkebab-caseにする。機能追加は `feature/*`、改善・修正や保守は `improve/*` を目安とする。
 
 例: `feature/diary-search`、`improve/settings-dialog`
 

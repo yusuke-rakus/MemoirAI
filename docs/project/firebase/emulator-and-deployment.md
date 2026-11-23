@@ -16,11 +16,15 @@ snapshot metadataは`../firebase.md`を参照してください。
 - 初回development起動時にbrowser consoleへ表示されるApp Check debug tokenをFirebase ConsoleのWeb appへ登録します。debug tokenは`.env`、GitHub Actions、sourceへ保存しません。
 - `docker compose up -d`はNode 22 + Java 21 imageを使い、Firebase CLI versionは未固定です。
 - Emulator dataのimport / export永続化はありません。
+- `pnpm test:rules`は起動済みFirestore / Storage Emulatorへ接続し、account削除用Rulesを検証します。
+
+### Seed
+
+- 投入するユーザーとデータは [`scripts/seedData.json`](../../../scripts/seedData.json) で設定します。ユーザーを追加する場合はUIDとメールアドレスの重複を避けます。
 - `pnpm seed`は3 Emulatorの到達性を確認し、本番へfallbackしません。
 - seedはAdmin SDKとStorage Emulator JSON APIを使い、Web clientとRulesを経由しません。
-- 対象userのAuth accountと`users/{uid}`を再作成し、Storage `users/{uid}/`は削除します。
-- seedするFirestore dataと未作成dataは`../firestore/security-and-seed.md`を参照します。
-- `pnpm test:rules`は起動済みFirestore / Storage Emulatorへ接続し、account削除用Rulesを検証します。
+- [seed処理](../../../scripts/seed.ts)は対象ユーザーのAuthアカウント、Firestoreの `users/{uid}` 以下、Storageの `users/{uid}/` 以下を削除します。その後、Authアカウントと定義済みのFirestoreデータを再作成します。Storageは削除のみです。
+- Firestoreの投入先と削除範囲の詳細は [Emulator seed coverage](../firestore/security-and-seed.md#emulator-seed-coverage) を参照してください。
 
 ## Functions and deployment
 

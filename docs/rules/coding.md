@@ -1,6 +1,6 @@
 # Coding rules
 
-この文書は固定・準固定の実装方針です。作業範囲と未コミット変更の扱いは`AGENTS.md`、現在の配置は`../project/repository-map.md`を正本とします。
+この文書は固定・準固定の実装方針です。作業範囲と未コミット変更の扱いは [AGENTS.md](../../AGENTS.md) を参照してください。
 
 ## React and state
 
@@ -33,7 +33,8 @@
 - 共有UI、型、hook、state、utilityは現在の複数consumerと責務を確認してapp-wide層へ切り出す。
 - layoutはfeature entryを構成できますが、feature固有logicを所有しない。
 - componentはPascalCase、hookは`use` prefix、既存data-access classは`*Client`に合わせる。
-- import順と包括的なfile naming規則: `No explicit convention found`。
+- TS / TSXのimport・export順は [ESLint設定](../../eslint.config.js) の `simple-import-sort/imports` と `simple-import-sort/exports` が検査する。
+- ファイル全般に適用する命名規則は `No explicit convention found`。
 - 無関係な既存fileを今回の命名に合わせてrenameしない。
 
 ## Error handling
@@ -48,5 +49,5 @@
 
 - Prettierと`prettier-plugin-tailwindcss`に従い、条件付きclassは`cn`を使う。
 - format-onlyの変更は機能変更と分離する。
-- 配置は`../project/repository-map.md`、目標境界は`../architecture/frontend.md`と`../architecture/data-access.md`を確認する。
+- ファイルの追加・移動時に配置先を判断するには [配置マップ](../project/repository-map.md) を参照する。層の責務や依存を変える場合は [Frontend設計](../architecture/frontend.md)、外部I/Oの境界を変える場合は [データアクセス設計](../architecture/data-access.md) を参照する。
 - 現在の逸脱を前例にせず、無関係な変更で一括refactorしない。

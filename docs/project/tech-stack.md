@@ -1,6 +1,6 @@
 # 技術構成の入口
 
-従来snapshot確認: 2026-08-20、`5f27069`（配下にも適用）。現在のversion・scripts・設定は `package.json`、`pnpm-lock.yaml`、各設定が正本です。
+初回調査の基準は2026-08-20の `5f27069` です。現在のバージョン・スクリプト・設定は [package.json](../../package.json)、[pnpm-lock.yaml](../../pnpm-lock.yaml) と各ツールの設定で確認してください。
 
 React / TypeScript / Vite / React Router、Tailwind / shadcn / Radix、Zustand / Context / TanStack Query、react-hook-form / zod、Firebase Web SDKを使用します。
 
