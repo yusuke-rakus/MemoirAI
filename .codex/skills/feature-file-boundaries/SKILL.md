@@ -21,43 +21,13 @@ MemoirAI において、責務が混在したファイルを特定し、挙動�
 
 ## 調査の準備
 
-1. 最初に `git status --short` を確認して current working tree を把握する。未コミット変更を自動的に対象外にはせず、依頼範囲と実際の差分から調査対象を決める。
-2. `AGENTS.md` を読み、索引が必要な場合だけ `docs/index.md` を参照する。コード変更を伴う提案または実装では、`docs/rules/coding.md` と `docs/workflows/refactoring.md` も読む。
-3. 対象層に応じて、関連する architecture と project snapshot を読む。配置は `docs/project/repository-map.md`、frontend の責務は `docs/architecture/frontend.md`、外部 I/O は `docs/architecture/data-access.md` を正本とする。
-4. LOC は読む順番を決める目安に留める。対象ファイル、近接実装、consumer、import 方向、公開 props / public method を読んで判断する。
+1. `git status --short` でワークツリーを確認し、依頼と差分から対象を決める。
+2. [AGENTS.md](../../../AGENTS.md) と [ファイルの責務分割の基準](../../../docs/rules/coding.md#file-responsibility-boundaries) を読む。配置案には [配置マップ](../../../docs/project/repository-map.md)、層をまたぐ変更には [Frontend設計](../../../docs/architecture/frontend.md) または [データアクセス設計](../../../docs/architecture/data-access.md) を参照する。
+3. 対象と近接実装、consumer、import方向、公開propsやmethodを確認する。co-changeを根拠にする場合は対象の差分履歴を確認する。共通の成功条件・失敗条件を変更した際に、同じ箇所を一緒に変える必要があるかを調べる。
 
-現在の実装から確認できない規約や設計意図は推測せず、`Not established` または `No explicit convention found` と記す。
+生成コードや設定表などでは、ファイルの長さが単一の成果物に由来するかを確認する。
 
-## 分割判断
-
-次の観点で、同じファイル内の責務群が独立して変更され得るかを確認する。
-
-- **変更理由:** 別のユーザー目的、別の画面・操作、または別のドメイン規則が同居していないか。
-- **層・外部境界:** UI composition、feature hook / use-case、純粋ロジック、Firebase・Storage・browser persistence gateway が混在していないか。
-- **状態の所有:** state、副作用、非同期処理、Dialog state が最小の owner にあり、同じ生存期間・更新契機を共有しているか。
-- **consumer と contract:** 呼び出し元、依存方向、public props / method が同じ変更単位として扱われているか。複数 consumer がないものを早期に shared 化していないか。
-- **co-change:** 同時に変更される根拠があるか。単に近接している、または名前が似ていることは根拠にしない。
-
-次の場合は明確な分割候補とする。
-
-- 別のユーザー目的または domain の UI・state・操作が、共通の薄い shell なしに同居する。
-- gateway に、外部 I/O と再利用可能な純粋変換・業務規則が混在する。
-- hook / use-case に、無関係な workflow、状態、補償処理が同居し、個別にテスト・再利用・変更できる。
-- component が rendering を越えて複数 feature の data access や長寿命 state を所有する。
-
-次の場合は分割不要または保留とする。
-
-- 一つのユーザー目的を完結させる page / dialog の orchestration であり、内部の処理が同じ成功条件・失敗条件・ライフサイクルを共有する。
-- shader、生成コード、設定表など、ファイル量の大半が単一の技術的成果物である。
-- 分割後に props の中継、循環 import、単一 consumer 向けの不自然な抽象化だけが増える。
-
-## MemoirAI の配置境界
-
-- component は UI composition、入力、ユーザー操作の通知を中心にする。複雑な state、副作用、非同期処理は feature hook に置く。
-- feature hook / use-case は複数 gateway の順序、成功条件、再試行、補償処理を所有する。toast、navigation、Dialog state は gateway に持ち込まない。
-- 純粋な変換・名寄せ・validation・計算は、外部 I/O gateway から分離する。新しい shared utility は実際の複数 consumer と責務を確認してから作る。
-- Firestore、Storage、Auth、AI、localStorage、IndexedDB は resource または外部境界ごとの client / gateway に閉じ込める。SDK 固有型を上位層へ漏らさない。
-- `src/features/<feature>` から別 feature を import しない。feature 固有のコードは当該 feature に置き、複数 feature または app shell が使う app 固有 UI だけを `src/components/shared` に置く。
+実装を依頼された場合は [リファクタリング手順](../../../docs/workflows/refactoring.md) に従う。
 
 ## ディレクトリとテストの配置
 
@@ -83,5 +53,3 @@ MemoirAI において、責務が混在したファイルを特定し、挙動�
 - 新旧 consumer をつなぐ最小 public interface。不要な汎用化や feature 間 import は作らない
 - 互換性を維持する移行順。不変とする props、route、Firestore / Storage contract、loading・error・成功時の挙動
 - 対象に近いテスト、静的 check、必要な手動 flow
-
-実装を依頼された場合は、候補ごとに scope を確定してから小さく移行する。分割だけが目的の変更では、route、Firestore / Storage path・field、Security Rules、user-visible behavior を変えず、既存 failure と今回の回帰を分けて報告する。

@@ -30,5 +30,6 @@
 
 - formatは変更した実pathだけに `pnpm exec prettier --check <変更ファイル>` を実行する。検証目的で全体を書き換える `pnpm format` / `pnpm lint:fix` を使わない。
 - trackedのunstaged差分は `git diff --check`、staged差分は `git diff --cached --check`。未追跡ファイルは直接確認と対象format checkを使う。
-- 実行commandと結果、warning、未実行項目と理由を簡潔に報告する。失敗は今回の回帰・既存・環境要因に分ける。
+- 文書の移動・改名やリンクの追加・変更時は、影響する相対リンクとアンカーの参照先を確認する。
+- 変更の要点、実行commandと結果、warning、未実行項目と理由を簡潔に報告する。失敗は今回の回帰・既存・環境要因に分ける。
 - browser・Emulator・productionの未確認をsource inspectionで確認済みとしない。必要な検証を実行できない場合は代替確認と残るriskを記す。

@@ -5,7 +5,7 @@ description: MemoirAI の変更をプロジェクト規約に沿ったブラン�
 
 # Git変更整理とPR作成
 
-MemoirAI の作業ツリーをレビュー可能なコミットと GitHub PR に整理する。PR作成を依頼された場合は、必要なbranch作成・切り替え、commit、pushも依頼の範囲として実行する。通常の実装依頼やスキルの選択だけをGit操作の許可と解釈せず、すでに明示された許可を重ねて確認しない。
+MemoirAI の変更をレビュー可能なコミットと GitHub PR にまとめる。[Gitの実行範囲](../../../docs/rules/git.md#execution-boundary) に従い、依頼に含まれる操作の手順を使う。
 
 ## 準備と対象差分
 
@@ -16,13 +16,12 @@ MemoirAI の作業ツリーをレビュー可能なコミットと GitHub PR に
 
 ## base と branch
 
-- MemoirAI の通常PRの base は `development`（開発ブランチの正式名）。ユーザーの明示指定があれば優先し、それ以外は `docs/rules/git.md` に従う。GitHub の default branch / `origin/HEAD` が `main` でもPR先には採用しない。指定名が実在名と異なる場合はbranch一覧と文脈を確認し、判定できなければ確認する。base が存在しない・取得できない場合は停止し、`main` や別branchへfallbackしない。
-- remote とその接続先を確認し、選んだ remote/base を fetch して比較を更新する。fetch・認証・ネットワークに失敗した場合は、古い ref で最新確認済みと報告せず、依存する操作を止める。
-- PR作成時は現在のワークツリーを使い、現在のbranchにかかわらず、fetchで最新化したbaseのremote refから新規branchを作成する。別ワークツリーや別cloneは使用しない。新規 branch は`feature/<english-kebab-case-summary>` または `improve/<english-kebab-case-summary>` とする。機能追加は `feature/`、既存機能の改善・修正やその他の保守は `improve/` を目安に、一つの作業単位を表す具体名を選ぶ。
-- 既存PRの更新・継続を依頼された場合は、そのhead branchを確認して再利用する。新規PRのためのbranch作成に別途許可を求めない。
-- default/base branch への直接 commit・push はこの PR ワークフローでは行わない。新規 branch が必要な場合は、変更を安全に維持できる方法を選ぶ。退避・復元が必要なら未追跡ファイルも保護し、復元を確認するまで退避を破棄しない。競合したら変更を保持して止める。
-- 同名 branch や無関係な既存 commit があれば目的と履歴を確認する。履歴を勝手に rebase、reset、amend、削除して整えない。対象外 commit を含む PR になる場合は、含め方を確認する。
-- PR 作成前に、対象リポジトリを指定した `gh pr list --head <branch> --state open` で重複を確認する。同じ head/base の PR は再利用して URL を報告し、本文更新は依頼範囲内の場合だけ行う。異なる base の既存 PR は勝手に宛先を変更しない。
+- 新規PRでは [PRのbase規則](../../../docs/rules/git.md#pull-request) に従ってbaseを確定する。指定名が実在名と異なる場合はbranch一覧と文脈を確認し、判断できなければ確認する。
+- remoteと接続先を確認し、baseをfetchする。公開済みheadから作成する場合はheadもfetchする。取得できない場合は、最新の比較結果が必要な操作を止める。
+- 新規PR用のbranch作成も依頼されていれば、現在のワークツリーで最新化したbaseのremote refから [命名規則](../../../docs/rules/git.md#branch) に従って作成する。PR作成のみで、公開済みheadに依頼の差分が揃っていなければ、必要な操作を示して止める。
+- default/base branchへの直接commit・pushはこの手順の対象外。新規branchに変更を移す場合は未追跡ファイルも保護し、復元を確認してから退避を破棄する。競合したら変更を保持して止める。
+- 同名branchや無関係な既存commitがあれば目的と履歴を確認する。rebase、reset、amend、branch削除で履歴を整理する前に依頼範囲を確認する。対象外のcommitを含むPRになる場合は、含め方を確認する。
+- PR作成前に、対象リポジトリを指定して `gh pr list --head <branch> --state open` で重複を確認する。同じhead/baseのPRがあればURLを報告し、更新は依頼の範囲で行う。異なるbaseのPRがあれば状況を確認する。
 
 ## 論理単位の commit
 
@@ -41,15 +40,13 @@ MemoirAI の作業ツリーをレビュー可能なコミットと GitHub PR に
 
 ## 変更に応じた検証
 
-検証範囲・command・テスト設計・結果報告は [検証ルール](../../../docs/rules/testing.md) を正本とする。追加・変更したテストと直接影響する確認だけを実行し、全テスト・全体lint・buildを定型実行しない。commit / PRのためだけに成功済みの検証を繰り返さず、実行後の変更や未解決の懸念がある場合だけ再確認する。存在しないscriptを他projectから持ち込まない。
-
-- 今回の回帰は依頼範囲内で修正して再検証する。既存・環境由来の失敗は無関係な修正へ広げない。必要な検証が未完了なら Ready PR にせず、原因と残る確認を明示する。ユーザーが Draft PR を依頼している場合は、その状態で作成できる。
+[検証ルール](../../../docs/rules/testing.md) に従う。必要な検証が未完了のときはReadyでの作成を保留し、理由と残る確認を示す。Draft PRを依頼されている場合はDraftで作成できる。
 
 ## push と PR
 
-1. push・PR 作成が依頼されていることと `gh auth status` を確認する。base が `development` またはユーザーの明示指定先であること、remoteに実在することを再確認する。対象変更が commit 済みで、そのbaseとの差分・commit 列に対象外変更や競合がないことを確認する。対象外の未コミット変更は削除せず残してよい。
-2. `git log <remote>/<base>..HEAD --oneline` と `git diff <remote>/<base>...HEAD` を確認する。正しい head・base・接続先を使い、`git push --set-upstream <remote> <branch>` で通常 push する。force push はしない。
-3. PR タイトルは最終差分全体を表す `type: 日本語の具体的な変更内容` とする。本文は日本語で、次の項目から変更に必要な情報を記す。
+1. PRを作成する場合は `gh auth status` とbaseの実在を確認する。pushする場合はローカルbranch、公開済みbranchから作成する場合は取得したremoteのbranchをheadとして、`git log <remote>/<base>..<head> --oneline` と `git diff <remote>/<base>...<head>` を確認する。対象変更が揃い、対象外のcommitや差分が混ざっていないことを確かめる。
+2. pushも依頼されていれば、対象のcommitと接続先を確認して `git push --set-upstream <remote> <branch>` で通常pushする。force pushは行わない。PR作成前に、公開されたheadが確認したcommitと一致することを確かめる。
+3. PRタイトルは最終差分を表す `type: 日本語の具体的な変更内容` とする。本文は日本語で、次の項目から変更に必要な情報を記す。
 
    ```markdown
    ## 変更概要・理由
@@ -64,10 +61,14 @@ MemoirAI の作業ツリーをレビュー可能なコミットと GitHub PR に
    ```
 
 4. 本文は一時ファイルへ正確な改行で保存し、`gh pr create --base <base> --head <branch> --title <title> --body-file <file>` を使う。Draft 指定があれば `--draft` を付ける。結果が不明な失敗では既存 PR を再確認してから再試行し、重複を作らない。
-5. 作成した PR は利用可能な `attach_artifact` ツールでこのチャットへ添付する。既存 PR の更新・継続を依頼された場合も添付する。
+5. チャットにPRを添付できる環境では、作成・更新したPRを添付する。
 6. `gh pr view` で URL・`baseRefName`・head・Draft 状態を取得し、`baseRefName` が確定したbaseと一致することを確認する。不一致は完了扱いにせず、作成したPRがopenなら `gh pr edit --base <確定したbase>` で訂正して再確認する。merged / closedなら変更せず状況を報告する。required checks がある場合はすべての成功を確認する。pending は成功と報告しない。PR 向け check がない場合もローカル検証結果を報告する。
 
 PR の merge、Ready 状態への変更、branch 削除、deploy は別途明示的に依頼された場合だけ行う。現在の Hosting workflow は `main` への push で deploy するため、PR 作成に伴って merge や直接 push を追加しない。実行時には最新の workflow を確認する。
+
+## 既存PRの更新
+
+依頼されたPRの番号またはURLで `gh pr view` を実行し、リポジトリ・head・baseを確認する。変更する項目に応じて `gh pr edit` を使い、依頼範囲内で差分を追加する場合は、そのPRのhead branchを使用する。PRの読み取りと更新には、確認したリポジトリを指定する。更新後に対象項目を再確認する。
 
 ## 完了報告
 

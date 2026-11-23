@@ -1,10 +1,10 @@
 # Frontendの入口
 
-従来snapshot確認: 2026-08-14、`da479d8`（配下にも適用）。その後の変更は各詳細文書を参照し、現在状態はコードを優先します。
+初回調査の基準は2026-08-14の `da479d8` です。各詳細文書は変更があった箇所を個別に更新しています。現在の実装は関連するコードで確認してください。
 
 ## 起動とProvider
 
-正本は `src/main.tsx` と `src/App.tsx`。
+Providerとrouteの構成は [main.tsx](../../src/main.tsx) と [App.tsx](../../src/App.tsx) を参照してください。
 
 ```text
 StrictMode → RouterProvider → QueryClientProvider → TooltipProvider

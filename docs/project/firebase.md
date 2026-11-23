@@ -1,10 +1,10 @@
 # Firebaseの入口
 
-従来snapshot確認: 2026-08-20、`5f27069` + working tree（配下にも適用）。現在状態はコード・設定を優先します。
+初回調査は2026-08-20の `5f27069` と当時のworking treeを基準としています。現在の設定や挙動は関連するコード・設定で確認してください。
 
 ## 初期化
 
-- `src/lib/env.ts` が `VITE_*` を読み、`src/firebase/firebase.ts` がApp → App Check → Auth / Firestore / Storageを初期化する。環境変数名はtracked template `.env.example`、実値はGit管理外の `.env`。
+- [env.ts](../../src/lib/env.ts) が `VITE_*` を読み、[firebase.ts](../../src/firebase/firebase.ts) がApp → App Check → Auth / Firestore / Storageを初期化する。環境変数名は [.env.example](../../.env.example)、実値はGit管理外の `.env`。
 - Analyticsは未初期化（measurementIdを渡すだけ）。Realtime Database / Messagingの利用は確認できない。
 
 ## 必要な詳細だけを読む

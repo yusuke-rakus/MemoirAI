@@ -13,17 +13,17 @@ pnpm seed
 pnpm dev
 ```
 
-フロントは http://localhost:13000、Firebase Emulator UIは http://localhost:14000 で開きます。他PJとの同時起動用に、Firestoreは `18080`、Authは `19099`、Storageは `19199` を使用します。
+フロントは http://localhost:13000、Firebase Emulator UIは http://localhost:14000 で開きます。
 
 `pnpm seed` は起動済みAuth / Firestore / Storage Emulator専用です。投入内容は `scripts/seedData.json` で編集します。シードユーザーはGoogleログインのpopupから選択できます。
 
 - UID: `memoir-ai-development-user`
 - メール: `developer@memoir-ai.local`
 
-ユーザー追加時は `users` 配列でUID・メールの重複を避けます。再seedでは定義したユーザーのAuthデータ、Firestore `users/{uid}` 以下、Storage `users/{uid}/` 以下を削除・再作成します。他ユーザーは削除しません。
+再seedでは対象ユーザーのAuthアカウントとFirestoreの `users/{uid}` 以下を削除し、seedデータを作り直します。Storageの `users/{uid}/` 以下は削除のみです。詳細は [Emulatorのseed手順](docs/project/firebase/emulator-and-deployment.md#seed) を参照してください。
 
 ## 検証・ビルド
 
-変更したテストは `pnpm exec vitest run <対象.test.ts>` で実行します。全体検証を定型実行せず、[検証ルール](docs/rules/testing.md)から必要な確認を選びます。本番用buildは `pnpm build`。
+テストの選び方と実行コマンドは [検証ルール](docs/rules/testing.md) を参照してください。本番用buildは `pnpm build`。
 
 エージェント向け入口は [AGENTS.md](AGENTS.md)、文書索引は [docs/index.md](docs/index.md)。

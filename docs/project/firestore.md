@@ -1,8 +1,8 @@
 # Current Firestore map
 
-最終確認: 2026-08-14、検証対象のsource snapshot `da479d8`。このmetadataは`firestore/`配下にも適用します。
+調査の基準点は 2026-08-14、`da479d8` です。現在のpathとfieldは各詳細が参照する実装と型を確認してください。アクセス範囲と開発データは [Firestore Rules](../../firebase/firestore.rules) と [seed処理](../../scripts/seed.ts) で確認できます。
 
-code、types、Security Rules、seedから確認できる現在状態です。Firebase全体は`firebase.md`を参照してください。
+サービス横断の資料は [Firebaseの入口](firebase.md) を参照してください。
 
 ## Path overview
 
@@ -26,10 +26,10 @@ sharedDiaries/{shareId}
 
 ## Detailed snapshots
 
-- diary fields、query、writer: `firestore/diaries.md`
-- favorite fields、read / write: `firestore/favorites.md`
-- appearanceとprofile settings: `firestore/settings.md`
-- long-term memory: `firestore/memory.md`
-- shared diaryと同期境界: `firestore/sharing.md`
-- 利用規約等の同意証跡: `firestore/legal-consent.md`
-- Security Rules、index、seed: `firestore/security-and-seed.md`
+- [日記のfield・query・書き込み](firestore/diaries.md)
+- [お気に入りのfield・読み書き](firestore/favorites.md)
+- [外観とプロフィールの設定](firestore/settings.md)
+- [長期記憶](firestore/memory.md)
+- [共有日記と同期境界](firestore/sharing.md)
+- [利用規約等の同意証跡](firestore/legal-consent.md)
+- [Security Rules・index・seed](firestore/security-and-seed.md)
